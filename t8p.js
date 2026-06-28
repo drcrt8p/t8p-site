@@ -771,6 +771,9 @@
     var oc = document.getElementById('t8p-cursor');
     if (oc) oc.remove();
 
+    /* state vars for scrub/cursor */
+    var state = 'paused', scrubPct = 0, scrubLineRef = null;
+
     var DATA = window._t8pDATA || {};
     var sl = location.pathname.replace(/[/]/g,'');
     var d = DATA[sl] || {v:[],t:'',d:'',r:'',c:{}};
@@ -799,8 +802,31 @@
         cur.style.left = e.clientX+'px'; cur.style.top = e.clientY+'px';
         var elAt = document.elementFromPoint(e.clientX,e.clientY);
         var onOv = elAt && elAt.id==='t8p-ov';
-        cur.style.opacity = onOv ? '1' : '0';
-        cur.innerHTML = onOv ? PSSVG : PSVG;
+        var onScr = elAt && (elAt.id==='t8p-scrub-line' || elAt.id==='t8p-scrub-time');
+        var onVid = onOv || onScr;
+        var onUI = !!(elAt && elAt.closest && (
+          elAt.closest('#t8p-pp-wm') ||
+          elAt.closest('#t8p-topbar') ||
+          elAt.closest('#t8p-btns') ||
+          elAt.closest('.t8p-credits-section') ||
+          elAt.closest('#t8p-dock') ||
+          elAt.closest('#t8p-panel-topbar')
+        ));
+        if (onUI) {
+          cur.style.opacity = '1';
+          cur.style.width = '8px';
+          cur.style.height = '8px';
+          cur.innerHTML = '';
+        } else {
+          cur.style.width = '';
+          cur.style.height = '';
+          cur.style.opacity = onVid ? '1' : '0';
+          cur.innerHTML = onVid ? (state === 'playing' ? PSSVG : PSVG) : '';
+        }
+        if (onScr && scrubLineRef) {
+          var rect = scrubLineRef.getBoundingClientRect();
+          scrubPct = Math.max(0, Math.min(1, (e.clientX-rect.left)/rect.width));
+        }
       });
     }
 
@@ -842,6 +868,7 @@
     var scrubLine = el('div',{id:'t8p-scrub-line'});
     scrubLine.appendChild(el('div',{id:'t8p-scrub-time'}));
     pp.appendChild(scrubLine);
+    scrubLineRef = scrubLine;
 
     /* credits */
     if (Object.keys(credits).length > 0) {
@@ -937,8 +964,12 @@
         var vf=el('div',{className:'t8p-panel-vframe'});
         var hash=hashes[String(vid)]?'?h='+hashes[String(vid)]:'';
         var ifr=document.createElement('iframe');
-        ifr.src='https://player.vimeo.com/video/'+vid+hash+'&background=0&autoplay=0&loop=0&title=0&byline=0&portrait=0';
-        ifr.allow='autoplay;fullscreen'; ifr.allowFullscreen=true;
+        var isYT=String(vid).indexOf('yt:')===0;
+        var ytId=isYT?String(vid).slice(3):null;
+        ifr.src=isYT
+          ?'https://www.youtube-nocookie.com/embed/'+ytId+'?rel=0&modestbranding=1'
+          :'https://player.vimeo.com/video/'+vid+hash+'&background=0&autoplay=0&loop=0&title=0&byline=0&portrait=0';
+        ifr.allow='autoplay;fullscreen;encrypted-media'; ifr.allowFullscreen=true;
         vf.appendChild(ifr); vblock.appendChild(vf); vgrid.appendChild(vblock);
       });
       vsec.appendChild(vgrid); pbody.appendChild(vsec);
