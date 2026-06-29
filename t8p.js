@@ -1,5 +1,5 @@
 /* ============================================================
-   T8P STUDIOS — Site Script v9.1
+   T8P STUDIOS — Site Script v9.2
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
    ============================================================ */
@@ -571,7 +571,7 @@
     });
 
     /* Sort by Squarespace page priority — top of list = inner ring */
-    var PRIORITY = ['microsoft','sotano','calvinklein','woxerpolaroid','brooklinen','arena','laboca','micasaestucasa','mauryricky','hers','pbpm','woxer','t8pcommercial','787coffee','reglamento','ekka','ddlp','classy101','reglamento-1','txtrano','rubirose','doritos','dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
+    var PRIORITY = ['microsoft','sotano','calvinklein','laboca','brooklinen','ekka','woxerpolaroid','micasaestucasa','mauryricky','hers','pbpm','woxer','t8pcommercial','787coffee','reglamento','arena','ddlp','classy101','reglamento-1','txtrano','rubirose','doritos','dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
     items.sort(function(a,b){
       var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
       if (ai === -1) ai = 999; if (bi === -1) bi = 999;
@@ -618,12 +618,29 @@
           }
         });
     }
-    /* stagger fetches - 5 concurrent bursts */
+    /* For video cards: use Vimeo thumbnail directly (reliable, correct frame)
+       For photo cards: scrape page HTML */
     var allCells = Array.from(document.querySelectorAll('.t8p-cell'));
     allCells.forEach(function(cell, i) {
       var slug = (cell.getAttribute('href')||'').replace(/[/]/g,'');
       if (!slug) return;
-      setTimeout(function(){ fetchThumb(cell, slug); }, i * 80);
+      var d = (window._t8pDATA||{})[slug]||{};
+      var vids = d.v||[];
+      if (vids.length > 0) {
+        /* Video project: use Vimeo thumbnail as poster -- correct frame, always */
+        var vid = typeof vids[0]==='string'?parseInt(vids[0],10):vids[0];
+        var img = cell.querySelector('img');
+        if (img) {
+          img.src = 'https://vumbnail.com/'+vid+'.jpg';
+          img.onerror = function(){
+            /* Private video fallback: scrape page for real thumbnail */
+            fetchThumb(cell, slug);
+          };
+        }
+      } else {
+        /* Photo project: scrape page */
+        setTimeout(function(){ fetchThumb(cell, slug); }, i * 80);
+      }
     });
   }
 
@@ -681,7 +698,7 @@
     /* Priority order — center-first, David's swaps applied */
     var PRIORITY = [
       /* CENTER (innermost) -- sotano replaces hers, arena moved in, brooklinen replaces doritos */
-      'microsoft','sotano','calvinklein','woxerpolaroid','brooklinen','arena','laboca',
+      'microsoft','sotano','calvinklein','laboca','brooklinen','ekka','woxerpolaroid',
       /* MIDDLE RING -- hers and doritos pushed here */
       'micasaestucasa','mauryricky','hers','pbpm','woxer','t8pcommercial',
       '787coffee','reglamento','doritos','ddlp',
@@ -740,9 +757,11 @@
       var rotX = (py-cy)/cy * 7;
       var rotZ = (Math.random()-0.5) * 2.5; /* slight random roll */
 
-      /* native aspect ratio */
+      /* native aspect ratio -- default 16:9 for video, known 4:3 overrides */
       var rawRatio = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || it.ratio || 0;
       var defR = rawRatio > 0 ? (1/rawRatio) : (9/16);
+      var RATIO_43 = {woxerpolaroid:1,pbpm:1,hers:1,rubirose:1};
+      if (!rawRatio && RATIO_43[it.slug]) defR = 3/4;
       /* card width fits in cell */
       var baseW = Math.min(cellW * 1.18, 360); /* 25% larger so edges visible on pan */
 
