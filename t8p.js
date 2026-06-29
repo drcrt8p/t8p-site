@@ -1,5 +1,5 @@
 /* ============================================================
-   T8P STUDIOS — Site Script v9.6
+   T8P STUDIOS — Site Script v9.7
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
    ============================================================ */
@@ -57,7 +57,7 @@
       'body.is-home #siteWrapper,body.is-home #page,body.is-home #header,.is-home #siteWrapper{display:none!important}',
 
       /* ── 3D sphere (desktop) ── */
-      '#t8p-world{position:absolute;inset:0;z-index:100;perspective:1400px;',
+      '#t8p-world{position:absolute;inset:0;z-index:100;perspective:1200px;',
       'perspective-origin:50% 50%;transform-style:preserve-3d}',
       '#t8p-sphere{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform}',
 
@@ -568,7 +568,7 @@
     });
 
     /* Sort by Squarespace page priority — top of list = inner ring */
-    var PRIORITY = ['calvinklein','sotano','microsoft','laboca','skechers','brooklinen','woxerpolaroid','micasaestucasa','hers','doritos','t8pcommercial','787coffee','arena','pbpm','mauryricky','ddlp','classy101','reglamento-1','txtrano','woxer','rulay','statefarm','ekka','reglamento','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
+    var PRIORITY = ['microsoft','doritos','woxerpolaroid','micasaestucasa','calvinklein','hers','arena','skechers','brooklinen','laboca','sotano','pbpm','mauryricky','t8pcommercial','787coffee','ddlp','woxer','classy101','reglamento-1','txtrano','statefarm','ekka','reglamento','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
     items.sort(function(a,b){
       var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
       if (ai === -1) ai = 999; if (bi === -1) bi = 999;
@@ -694,14 +694,14 @@
 
     /* Priority order — center-first, David's swaps applied */
     var PRIORITY = [
-      /* CENTER */
-      'calvinklein','sotano','microsoft','laboca','skechers','brooklinen','woxerpolaroid',
+      /* CENTER -- David's exact list */
+      'microsoft','doritos','woxerpolaroid','micasaestucasa','calvinklein','hers','arena',
       /* MIDDLE RING */
-      'micasaestucasa','hers','doritos','t8pcommercial','787coffee','arena','pbpm','mauryricky','ddlp',
+      'skechers','brooklinen','laboca','sotano','pbpm','mauryricky','t8pcommercial','787coffee','ddlp',
       /* OUTER RING */
-      'classy101','reglamento-1','txtrano','woxer','rulay','statefarm','ekka','reglamento',
-      'enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche',
-      'normal','shaz','sadvalentin','monster'
+      'woxer','classy101','reglamento-1','txtrano','statefarm','ekka','reglamento',
+      'rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz',
+      'paolaguanche','normal','shaz','sadvalentin','monster'
     ];
     items.sort(function(a,b){
       var ai=PRIORITY.indexOf(a.slug), bi=PRIORITY.indexOf(b.slug);
@@ -746,25 +746,28 @@
       /* Z based on distance from center — center=deepest (concave bowl) */
       var dx = (px - cx) / (W/2), dy = (py - cy) / (H/2);
       var dist = Math.sqrt(dx*dx + dy*dy); /* 0=center, ~1.4=corner */
-      var depthZ = -320 + dist * 340; /* center=-320, edges~+156 — strong bowl */
+      var depthZ = -500 + dist * 500; /* center=-500, edges~+200 — deep sphere bowl */
 
-      /* card tilt faces center */
-      var rotY = -(px-cx)/cx * 10;
-      var rotX = (py-cy)/cy * 7;
+      /* church-style lookAt: card tilts to face center of scene
+         angle = atan2(offset, depth) -- deeper Z = stronger tilt */
+      var FOCAL = 1400; /* matches perspective CSS */
+      var rotY = -Math.atan2(px - cx, FOCAL - Math.abs(depthZ)) * (180/Math.PI);
+      var rotX =  Math.atan2(py - cy, FOCAL - Math.abs(depthZ)) * (180/Math.PI);
       var rotZ = (Math.random()-0.5) * 2.5; /* slight random roll */
 
       /* native aspect ratio -- default 16:9 for video, known 4:3 overrides */
-      var rawRatio = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || it.ratio || 0;
-      var defR = rawRatio > 0 ? (1/rawRatio) : (9/16);
-      var RATIO_43 = {woxerpolaroid:1,pbpm:1,hers:1,rubirose:1,skechers:1};
-      var RATIO_916 = {statefarm:1}; /* vertical */
-      if (!rawRatio && RATIO_916[it.slug]) defR = 16/9;
-      if (!rawRatio && RATIO_43[it.slug]) defR = 3/4;
+      var RATIO_43  = {woxerpolaroid:1,pbpm:1,hers:1,rubirose:1,skechers:1};
+      var RATIO_916 = {statefarm:1};
+      var rawRatio  = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || 0;
+      var defR;
+      if      (RATIO_43[it.slug])  defR = 3/4;
+      else if (RATIO_916[it.slug]) defR = 16/9;
+      else if (rawRatio > 0)       defR = 1/rawRatio;
+      else                         defR = 9/16; /* arena, doritos, calvinklein etc = 16:9 */
       /* card width fits in cell */
-      /* size cards by aspect: horizontal bigger, vertical smaller, for visual balance */
-      var isVertical = defR > 1.0; /* card taller than wide */
-      var sizeScale = isVertical ? 0.72 : 1.28; /* vertical -28%, horizontal +28% */
-      var baseW = Math.min(cellW * 1.18 * sizeScale, isVertical ? 240 : 400);
+      /* card width: vertical narrower, horizontal wider */
+      var isVertical = defR > 1.0;
+      var baseW = isVertical ? Math.min(cellW * 0.82, 210) : Math.min(cellW * 1.28, 390);
 
       var cell = el('a', {className:'t8p-cell', href:it.href});
       cell.style.width  = baseW + 'px';
