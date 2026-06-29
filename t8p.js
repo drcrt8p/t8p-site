@@ -1,5 +1,5 @@
 /* ============================================================
-   T8P STUDIOS — Site Script v9.2
+   T8P STUDIOS — Site Script v9.3
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
    ============================================================ */
@@ -571,7 +571,7 @@
     });
 
     /* Sort by Squarespace page priority — top of list = inner ring */
-    var PRIORITY = ['microsoft','sotano','calvinklein','laboca','brooklinen','ekka','woxerpolaroid','micasaestucasa','mauryricky','hers','pbpm','woxer','t8pcommercial','787coffee','reglamento','arena','ddlp','classy101','reglamento-1','txtrano','rubirose','doritos','dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
+    var PRIORITY = ['microsoft','sotano','woxer','laboca','brooklinen','ekka','woxerpolaroid','micasaestucasa','mauryricky','hers','pbpm','calvinklein','t8pcommercial','787coffee','reglamento','arena','ddlp','classy101','reglamento-1','txtrano','rubirose','doritos','dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
     items.sort(function(a,b){
       var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
       if (ai === -1) ai = 999; if (bi === -1) bi = 999;
