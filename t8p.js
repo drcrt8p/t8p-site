@@ -52,9 +52,9 @@
       '#t8p-nav-btn svg{width:28px;height:28px;color:#fff}',
 
       /* ── HOME layout ── */
-      '#t8p-home{position:fixed;inset:0;overflow:hidden;background:var(--bg);display:none}',
+      '#t8p-home{position:fixed;inset:0;overflow:hidden;background:var(--bg);display:none;z-index:8000}',
       'body.is-home #t8p-home{display:block}',
-      'body.is-home #siteWrapper{display:none!important}',
+      'body.is-home #siteWrapper,body.is-home #page,body.is-home #header,.is-home #siteWrapper{display:none!important}',
 
       /* ── 3D sphere (desktop) ── */
       '#t8p-world{position:absolute;inset:0;z-index:100;perspective:6000px;',
@@ -66,7 +66,7 @@
       'z-index:500;pointer-events:none;display:flex;flex-direction:column;',
       'align-items:center;gap:8px;text-align:center}',
       '#t8p-wm-wrap{position:relative;width:min(64vw,560px)}',
-      '#t8p-wm-wrap img{width:100%;height:auto;display:block}',
+      '#t8p-wm-wrap svg,#t8p-wm-wrap img{width:100%;height:auto;display:block;fill:#f0ede6}',
       '@media(max-width:767px){#t8p-wm-wrap{width:min(80vw,320px)}}',
 
       /* ── Nav pill ── */
