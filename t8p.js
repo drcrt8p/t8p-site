@@ -781,35 +781,58 @@
       if (c) { e.preventDefault(); window.location.href = c.getAttribute('href'); }
     }, true);
 
-    /* sphere rotation with hard limits + spring-back */
-    var mx=0,my=0,tx=0,ty=0,curActive=false;
-    var ROT=14, PAN=320;
-    var LIM = 0.72; /* max normalized offset each axis */
+    /* sphere rotation — limits derived from actual card positions */
     function clamp(v,a,b){ return v<a?a:v>b?b:v; }
+
+    /* compute max pan so outermost card stays within EDGE px of viewport */
+    var EDGE = 60; /* px buffer inside viewport edge */
+    var ROT  = 12; /* max rotation degrees each axis */
+
+    /* find actual layout extents from card _px/_py values */
+    var minPX = Infinity, maxPX = -Infinity, minPY = Infinity, maxPY = -Infinity;
+    cells.forEach(function(c){
+      minPX = Math.min(minPX, c._px - c._baseW/2);
+      maxPX = Math.max(maxPX, c._px + c._baseW/2);
+      minPY = Math.min(minPY, c._py - c._h/2);
+      maxPY = Math.max(maxPY, c._py + c._h/2);
+    });
+    /* how far right/left/up/down the layout extends from center */
+    var extR = maxPX - cx, extL = cx - minPX;
+    var extB = maxPY - cy, extT = cy - minPY;
+    /* max pan = how much we can shift before outermost card exits viewport */
+    var maxPanX = Math.max(0, Math.min(extR, extL) - EDGE);
+    var maxPanY = Math.max(0, Math.min(extB, extT) - EDGE);
+
+    var mx=0, my=0, tx=0, ty=0, curActive=false;
+
     function applySphere() {
-      /* parallax wordmark: moves opposite to sphere, shallower */
-      var cx = document.getElementById('t8p-center');
-      if (cx) cx.style.transform = 'translate(calc(-50% + '+(tx*-60)+'px),calc(-50% + '+(ty*-46)+'px))';
-      sphere.style.transform = 'rotateY('+(tx*ROT)+'deg) rotateX('+(-ty*ROT*.78)+'deg) translateX('+(-tx*PAN)+'px) translateY('+(-ty*PAN*.74)+'px)';
+      /* tx/ty are in [-1,1]; convert to px using actual extents */
+      var panX = tx * maxPanX;
+      var panY = ty * maxPanY;
+      sphere.style.transform =
+        'rotateY('+(tx*ROT)+'deg) rotateX('+(-ty*ROT*.78)+'deg)' +
+        ' translateX('+(-panX)+'px) translateY('+(-panY*.74)+'px)';
     }
+
     document.addEventListener('mousemove', function(e){
       curActive = true;
-      var nx = clamp((e.clientX/W-.5)*2, -1, 1);
-      var ny = clamp((e.clientY/H-.5)*2, -1, 1);
-      /* power curve for natural feel */
-      mx = clamp(Math.sign(nx)*Math.pow(Math.abs(nx),1.2)*LIM, -LIM, LIM);
-      my = clamp(Math.sign(ny)*Math.pow(Math.abs(ny),1.2)*LIM, -LIM, LIM);
+      var nx = clamp((e.clientX/W - .5) * 2, -1, 1);
+      var ny = clamp((e.clientY/H - .5) * 2, -1, 1);
+      mx = Math.sign(nx) * Math.pow(Math.abs(nx), 1.15);
+      my = Math.sign(ny) * Math.pow(Math.abs(ny), 1.15);
     }, {passive:true});
-    document.addEventListener('mouseleave', function(){ curActive=false; });
+
+    document.addEventListener('mouseleave', function(){ curActive = false; });
+
     (function spin(){
-      var ease = curActive ? 0.06 : 0.03; /* slower spring-back when cursor gone */
-      var targetX = curActive ? mx : 0;
-      var targetY = curActive ? my : 0;
-      tx += (targetX - tx) * ease;
-      ty += (targetY - ty) * ease;
-      /* hard clamp so it never flies off */
-      tx = clamp(tx, -LIM, LIM);
-      ty = clamp(ty, -LIM, LIM);
+      var ease   = curActive ? 0.055 : 0.025;
+      var tgtX   = curActive ? mx : 0;
+      var tgtY   = curActive ? my : 0;
+      tx += (tgtX - tx) * ease;
+      ty += (tgtY - ty) * ease;
+      /* hard clamp — never beyond ±1 */
+      tx = clamp(tx, -1, 1);
+      ty = clamp(ty, -1, 1);
       applySphere();
       requestAnimationFrame(spin);
     })();
