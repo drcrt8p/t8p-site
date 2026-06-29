@@ -781,56 +781,61 @@
       if (c) { e.preventDefault(); window.location.href = c.getAttribute('href'); }
     }, true);
 
-    /* sphere rotation — limits derived from actual card positions */
+    /* sphere rotation — limits keep panels on screen */
     function clamp(v,a,b){ return v<a?a:v>b?b:v; }
 
-    /* compute max pan so outermost card stays within EDGE px of viewport */
-    var EDGE = 60; /* px buffer inside viewport edge */
-    var ROT  = 12; /* max rotation degrees each axis */
+    var ROT = 8; /* subtle rotation degrees */
 
-    /* find actual layout extents from card _px/_py values */
-    var minPX = Infinity, maxPX = -Infinity, minPY = Infinity, maxPY = -Infinity;
+    /* measure layout extent from card positions */
+    var minPX=Infinity, maxPX=-Infinity, minPY=Infinity, maxPY=-Infinity;
     cells.forEach(function(c){
       minPX = Math.min(minPX, c._px - c._baseW/2);
       maxPX = Math.max(maxPX, c._px + c._baseW/2);
       minPY = Math.min(minPY, c._py - c._h/2);
       maxPY = Math.max(maxPY, c._py + c._h/2);
     });
-    /* how far right/left/up/down the layout extends from center */
-    var extR = maxPX - cx, extL = cx - minPX;
-    var extB = maxPY - cy, extT = cy - minPY;
-    /* max pan = how much we can shift before outermost card exits viewport */
-    var maxPanX = Math.max(0, Math.min(extR, extL) - EDGE);
-    var maxPanY = Math.max(0, Math.min(extB, extT) - EDGE);
+    /* layout is larger than viewport — pan range is how far we can shift
+       before the NEAR edge of the layout exits the viewport.
+       We want cards at the boundary to peek ~80px into view at most. */
+    var PEEK = 80; /* px of outermost card visible at max pan */
+    /* how much layout overflows viewport on each side */
+    var overflowR = Math.max(0, maxPX - W + PEEK);
+    var overflowL = Math.max(0, -minPX + PEEK);
+    var overflowB = Math.max(0, maxPY - H + PEEK);
+    var overflowT = Math.max(0, -minPY + PEEK);
+    /* max pan in each direction = the overflow amount */
+    var maxPanR = overflowR * 0.5;   /* can shift left to reveal right cards */
+    var maxPanL = overflowL * 0.5;   /* can shift right to reveal left cards */
+    var maxPanD = overflowB * 0.5;
+    var maxPanU = overflowT * 0.5;
 
     var mx=0, my=0, tx=0, ty=0, curActive=false;
 
     function applySphere() {
-      /* tx/ty are in [-1,1]; convert to px using actual extents */
-      var panX = tx * maxPanX;
-      var panY = ty * maxPanY;
+      /* tx in [-1,0] = shifting right (revealing left cards), [0,1] = left (revealing right) */
+      var panX = tx > 0 ? tx * maxPanR : tx * maxPanL;
+      var panY = ty > 0 ? ty * maxPanD : ty * maxPanU;
       sphere.style.transform =
-        'rotateY('+(tx*ROT)+'deg) rotateX('+(-ty*ROT*.78)+'deg)' +
-        ' translateX('+(-panX)+'px) translateY('+(-panY*.74)+'px)';
+        'rotateY('+(tx*ROT)+'deg) rotateX('+(-ty*ROT*.7)+'deg)' +
+        ' translateX('+(-panX)+'px) translateY('+(-panY)+'px)';
     }
 
     document.addEventListener('mousemove', function(e){
       curActive = true;
+      /* normalize cursor to [-1, 1] */
       var nx = clamp((e.clientX/W - .5) * 2, -1, 1);
       var ny = clamp((e.clientY/H - .5) * 2, -1, 1);
-      mx = Math.sign(nx) * Math.pow(Math.abs(nx), 1.15);
-      my = Math.sign(ny) * Math.pow(Math.abs(ny), 1.15);
+      /* gentle power curve — less aggressive at edges */
+      mx = Math.sign(nx) * Math.pow(Math.abs(nx), 1.4);
+      my = Math.sign(ny) * Math.pow(Math.abs(ny), 1.4);
     }, {passive:true});
 
     document.addEventListener('mouseleave', function(){ curActive = false; });
 
     (function spin(){
-      var ease   = curActive ? 0.055 : 0.025;
-      var tgtX   = curActive ? mx : 0;
-      var tgtY   = curActive ? my : 0;
-      tx += (tgtX - tx) * ease;
-      ty += (tgtY - ty) * ease;
-      /* hard clamp — never beyond ±1 */
+      var ease = curActive ? 0.05 : 0.025;
+      tx += ((curActive ? mx : 0) - tx) * ease;
+      ty += ((curActive ? my : 0) - ty) * ease;
       tx = clamp(tx, -1, 1);
       ty = clamp(ty, -1, 1);
       applySphere();
