@@ -105,10 +105,7 @@
       '.t8p-cell-media{position:absolute;inset:0;width:100%;height:100%}',
       '.t8p-cell-media img,.t8p-cell-media iframe{position:absolute;inset:0;',
       'width:100%;height:100%;object-fit:cover;transition:filter .45s;border:0}',
-      '.t8p-cell img{background:#111;visibility:hidden}',
-      '.t8p-cell[data-photo] img{visibility:visible}',
-      '.t8p-cell img[src]:not([src=""]):not([src="https://www.t8pstudios.com/"]){visibility:visible}',
-      '.t8p-cell iframe{opacity:1!important;transition:none!important;border:none;display:block}',
+      '.t8p-cell img{background:#111;width:100%;height:100%;object-fit:cover;visibility:visible;transition:filter .45s}',
       '.t8p-cell[data-photo] img{filter:grayscale(100%)}',
       '.t8p-cell[data-photo]:hover img,.t8p-cell[data-photo].is-hov img{filter:grayscale(0%)}',
       '.t8p-cell::after{content:"";position:absolute;inset:0;border-radius:12px;padding:3px;',
@@ -654,7 +651,7 @@
     var W = window.innerWidth, H = window.innerHeight;
     var cx = W/2, cy = H/2;
 
-    var rings = [{r:.75,n:5,w:280},{r:1.05,n:8,w:251},{r:1.35,n:9,w:221},{r:1.68,n:6,w:196}];
+    var rings = [{r:.52,n:5,w:280},{r:.78,n:8,w:251},{r:1.05,n:9,w:221},{r:1.32,n:6,w:196}];
     var cells = [];
     var idx = 0;
     var ordered = items;
@@ -670,8 +667,8 @@
         var jitter = Math.sin(idx*2.6) * 0.018;
         var rad = ring.r + jitter;
         var nx = Math.cos(ang), ny = Math.sin(ang);
-        var px = cx + nx * rad * W * 0.46;
-        var py = cy + ny * rad * H * 0.60;
+        var px = cx + nx * rad * W * 0.34;
+        var py = cy + ny * rad * H * 0.44;
         var baseW = ring.w * (0.96 + Math.sin(idx*3.1) * 0.04);
         var depthZ = ri===0 ? -460 : ri===1 ? -240 : -40;
         var rotY = (-nx) * 22, rotX = ny * 16;
@@ -693,18 +690,18 @@
         var image = el('img', {});
         image.src = it.src || '';
         image.alt = it.name;
-        media.appendChild(image);
-
+        /* Use vimeo thumbnail as immediate visual - instant, no iframe needed */
         if (it.vids.length > 0) {
-          var IF = document.createElement('iframe');
-          IF.src = 'https://player.vimeo.com/video/'+it.vids[0]+'?background=1&autoplay=1&loop=1&muted=1&autopause=0';
-          IF.setAttribute('frameborder','0');
-          IF.setAttribute('allow','autoplay; fullscreen');
-          IF.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;min-width:100%;min-height:100%;border:0;pointer-events:none;opacity:0;transition:opacity .6s;z-index:1';
-          IF.onload = function(){ this.style.opacity='1'; };
-          media.appendChild(IF);
-          image.style.objectFit = 'cover';
+          image.src = 'https://vumbnail.com/' + it.vids[0] + '.jpg';
+          image.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;visibility:visible';
+          image.onerror = function() {
+            /* fallback to i.vimeocdn.com if vumbnail fails */
+            if (this.src.indexOf('vumbnail') > -1) {
+              this.src = 'https://i.vimeocdn.com/video/' + it.vids[0] + '_1280.jpg';
+            }
+          };
         }
+        media.appendChild(image);
 
         cell.appendChild(media);
 
