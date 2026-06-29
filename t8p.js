@@ -57,7 +57,7 @@
       'body.is-home #siteWrapper,body.is-home #page,body.is-home #header,.is-home #siteWrapper{display:none!important}',
 
       /* ── 3D sphere (desktop) ── */
-      '#t8p-world{position:absolute;inset:0;z-index:100;perspective:2400px;',
+      '#t8p-world{position:absolute;inset:0;z-index:100;perspective:1400px;',
       'perspective-origin:50% 50%;transform-style:preserve-3d}',
       '#t8p-sphere{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform}',
 
@@ -571,7 +571,7 @@
     });
 
     /* Sort by Squarespace page priority — top of list = inner ring */
-    var PRIORITY = ['microsoft','hers','calvinklein','woxerpolaroid','doritos','arena','laboca','micasaestucasa','mauryricky','brooklinen','pbpm','woxer','t8pcommercial','787coffee','reglamento','ddlp','classy101','reglamento-1','txtrano','rubirose','ekka','sotano','dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
+    var PRIORITY = ['microsoft','sotano','calvinklein','woxerpolaroid','brooklinen','arena','laboca','micasaestucasa','mauryricky','hers','pbpm','woxer','t8pcommercial','787coffee','reglamento','doritos','ddlp','classy101','reglamento-1','txtrano','rubirose','ekka','dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
     items.sort(function(a,b){
       var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
       if (ai === -1) ai = 999; if (bi === -1) bi = 999;
@@ -678,16 +678,15 @@
     var cellH = (gridH - (ROWS-1)*GAP_Y) / ROWS;
     var gridLeft = (W - gridW) / 2, gridTop = (H - gridH) / 2;
 
-    /* Priority order — David's exact center-first list */
+    /* Priority order — center-first, David's swaps applied */
     var PRIORITY = [
-      /* CENTER (innermost) */
-      'microsoft','hers','calvinklein','woxerpolaroid','doritos','arena','laboca',
-      /* 'airbnb' -- include if slug exists */
-      /* MIDDLE RING */
-      'micasaestucasa','mauryricky','brooklinen','pbpm','woxer','t8pcommercial',
-      '787coffee','reglamento','ddlp',
+      /* CENTER (innermost) -- sotano replaces hers, arena moved in, brooklinen replaces doritos */
+      'microsoft','sotano','calvinklein','woxerpolaroid','brooklinen','arena','laboca',
+      /* MIDDLE RING -- hers and doritos pushed here */
+      'micasaestucasa','mauryricky','hers','pbpm','woxer','t8pcommercial',
+      '787coffee','reglamento','doritos','ddlp',
       /* OUTER RING */
-      'classy101','reglamento-1','txtrano','rubirose','ekka','sotano',
+      'classy101','reglamento-1','txtrano','rubirose','ekka',
       'dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia',
       'mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'
     ];
@@ -734,7 +733,7 @@
       /* Z based on distance from center — center=deepest (concave bowl) */
       var dx = (px - cx) / (W/2), dy = (py - cy) / (H/2);
       var dist = Math.sqrt(dx*dx + dy*dy); /* 0=center, ~1.4=corner */
-      var depthZ = -180 + dist * 160; /* center=-180, edges~+46 */
+      var depthZ = -320 + dist * 340; /* center=-320, edges~+156 — strong bowl */
 
       /* card tilt faces center */
       var rotY = -(px-cx)/cx * 10;
@@ -882,13 +881,12 @@
 
     /* velocity carry for smooth full-arc deceleration */
     var velX = 0, velY = 0;
-    var FRICTION = 0.88;   /* how much velocity carries -- higher = longer tail */
+    var FRICTION = 0.96;   /* high friction = very long smooth tail */
 
     (function frame(){
-      /* velocity lerps toward (target - pos), then friction slows it */
-      /* this gives smooth deceleration all the way to rest, never abrupt */
-      velY += (mouseNX - curRY) * LERP * 0.7;
-      velX += (mouseNY - curRX) * LERP * 0.7;
+      /* gentle acceleration toward target, high friction = liquid long decay */
+      velY += (mouseNX - curRY) * 0.018;
+      velX += (mouseNY - curRX) * 0.018;
       velY *= FRICTION;
       velX *= FRICTION;
       curRY += velY;
