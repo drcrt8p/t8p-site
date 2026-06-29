@@ -1,5 +1,5 @@
 /* ============================================================
-   T8P STUDIOS — Site Script v9.5
+   T8P STUDIOS — Site Script v9.6
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
    ============================================================ */
@@ -568,7 +568,7 @@
     });
 
     /* Sort by Squarespace page priority — top of list = inner ring */
-    var PRIORITY = ['calvinklein','sotano','microsoft','laboca','brooklinen','ekka','woxerpolaroid','micasaestucasa','mauryricky','hers','pbpm','doritos','t8pcommercial','787coffee','reglamento','arena','ddlp','classy101','reglamento-1','txtrano','rubirose','new-project','woxer','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
+    var PRIORITY = ['calvinklein','sotano','microsoft','laboca','brooklinen','ekka','woxerpolaroid','micasaestucasa','mauryricky','hers','pbpm','doritos','t8pcommercial','787coffee','reglamento','arena','ddlp','classy101','reglamento-1','txtrano','rubirose','statefarm','skechers','woxer','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
     items.sort(function(a,b){
       var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
       if (ai === -1) ai = 999; if (bi === -1) bi = 999;
@@ -701,7 +701,7 @@
       '787coffee','reglamento','arena','ddlp',
       /* OUTER RING */
       'classy101','reglamento-1','txtrano','rubirose',
-      'new-project','woxer','rulay','enladisco','2r1n','horoscopo','natalia',
+      'statefarm','skechers','woxer','rulay','enladisco','2r1n','horoscopo','natalia',
       'mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'
     ];
     items.sort(function(a,b){
@@ -757,7 +757,9 @@
       /* native aspect ratio -- default 16:9 for video, known 4:3 overrides */
       var rawRatio = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || it.ratio || 0;
       var defR = rawRatio > 0 ? (1/rawRatio) : (9/16);
-      var RATIO_43 = {woxerpolaroid:1,pbpm:1,hers:1,rubirose:1};
+      var RATIO_43 = {woxerpolaroid:1,pbpm:1,hers:1,rubirose:1,skechers:1};
+      var RATIO_916 = {statefarm:1}; /* vertical */
+      if (!rawRatio && RATIO_916[it.slug]) defR = 16/9;
       if (!rawRatio && RATIO_43[it.slug]) defR = 3/4;
       /* card width fits in cell */
       var baseW = Math.min(cellW * 1.18, 360); /* 25% larger so edges visible on pan */
