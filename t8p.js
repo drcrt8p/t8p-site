@@ -557,12 +557,15 @@
 
     var DATA = window._t8pDATA || {};
     var items = Object.keys(DATA).filter(function(sl){
-      return DATA[sl] && DATA[sl].v !== undefined;
+      var d = DATA[sl];
+      /* only show projects that have at least one video */
+      return d && d.v && d.v.length > 0;
     }).map(function(sl){
       var d = DATA[sl];
       return {
         href: '/'+sl, src:'', name: sl, slug: sl,
-        vids: (d.v || []).map(function(x){ return typeof x==='string'?parseInt(x,10):x; })
+        vids: (d.v || []).map(function(x){ return typeof x==='string'?parseInt(x,10):x; }),
+        ratio: window._t8pRATIOS && window._t8pRATIOS[sl] ? window._t8pRATIOS[sl] : null
       };
     });
 
@@ -680,7 +683,9 @@
         var depthZ = ri===0 ? -120 : ri===1 ? -60 : ri===2 ? 0 : 50;
         var rotY = (-nx) * 12, rotX = ny * 8;
         var rotZ = Math.sin(idx*2.1) * 2.5;
-        var defR = 9/16; /* default 16:9, img covers with object-fit */
+        /* use actual video ratio if available, fallback to 16:9 */
+        var rawRatio = it.ratio; /* e.g. 1.777 for 16:9, 1.333 for 4:3 */
+        var defR = rawRatio ? (1 / rawRatio) : (9/16);
 
         var cell = el('a', {className:'t8p-cell', href:it.href});
         if (it.vids.length === 0) cell.setAttribute('data-photo','1');
@@ -700,19 +705,21 @@
         image.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1';
         image.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
         media.appendChild(image);
-        /* Vimeo background iframe on top of thumbnail */
-        if (it.vids.length > 0) {
-          var hash0 = (window._t8pDATA && window._t8pDATA[it.slug] && window._t8pDATA[it.slug].h) ? window._t8pDATA[it.slug].h : {};
-          var vid0 = it.vids[0];
-          var h0str = hash0[String(vid0)] ? '?h=' + hash0[String(vid0)] + '&' : '?';
+        /* Vimeo autoplay iframe — fades in over thumbnail */
+        (function(slug, vids){
+          var d = (window._t8pDATA||{})[slug] || {};
+          var hashes = d.h || {};
+          var vid = vids[0];
+          var hs = hashes[String(vid)] ? '?h=' + hashes[String(vid)] + '&' : '?';
           var ifr = document.createElement('iframe');
-          ifr.src = 'https://player.vimeo.com/video/' + vid0 + h0str + 'background=1&autoplay=1&loop=1&muted=1&autopause=0';
           ifr.setAttribute('frameborder','0');
-          ifr.setAttribute('allow','autoplay; fullscreen');
-          ifr.style.cssText = 'position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);border:none;z-index:2;opacity:0;transition:opacity 1s';
-          ifr.onload = function(){ this.style.opacity = '1'; };
+          ifr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+          ifr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;opacity:0;transition:opacity 1.2s';
+          /* delay src set to stagger loads */
+          ifr.src = 'https://player.vimeo.com/video/'+vid+hs+'background=1&autoplay=1&loop=1&muted=1&autopause=0&playsinline=1';
+          ifr.addEventListener('load', function(){ ifr.style.opacity='1'; });
           media.appendChild(ifr);
-        }
+        })(it.slug, it.vids);
 
         cell.appendChild(media);
 
@@ -793,11 +800,13 @@
       if (c) { e.preventDefault(); window.location.href = c.getAttribute('href'); }
     }, true);
 
-    /* sphere rotation — pure rotation only, no pan. Cards stay on screen. */
+    /* sphere rotation — approved binary ease model */
     function clamp(v,a,b){ return v<a?a:v>b?b:v; }
+    var EASE_MOVE = 0.22;   /* snappy follow while cursor moving */
+    var EASE_SETTLE = 0.005; /* long slow drift when cursor stops */
+    var ROT = 10;            /* max rotation degrees */
 
-    var ROT = 6; /* max degrees — subtle tilt only */
-    var mx=0, my=0, tx=0, ty=0, curActive=false;
+    var mx=0, my=0, tx=0, ty=0, lastMove=0;
 
     function applySphere() {
       sphere.style.transform =
@@ -805,18 +814,20 @@
     }
 
     document.addEventListener('mousemove', function(e){
-      curActive = true;
+      lastMove = performance.now();
+      /* normalize to [-1,1], power curve for natural feel */
       var nx = clamp((e.clientX/W - .5) * 2, -1, 1);
       var ny = clamp((e.clientY/H - .5) * 2, -1, 1);
-      mx = Math.sign(nx) * Math.pow(Math.abs(nx), 1.3);
-      my = Math.sign(ny) * Math.pow(Math.abs(ny), 1.3);
+      mx = Math.sign(nx) * Math.pow(Math.abs(nx), 1.2);
+      my = Math.sign(ny) * Math.pow(Math.abs(ny), 1.2);
     }, {passive:true});
 
-    document.addEventListener('mouseleave', function(){ curActive = false; });
-
     (function spin(){
-      tx += ((curActive ? mx : 0) - tx) * (curActive ? 0.05 : 0.025);
-      ty += ((curActive ? my : 0) - ty) * (curActive ? 0.05 : 0.025);
+      /* binary ease: fast while moving, long drift when stopped */
+      var E = (performance.now() - lastMove < 200) ? EASE_MOVE : EASE_SETTLE;
+      /* target stays where cursor last was — never springs back */
+      tx += (mx - tx) * E;
+      ty += (my - ty) * E;
       tx = clamp(tx, -1, 1);
       ty = clamp(ty, -1, 1);
       applySphere();
