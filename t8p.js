@@ -31,7 +31,7 @@
       '--blue:#1a43ff;--rb:linear-gradient(90deg,#ff3366,#ff6600,#ffcc00,#33cc66,#3399ff,#cc33ff)}',
       'html,body{background:var(--bg);color:var(--fg);font-family:var(--mono);',
       '-webkit-font-smoothing:antialiased;overflow-x:hidden}',
-      'header#header,.header-announcement-bar-wrapper,.sqs-announcement-bar-dropzone{display:none!important}',
+      'header#header,#header,.header-announcement-bar-wrapper,.sqs-announcement-bar-dropzone{display:none!important}',
 
       /* ── Custom cursor (desktop only) ── */
       '#t8p-cur{position:fixed;width:13px;height:13px;border-radius:50%;background:#fff;',
@@ -83,9 +83,9 @@
       'background:rgba(245,243,238,.95);backdrop-filter:blur(20px);',
       'border-radius:27px;padding:0 64px 0 24px;opacity:0;pointer-events:none;',
       'transition:transform .55s cubic-bezier(.34,1.56,.64,1),opacity .3s;',
-      'white-space:nowrap;z-index:1}',
+      'white-space:nowrap;z-index:1;visibility:hidden}',
       '#t8p-nav.open #t8p-nav-pill{transform:translate(-50%,-50%) scaleX(1);',
-      'opacity:1;pointer-events:all}',
+      'opacity:1;pointer-events:all;visibility:visible}',
       '#t8p-nav-pill a{font-size:11px;letter-spacing:.04em;color:#080808;',
       'text-decoration:none;padding:6px 12px;border-radius:14px;',
       'transition:opacity .15s;font-weight:500}',
@@ -576,37 +576,37 @@
 
     buildGrid(items);
 
-    /* After sphere is built, fetch thumbnails for photo-type cards via HTML scrape */
+    /* Fetch thumbnails for ALL cards via staggered HTML scrape */
     var LOGO_UUID = 'd4325d9d-7519-4511-9a6d-61a47a7b3772';
     var FAVICON_UUID = 'ac99735c-ce86-40fe-9c43-cf78ce4c1e9e';
-    setTimeout(function(){
-      var photoCells = Array.from(document.querySelectorAll('.t8p-cell[data-photo]'));
-      photoCells.forEach(function(cell){
-        var slug = (cell.getAttribute('href')||'').replace(/[/]/g,'');
-        if (!slug) return;
-        var imgEl = cell.querySelector('img');
-        if (!imgEl) return;
-        fetch('/' + slug)
-          .then(function(r){ return r.text(); })
-          .then(function(html){
-            var matches = html.match(/images\.squarespace-cdn\.com\/content\/[^"'\s?]+/g) || [];
-            var seen = {};
-            for (var i = 0; i < matches.length; i++) {
-              var u = matches[i];
-              if (u.indexOf(LOGO_UUID) > -1) continue;
-              if (u.indexOf(FAVICON_UUID) > -1) continue;
-              if (u.indexOf('.ico') > -1) continue;
-              if (u.indexOf('.svg') > -1) continue;
-              var base = u.split('?')[0];
-              if (!seen[base]) {
-                seen[base] = true;
-                if (imgEl) { imgEl.src = 'https://' + base + '?format=600w'; }
-                return;
-              }
+    function fetchThumb(cell, slug) {
+      fetch('/' + slug)
+        .then(function(r){ return r.text(); })
+        .then(function(html){
+          var matches = html.match(/images\.squarespace-cdn\.com\/content\/[^"'\s?]+/g) || [];
+          var seen = {};
+          for (var i = 0; i < matches.length; i++) {
+            var u = matches[i];
+            if (u.indexOf(LOGO_UUID) > -1) continue;
+            if (u.indexOf(FAVICON_UUID) > -1) continue;
+            if (u.match(/\.(ico|svg|gif)$/i)) continue;
+            var base = u.split('?')[0];
+            if (!seen[base]) {
+              seen[base] = true;
+              var img = cell.querySelector('img');
+              if (img) img.src = 'https://' + base + '?format=600w';
+              return;
             }
-          }).catch(function(){});
-      });
-    }, 600);
+          }
+        }).catch(function(){});
+    }
+    /* stagger fetches - 5 concurrent bursts */
+    var allCells = Array.from(document.querySelectorAll('.t8p-cell'));
+    allCells.forEach(function(cell, i) {
+      var slug = (cell.getAttribute('href')||'').replace(/[/]/g,'');
+      if (!slug) return;
+      setTimeout(function(){ fetchThumb(cell, slug); }, i * 80);
+    });
   }
 
   function injectWordmark(container) {
