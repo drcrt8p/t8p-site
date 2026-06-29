@@ -62,9 +62,10 @@
       '#t8p-sphere{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform}',
 
       /* ── Center wordmark ── */
-      '#t8p-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);',
+      '#t8p-center{position:fixed;top:50%;left:50%;',
+      'transform:translate(-50%,-50%);transform-origin:center center;',
       'z-index:500;pointer-events:none;display:flex;flex-direction:column;',
-      'align-items:center;gap:8px;text-align:center}',
+      'align-items:center;gap:8px;text-align:center;will-change:transform}',
       '#t8p-wm-wrap{position:relative;width:min(64vw,560px)}',
       '#t8p-wm-wrap svg,#t8p-wm-wrap img{width:100%;height:auto;display:block;fill:#f0ede6}',
       '@media(max-width:767px){#t8p-wm-wrap{width:min(80vw,320px)}}',
@@ -569,6 +570,13 @@
       };
     });
 
+    /* Sort by Squarespace page priority — top of list = inner ring */
+    var PRIORITY = ['doritos', 'woxerpolaroid', 'calvinklein', 'micasaestucasa', 'microsoft', 'mauryricky', 'pbpm', 'hers', 'brooklinen', 'arena', 'laboca', 'woxer', 't8pcommercial', '787coffee', 'reglamento', 'ddlp', 'classy101', 'reglamento-1', 'txtrano', 'rubirose', 'ekka', 'sotano', 'dreamstudios', 'rulay', 'enladisco', '2r1n', 'horoscopo', 'natalia', 'mezcal', 'mensajedevoz', 'paolaguanche', 'normal', 'shaz', 'sadvalentin', 'monster'];
+    items.sort(function(a,b){
+      var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
+      if (ai === -1) ai = 999; if (bi === -1) bi = 999;
+      return ai - bi;
+    });
     buildGrid(items);
 
     /* Fetch thumbnails for ALL cards via staggered HTML scrape */
@@ -683,9 +691,10 @@
         var depthZ = ri===0 ? -120 : ri===1 ? -60 : ri===2 ? 0 : 50;
         var rotY = (-nx) * 12, rotX = ny * 8;
         var rotZ = Math.sin(idx*2.1) * 2.5;
-        /* use actual video ratio if available, fallback to 16:9 */
-        var rawRatio = it.ratio; /* e.g. 1.777 for 16:9, 1.333 for 4:3 */
-        var defR = rawRatio ? (1 / rawRatio) : (9/16);
+        /* native aspect: use _t8pRATIOS[slug] if available */
+        var rawRatio = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || it.ratio || 0;
+        /* rawRatio is width/height (e.g. 1.777 for 16:9, 1.333 for 4:3) */
+        var defR = rawRatio > 0 ? (1 / rawRatio) : (9/16);
 
         var cell = el('a', {className:'t8p-cell', href:it.href});
         if (it.vids.length === 0) cell.setAttribute('data-photo','1');
@@ -800,38 +809,57 @@
       if (c) { e.preventDefault(); window.location.href = c.getAttribute('href'); }
     }, true);
 
-    /* sphere rotation — approved binary ease model */
+    /* sphere rotation — spring physics (approved model, church-like liquid feel) */
     function clamp(v,a,b){ return v<a?a:v>b?b:v; }
-    var EASE_MOVE = 0.22;   /* snappy follow while cursor moving */
-    var EASE_SETTLE = 0.005; /* long slow drift when cursor stops */
-    var ROT = 10;            /* max rotation degrees */
 
-    var mx=0, my=0, tx=0, ty=0, lastMove=0;
+    /* Spring constants: STIFF=low = more lag, DAMP=high = less overshoot */
+    var STIFF = 0.048, DAMP = 0.82;
+    var ROT = 22, PAN = 480;   /* rotation degrees and pan pixels at full deflection */
 
-    function applySphere() {
-      sphere.style.transform =
-        'rotateY('+(tx*ROT)+'deg) rotateX('+(-ty*ROT*.7)+'deg)';
-    }
+    var mx=0, my=0;            /* cursor target (normalized -1..1) */
+    var cxp=0, cyp=0;          /* current position */
+    var vx=0, vy=0;            /* velocity */
+
+    var center = document.getElementById('t8p-center');
+
+    window.addEventListener('resize', function(){ W=window.innerWidth; H=window.innerHeight; });
 
     document.addEventListener('mousemove', function(e){
-      lastMove = performance.now();
-      /* normalize to [-1,1], power curve for natural feel */
-      var nx = clamp((e.clientX/W - .5) * 2, -1, 1);
-      var ny = clamp((e.clientY/H - .5) * 2, -1, 1);
-      mx = Math.sign(nx) * Math.pow(Math.abs(nx), 1.2);
-      my = Math.sign(ny) * Math.pow(Math.abs(ny), 1.2);
+      var nx = clamp((e.clientX/W - 0.5) * 2, -1, 1);
+      var ny = clamp((e.clientY/H - 0.5) * 2, -1, 1);
+      /* power curve — edge feels heavier */
+      mx = Math.sign(nx) * Math.pow(Math.abs(nx), 1.3) * 0.82;
+      my = Math.sign(ny) * Math.pow(Math.abs(ny), 1.3) * 0.82;
     }, {passive:true});
 
-    (function spin(){
-      /* binary ease: fast while moving, long drift when stopped */
-      var E = (performance.now() - lastMove < 200) ? EASE_MOVE : EASE_SETTLE;
-      /* target stays where cursor last was — never springs back */
-      tx += (mx - tx) * E;
-      ty += (my - ty) * E;
-      tx = clamp(tx, -1, 1);
-      ty = clamp(ty, -1, 1);
-      applySphere();
-      requestAnimationFrame(spin);
+    (function frame(){
+      /* spring: accelerate toward target, damp velocity → overshoot + liquid settle */
+      var ax = (mx - cxp) * STIFF;
+      var ay = (my - cyp) * STIFF;
+      vx = (vx + ax) * DAMP;
+      vy = (vy + ay) * DAMP;
+      cxp += vx;
+      cyp += vy;
+      cxp = clamp(cxp, -1, 1);
+      cyp = clamp(cyp, -1, 1);
+
+      /* sphere: rotate + pan so cards actually move across screen */
+      sphere.style.transform =
+        'rotateY('+(cxp*ROT)+'deg)' +
+        ' rotateX('+(-cyp*ROT*0.78)+'deg)' +
+        ' translateX('+(-cxp*PAN)+'px)' +
+        ' translateY('+(-cyp*PAN*0.74)+'px)';
+
+      /* logo: tilts in 3D with cursor — depth parallax opposite to sphere */
+      if (center) {
+        center.style.transform =
+          'translate(-50%,-50%)' +
+          ' perspective(1200px)' +
+          ' rotateY('+(cxp*8)+'deg)' +
+          ' rotateX('+(-cyp*7)+'deg)';
+      }
+
+      requestAnimationFrame(frame);
     })();
   }
 
