@@ -568,7 +568,7 @@
     });
 
     /* Sort by Squarespace page priority — top of list = inner ring */
-    var PRIORITY = ['calvinklein','sotano','microsoft','laboca','brooklinen','ekka','woxerpolaroid','micasaestucasa','mauryricky','hers','pbpm','doritos','t8pcommercial','787coffee','reglamento','arena','ddlp','classy101','reglamento-1','txtrano','rubirose','statefarm','skechers','woxer','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
+    var PRIORITY = ['calvinklein','sotano','microsoft','laboca','skechers','brooklinen','woxerpolaroid','micasaestucasa','hers','doritos','t8pcommercial','787coffee','arena','pbpm','mauryricky','ddlp','classy101','reglamento-1','txtrano','woxer','rulay','statefarm','ekka','reglamento','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
     items.sort(function(a,b){
       var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
       if (ai === -1) ai = 999; if (bi === -1) bi = 999;
@@ -694,15 +694,14 @@
 
     /* Priority order — center-first, David's swaps applied */
     var PRIORITY = [
-      /* CENTER -- CK innermost, microsoft nearby */
-      'calvinklein','sotano','microsoft','laboca','brooklinen','ekka','woxerpolaroid',
+      /* CENTER */
+      'calvinklein','sotano','microsoft','laboca','skechers','brooklinen','woxerpolaroid',
       /* MIDDLE RING */
-      'micasaestucasa','mauryricky','hers','pbpm','doritos','t8pcommercial',
-      '787coffee','reglamento','arena','ddlp',
+      'micasaestucasa','hers','doritos','t8pcommercial','787coffee','arena','pbpm','mauryricky','ddlp',
       /* OUTER RING */
-      'classy101','reglamento-1','txtrano','rubirose',
-      'statefarm','skechers','woxer','rulay','enladisco','2r1n','horoscopo','natalia',
-      'mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'
+      'classy101','reglamento-1','txtrano','woxer','rulay','statefarm','ekka','reglamento',
+      'enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche',
+      'normal','shaz','sadvalentin','monster'
     ];
     items.sort(function(a,b){
       var ai=PRIORITY.indexOf(a.slug), bi=PRIORITY.indexOf(b.slug);
@@ -762,7 +761,10 @@
       if (!rawRatio && RATIO_916[it.slug]) defR = 16/9;
       if (!rawRatio && RATIO_43[it.slug]) defR = 3/4;
       /* card width fits in cell */
-      var baseW = Math.min(cellW * 1.18, 360); /* 25% larger so edges visible on pan */
+      /* size cards by aspect: horizontal bigger, vertical smaller, for visual balance */
+      var isVertical = defR > 1.0; /* card taller than wide */
+      var sizeScale = isVertical ? 0.72 : 1.28; /* vertical -28%, horizontal +28% */
+      var baseW = Math.min(cellW * 1.18 * sizeScale, isVertical ? 240 : 400);
 
       var cell = el('a', {className:'t8p-cell', href:it.href});
       cell.style.width  = baseW + 'px';
