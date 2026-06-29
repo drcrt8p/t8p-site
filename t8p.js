@@ -579,27 +579,37 @@
 
     buildGrid(items);
 
-    /* After sphere is built, fetch thumbnails for photo-type cards */
+    /* After sphere is built, fetch thumbnails for photo-type cards via HTML scrape */
+    var LOGO_UUID = 'd4325d9d-7519-4511-9a6d-61a47a7b3772';
+    var FAVICON_UUID = 'ac99735c-ce86-40fe-9c43-cf78ce4c1e9e';
     setTimeout(function(){
-      var cells = document.querySelectorAll('.t8p-cell[data-photo]');
-      cells.forEach(function(cell){
-        var slug = (cell.getAttribute('href')||'').replace('[/]','');
+      var photoCells = Array.from(document.querySelectorAll('.t8p-cell[data-photo]'));
+      photoCells.forEach(function(cell){
+        var slug = (cell.getAttribute('href')||'').replace(/[/]/g,'');
         if (!slug) return;
         var imgEl = cell.querySelector('img');
-        if (!imgEl || imgEl.src) return;
-        fetch('/' + slug + '?format=json-pretty')
-          .then(function(r){ return r.json(); })
-          .then(function(j){
-            var url = '';
-            if (j && j.items && j.items[0] && j.items[0].assetUrl) {
-              url = j.items[0].assetUrl + '?format=600w';
-            } else if (j && j.mainImage && j.mainImage.assetUrl) {
-              url = j.mainImage.assetUrl + '?format=600w';
+        if (!imgEl) return;
+        fetch('/' + slug)
+          .then(function(r){ return r.text(); })
+          .then(function(html){
+            var matches = html.match(/images\.squarespace-cdn\.com\/content\/[^"'\s?]+/g) || [];
+            var seen = {};
+            for (var i = 0; i < matches.length; i++) {
+              var u = matches[i];
+              if (u.indexOf(LOGO_UUID) > -1) continue;
+              if (u.indexOf(FAVICON_UUID) > -1) continue;
+              if (u.indexOf('.ico') > -1) continue;
+              if (u.indexOf('.svg') > -1) continue;
+              var base = u.split('?')[0];
+              if (!seen[base]) {
+                seen[base] = true;
+                if (imgEl) { imgEl.src = 'https://' + base + '?format=600w'; }
+                return;
+              }
             }
-            if (url && imgEl) imgEl.src = url;
           }).catch(function(){});
       });
-    }, 800);
+    }, 600);
   }
 
   function injectWordmark(container) {
