@@ -57,7 +57,7 @@
       'body.is-home #siteWrapper,body.is-home #page,body.is-home #header,.is-home #siteWrapper{display:none!important}',
 
       /* ── 3D sphere (desktop) ── */
-      '#t8p-world{position:absolute;inset:0;z-index:100;perspective:1800px;',
+      '#t8p-world{position:absolute;inset:0;z-index:100;perspective:2400px;',
       'perspective-origin:50% 50%;transform-style:preserve-3d}',
       '#t8p-sphere{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform}',
 
@@ -677,8 +677,8 @@
         var px = cx + nx * rad * W * 0.24;
         var py = cy + ny * rad * H * 0.30;
         var baseW = ring.w * (0.96 + Math.sin(idx*3.1) * 0.04);
-        var depthZ = ri===0 ? -700 : ri===1 ? -380 : ri===2 ? -120 : 80;
-        var rotY = (-nx) * 32, rotX = ny * 24;
+        var depthZ = ri===0 ? -120 : ri===1 ? -60 : ri===2 ? 0 : 50;
+        var rotY = (-nx) * 12, rotX = ny * 8;
         var rotZ = Math.sin(idx*2.1) * 2.5;
         var defR = it.vids.length > 0 ? 9/16 : 0.62;
 
@@ -784,7 +784,7 @@
     /* sphere rotation — pure rotation only, no pan. Cards stay on screen. */
     function clamp(v,a,b){ return v<a?a:v>b?b:v; }
 
-    var ROT = 18; /* max degrees each axis */
+    var ROT = 6; /* max degrees — subtle tilt only */
     var mx=0, my=0, tx=0, ty=0, curActive=false;
 
     function applySphere() {
