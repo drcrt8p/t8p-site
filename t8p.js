@@ -30,7 +30,7 @@
       '--mono:"ui-monospace","SF Mono","Menlo","Consolas",monospace;',
       '--blue:#1a43ff;--rb:linear-gradient(90deg,#ff3366,#ff6600,#ffcc00,#33cc66,#3399ff,#cc33ff)}',
       'html,body{background:var(--bg);color:var(--fg);font-family:var(--mono);',
-      '-webkit-font-smoothing:antialiased;overflow-x:hidden}',
+      '-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none}',
       'header#header,#header,.header-announcement-bar-wrapper,.sqs-announcement-bar-dropzone{display:none!important}',
 
       /* ── Custom cursor (desktop only) ── */
@@ -456,16 +456,13 @@
   function initCursor() {
     var cur = document.getElementById('t8p-cur');
     if (!cur || IS_MOBILE) return;
-    var cx = innerWidth/2, cy = innerHeight/2, mx = cx, my = cy;
-    document.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; }, true);
-    function tick() {
-      cx += (mx - cx) * .22;
-      cy += (my - cy) * .22;
-      cur.style.left = cx + 'px';
-      cur.style.top  = cy + 'px';
-      requestAnimationFrame(tick);
-    }
-    tick();
+    /* cursor tracks 1:1 instantly -- no lag, native cursor never visible */
+    document.addEventListener('mousemove', function(e){
+      cur.style.left = e.clientX + 'px';
+      cur.style.top  = e.clientY + 'px';
+    }, {passive:true, capture:true});
+    /* also hide native cursor everywhere */
+    document.documentElement.style.cursor = 'none';
     function bindHover() {
       document.querySelectorAll('a,button,.t8p-cell,.t8p-mob-tile,.t8p-dock-stack,.t8p-btn').forEach(function(e){
         if (e._t8p) return; e._t8p = 1;
@@ -571,7 +568,7 @@
     });
 
     /* Sort by Squarespace page priority — top of list = inner ring */
-    var PRIORITY = ['microsoft','sotano','woxer','laboca','brooklinen','ekka','woxerpolaroid','micasaestucasa','mauryricky','hers','pbpm','calvinklein','t8pcommercial','787coffee','reglamento','arena','ddlp','classy101','reglamento-1','txtrano','rubirose','doritos','dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
+    var PRIORITY = ['microsoft','sotano','calvinklein','laboca','brooklinen','ekka','woxerpolaroid','micasaestucasa','mauryricky','hers','pbpm','woxer','t8pcommercial','787coffee','reglamento','arena','ddlp','classy101','reglamento-1','txtrano','rubirose','dreamstudios','doritos','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
     items.sort(function(a,b){
       var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
       if (ai === -1) ai = 999; if (bi === -1) bi = 999;
@@ -928,10 +925,12 @@
       });
 
       if (center) {
+        /* exaggerated parallax -- clearly visible tilt as sphere moves */
         center.style.transform =
-          'translate(-50%,-50%) perspective(1400px)' +
-          ' rotateY('+(degY*0.35)+'deg)' +
-          ' rotateX('+(degX*0.30)+'deg)';
+          'translate(-50%,-50%) perspective(800px)' +
+          ' rotateY('+(degY*1.8)+'deg)' +
+          ' rotateX('+(degX*1.4)+'deg)' +
+          ' translateZ(40px)';
       }
 
       requestAnimationFrame(frame);
