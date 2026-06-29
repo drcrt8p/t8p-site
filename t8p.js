@@ -105,8 +105,9 @@
       '.t8p-cell-media{position:absolute;inset:0;width:100%;height:100%}',
       '.t8p-cell-media img,.t8p-cell-media iframe{position:absolute;inset:0;',
       'width:100%;height:100%;object-fit:cover;transition:filter .45s;border:0}',
-      '.t8p-cell img{background:#000;visibility:hidden}',
+      '.t8p-cell img{background:#111;visibility:hidden}',
       '.t8p-cell[data-photo] img{visibility:visible}',
+      '.t8p-cell img[src]:not([src=""]):not([src="https://www.t8pstudios.com/"]){visibility:visible}',
       '.t8p-cell iframe{opacity:1!important;transition:none!important;border:none;display:block}',
       '.t8p-cell[data-photo] img{filter:grayscale(100%)}',
       '.t8p-cell[data-photo]:hover img,.t8p-cell[data-photo].is-hov img{filter:grayscale(0%)}',
@@ -577,6 +578,28 @@
     });
 
     buildGrid(items);
+
+    /* After sphere is built, fetch thumbnails for photo-type cards */
+    setTimeout(function(){
+      var cells = document.querySelectorAll('.t8p-cell[data-photo]');
+      cells.forEach(function(cell){
+        var slug = (cell.getAttribute('href')||'').replace('[/]','');
+        if (!slug) return;
+        var imgEl = cell.querySelector('img');
+        if (!imgEl || imgEl.src) return;
+        fetch('/' + slug + '?format=json-pretty')
+          .then(function(r){ return r.json(); })
+          .then(function(j){
+            var url = '';
+            if (j && j.items && j.items[0] && j.items[0].assetUrl) {
+              url = j.items[0].assetUrl + '?format=600w';
+            } else if (j && j.mainImage && j.mainImage.assetUrl) {
+              url = j.mainImage.assetUrl + '?format=600w';
+            }
+            if (url && imgEl) imgEl.src = url;
+          }).catch(function(){});
+      });
+    }, 800);
   }
 
   function injectWordmark(container) {
