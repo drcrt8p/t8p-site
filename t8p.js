@@ -109,11 +109,9 @@
       '.t8p-cell img{background:#111;width:100%;height:100%;object-fit:cover;visibility:visible;transition:filter .45s}',
       '.t8p-cell[data-photo] img{filter:grayscale(100%)}',
       '.t8p-cell[data-photo]:hover img,.t8p-cell[data-photo].is-hov img{filter:grayscale(0%)}',
-      '.t8p-cell::before{content:"";position:absolute;inset:-3px;border-radius:14px;z-index:-1;',
-      'background:var(--rb);opacity:0;transition:opacity .3s;pointer-events:none}',
+      '.t8p-cell::before{content:"";position:absolute;inset:-3px;border-radius:15px;',
+      'background:var(--rb);opacity:0;transition:opacity .3s;pointer-events:none;z-index:-1}',
       '.t8p-cell:hover::before,.t8p-cell.is-hov::before{opacity:1}',
-      '.t8p-cell::after{content:"";position:absolute;inset:0;border-radius:12px;z-index:0;',
-      'background:#000;pointer-events:none}',
       '.t8p-cell{transition:opacity .3s}',
       '.t8p-cell-lbl{position:absolute;bottom:0;left:0;right:0;padding:7px 9px;',
       'background:linear-gradient(to top,rgba(8,8,8,.9),transparent);',
@@ -573,7 +571,7 @@
     });
 
     /* Sort by Squarespace page priority — top of list = inner ring */
-    var PRIORITY = ['microsoft','sotano','calvinklein','woxerpolaroid','brooklinen','arena','laboca','micasaestucasa','mauryricky','hers','pbpm','woxer','t8pcommercial','787coffee','reglamento','doritos','ddlp','classy101','reglamento-1','txtrano','rubirose','dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster','ekka'];
+    var PRIORITY = ['microsoft','sotano','calvinklein','woxerpolaroid','brooklinen','arena','laboca','micasaestucasa','mauryricky','hers','pbpm','woxer','t8pcommercial','787coffee','reglamento','ekka','ddlp','classy101','reglamento-1','txtrano','rubirose','doritos','dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
     items.sort(function(a,b){
       var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
       if (ai === -1) ai = 999; if (bi === -1) bi = 999;
@@ -682,8 +680,8 @@
 
     /* Priority order — center-first, David's swaps applied */
     var PRIORITY = [
-      /* CENTER (innermost) */
-      'microsoft','sotano','calvinklein','woxerpolaroid','brooklinen','laboca','arena',
+      /* CENTER (innermost) -- sotano replaces hers, arena moved in, brooklinen replaces doritos */
+      'microsoft','sotano','calvinklein','woxerpolaroid','brooklinen','arena','laboca',
       /* MIDDLE RING -- hers and doritos pushed here */
       'micasaestucasa','mauryricky','hers','pbpm','woxer','t8pcommercial',
       '787coffee','reglamento','doritos','ddlp',
@@ -859,57 +857,57 @@
       if (c) { e.preventDefault(); window.location.href = c.getAttribute('href'); }
     }, true);
 
-    /* Motion: church-exact formula
-       targetX/Y set DIRECTLY from mouse each frame (no easing on target)
-       curRX/Y lerps toward target at 0.03/frame -- keeps coasting after stop */
-    var MAX_ROT_X = Math.PI * 0.08;   /* church: 8% of PI vertical   ~14.4deg */
-    var MAX_ROT_Y = Math.PI * 0.13;   /* church: 13% of PI horizontal ~23.4deg */
-    var LERP_CAM  = 0.03;             /* church exact lerp factor */
+    /* Motion: church-exact — target set directly from mouse, camera lerps at 0.03
+       When cursor moves: target jumps to new position instantly
+       When cursor stops: target stays, camera keeps coasting toward it — liquid */
+    function clamp(v,a,b){ return v<a?a:v>b?b:v; }
 
-    var targetX = 0, targetY = 0;     /* set directly from mouse, no easing */
-    var curRX = 0, curRY = 0;         /* camera follows with lerp */
+    var MAX_ROT_Y = Math.PI * 0.13;  /* church: 23.4deg horizontal */
+    var MAX_ROT_X = Math.PI * 0.08;  /* church: 14.4deg vertical */
+    var LERP_C = 0.03;               /* church exact lerp */
+    var PAN = 420;
 
+    var tgtX = 0, tgtY = 0;   /* set directly from mouse, no easing */
+    var curRX = 0, curRY = 0; /* camera lerps toward target */
     var center = document.getElementById('t8p-center');
+
     window.addEventListener('resize', function(){ W=window.innerWidth; H=window.innerHeight; });
 
     document.addEventListener('mousemove', function(e){
-      var mouseX = (e.clientX / W) * 2 - 1;   /* -1 to 1 */
-      var mouseY = -((e.clientY / H) * 2 - 1); /* -1 to 1, Y flipped */
-      /* clamp to church's exact ranges */
-      targetY = Math.max(-MAX_ROT_Y, Math.min(MAX_ROT_Y, mouseX * 2 * MAX_ROT_Y));
-      targetX = Math.max(-MAX_ROT_X, Math.min(MAX_ROT_X, mouseY * 2 * MAX_ROT_X));
+      var mx = (e.clientX/W)*2 - 1;
+      var my = -((e.clientY/H)*2 - 1);
+      tgtY = clamp(mx * 2 * MAX_ROT_Y, -MAX_ROT_Y, MAX_ROT_Y);
+      tgtX = clamp(my * 2 * MAX_ROT_X, -MAX_ROT_X, MAX_ROT_X);
     }, {passive:true});
 
     (function frame(){
-      /* church exact: lerp camera toward target each frame
-         target is set directly from mouse -- camera coasts smoothly behind it */
-      curRY += (targetY - curRY) * LERP_CAM;
-      curRX += (targetX - curRX) * LERP_CAM;
+      /* camera lerps toward target — keeps moving after cursor stops */
+      curRY += (tgtY - curRY) * LERP_C;
+      curRX += (tgtX - curRX) * LERP_C;
 
-      /* sphere: rotate + pan */
       var degY = curRY * (180/Math.PI);
       var degX = curRX * (180/Math.PI);
-      var PAN_X = (curRY / MAX_ROT_Y) * 420;
-      var PAN_Y = (curRX / MAX_ROT_X) * 260;
+      var panX = (curRY / MAX_ROT_Y) * PAN;
+      var panY = (curRX / MAX_ROT_X) * (PAN * 0.6);
+
       sphere.style.transform =
         'rotateY('+degY+'deg)' +
         ' rotateX('+degX+'deg)' +
-        ' translateX('+(-PAN_X)+'px)' +
-        ' translateY('+(PAN_Y)+'px)';
+        ' translateX('+(-panX)+'px)' +
+        ' translateY('+(panY)+'px)';
 
-      /* per-card secondary displacement -- church: (target - camera.rotation) * 0.08 */
-      var dispX = (targetY - curRY) * 0.08;
-      var dispY = (targetX - curRX) * 0.08;
+      /* per-card secondary drift (church: (target-cam)*0.08 per card) */
+      var dX = (tgtY - curRY) * 0.08;
+      var dY = (tgtX - curRX) * 0.08;
       cells.forEach(function(c) {
-        var ox = clamp((parseFloat(c.dataset.ox)||0) + dispX * c._baseW * 0.10, -18, 18);
-        var oy = clamp((parseFloat(c.dataset.oy)||0) + dispY * c._h    * 0.10, -18, 18);
+        var ox = clamp((parseFloat(c.dataset.ox)||0) + dX * c._baseW * 0.10, -20, 20);
+        var oy = clamp((parseFloat(c.dataset.oy)||0) + dY * c._h    * 0.10, -20, 20);
         c.dataset.ox = ox; c.dataset.oy = oy;
         var bx = c._px - c._baseW/2 + ox;
         var by = c._py - c._h/2    + oy;
         c.style.transform = 'translate3d('+bx+'px,'+by+'px,'+c._z+'px) rotateX('+c._rx+'deg) rotateY('+c._ry+'deg) rotateZ('+c._rz+'deg)';
       });
 
-      /* logo tilts gently */
       if (center) {
         center.style.transform =
           'translate(-50%,-50%) perspective(1400px)' +
