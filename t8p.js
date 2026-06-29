@@ -658,7 +658,7 @@
     var W = window.innerWidth, H = window.innerHeight;
     var cx = W/2, cy = H/2;
 
-    var rings = [{r:.38,n:5,w:264},{r:.62,n:8,w:238},{r:.88,n:9,w:210},{r:1.14,n:6,w:185}];
+    var rings = [{r:.28,n:5,w:256},{r:.50,n:8,w:228},{r:.72,n:9,w:200},{r:.94,n:6,w:176}];
     var cells = [];
     var idx = 0;
     var ordered = items;
@@ -674,8 +674,8 @@
         var jitter = Math.sin(idx*2.6) * 0.018;
         var rad = ring.r + jitter;
         var nx = Math.cos(ang), ny = Math.sin(ang);
-        var px = cx + nx * rad * W * 0.30;
-        var py = cy + ny * rad * H * 0.38;
+        var px = cx + nx * rad * W * 0.24;
+        var py = cy + ny * rad * H * 0.30;
         var baseW = ring.w * (0.96 + Math.sin(idx*3.1) * 0.04);
         var depthZ = ri===0 ? -700 : ri===1 ? -380 : ri===2 ? -120 : 80;
         var rotY = (-nx) * 32, rotX = ny * 24;
@@ -781,61 +781,30 @@
       if (c) { e.preventDefault(); window.location.href = c.getAttribute('href'); }
     }, true);
 
-    /* sphere rotation — limits keep panels on screen */
+    /* sphere rotation — pure rotation only, no pan. Cards stay on screen. */
     function clamp(v,a,b){ return v<a?a:v>b?b:v; }
 
-    var ROT = 8; /* subtle rotation degrees */
-
-    /* measure layout extent from card positions */
-    var minPX=Infinity, maxPX=-Infinity, minPY=Infinity, maxPY=-Infinity;
-    cells.forEach(function(c){
-      minPX = Math.min(minPX, c._px - c._baseW/2);
-      maxPX = Math.max(maxPX, c._px + c._baseW/2);
-      minPY = Math.min(minPY, c._py - c._h/2);
-      maxPY = Math.max(maxPY, c._py + c._h/2);
-    });
-    /* layout is larger than viewport — pan range is how far we can shift
-       before the NEAR edge of the layout exits the viewport.
-       We want cards at the boundary to peek ~80px into view at most. */
-    var PEEK = 80; /* px of outermost card visible at max pan */
-    /* how much layout overflows viewport on each side */
-    var overflowR = Math.max(0, maxPX - W + PEEK);
-    var overflowL = Math.max(0, -minPX + PEEK);
-    var overflowB = Math.max(0, maxPY - H + PEEK);
-    var overflowT = Math.max(0, -minPY + PEEK);
-    /* max pan in each direction = the overflow amount */
-    var maxPanR = overflowR * 0.5;   /* can shift left to reveal right cards */
-    var maxPanL = overflowL * 0.5;   /* can shift right to reveal left cards */
-    var maxPanD = overflowB * 0.5;
-    var maxPanU = overflowT * 0.5;
-
+    var ROT = 18; /* max degrees each axis */
     var mx=0, my=0, tx=0, ty=0, curActive=false;
 
     function applySphere() {
-      /* tx in [-1,0] = shifting right (revealing left cards), [0,1] = left (revealing right) */
-      var panX = tx > 0 ? tx * maxPanR : tx * maxPanL;
-      var panY = ty > 0 ? ty * maxPanD : ty * maxPanU;
       sphere.style.transform =
-        'rotateY('+(tx*ROT)+'deg) rotateX('+(-ty*ROT*.7)+'deg)' +
-        ' translateX('+(-panX)+'px) translateY('+(-panY)+'px)';
+        'rotateY('+(tx*ROT)+'deg) rotateX('+(-ty*ROT*.7)+'deg)';
     }
 
     document.addEventListener('mousemove', function(e){
       curActive = true;
-      /* normalize cursor to [-1, 1] */
       var nx = clamp((e.clientX/W - .5) * 2, -1, 1);
       var ny = clamp((e.clientY/H - .5) * 2, -1, 1);
-      /* gentle power curve — less aggressive at edges */
-      mx = Math.sign(nx) * Math.pow(Math.abs(nx), 1.4);
-      my = Math.sign(ny) * Math.pow(Math.abs(ny), 1.4);
+      mx = Math.sign(nx) * Math.pow(Math.abs(nx), 1.3);
+      my = Math.sign(ny) * Math.pow(Math.abs(ny), 1.3);
     }, {passive:true});
 
     document.addEventListener('mouseleave', function(){ curActive = false; });
 
     (function spin(){
-      var ease = curActive ? 0.05 : 0.025;
-      tx += ((curActive ? mx : 0) - tx) * ease;
-      ty += ((curActive ? my : 0) - ty) * ease;
+      tx += ((curActive ? mx : 0) - tx) * (curActive ? 0.05 : 0.025);
+      ty += ((curActive ? my : 0) - ty) * (curActive ? 0.05 : 0.025);
       tx = clamp(tx, -1, 1);
       ty = clamp(ty, -1, 1);
       applySphere();
