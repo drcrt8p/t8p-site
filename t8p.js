@@ -674,13 +674,13 @@
         var jitter = Math.sin(idx*2.6) * 0.018;
         var rad = ring.r + jitter;
         var nx = Math.cos(ang), ny = Math.sin(ang);
-        var px = cx + nx * rad * W * 0.24;
-        var py = cy + ny * rad * H * 0.30;
+        var px = cx + nx * rad * W * 0.32;
+        var py = cy + ny * rad * H * 0.40;
         var baseW = ring.w * (0.96 + Math.sin(idx*3.1) * 0.04);
         var depthZ = ri===0 ? -120 : ri===1 ? -60 : ri===2 ? 0 : 50;
         var rotY = (-nx) * 12, rotX = ny * 8;
         var rotZ = Math.sin(idx*2.1) * 2.5;
-        var defR = it.vids.length > 0 ? 9/16 : 0.62;
+        var defR = 9/16; /* default 16:9, img covers with object-fit */
 
         var cell = el('a', {className:'t8p-cell', href:it.href});
         if (it.vids.length === 0) cell.setAttribute('data-photo','1');
@@ -697,10 +697,22 @@
         var image = el('img', {});
         image.src = it.src || '';
         image.alt = it.name;
-        image.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
-        /* set placeholder so cell has visible bg while fetching */
+        image.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1';
         image.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
         media.appendChild(image);
+        /* Vimeo background iframe on top of thumbnail */
+        if (it.vids.length > 0) {
+          var hash0 = (window._t8pDATA && window._t8pDATA[it.slug] && window._t8pDATA[it.slug].h) ? window._t8pDATA[it.slug].h : {};
+          var vid0 = it.vids[0];
+          var h0str = hash0[String(vid0)] ? '?h=' + hash0[String(vid0)] + '&' : '?';
+          var ifr = document.createElement('iframe');
+          ifr.src = 'https://player.vimeo.com/video/' + vid0 + h0str + 'background=1&autoplay=1&loop=1&muted=1&autopause=0';
+          ifr.setAttribute('frameborder','0');
+          ifr.setAttribute('allow','autoplay; fullscreen');
+          ifr.style.cssText = 'position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);border:none;z-index:2;opacity:0;transition:opacity 1s';
+          ifr.onload = function(){ this.style.opacity = '1'; };
+          media.appendChild(ifr);
+        }
 
         cell.appendChild(media);
 
@@ -725,7 +737,7 @@
     /* collision relaxation */
     function relax() {
       var n = cells.length;
-      var PAD = 49, LW = 640, LH = 190;
+      var PAD = 80, LW = 640, LH = 200;
       for (var t = 0; t < 160; t++) {
         var moved = 0;
         for (var i = 0; i < n; i++) {
@@ -901,7 +913,7 @@
       hf.setAttribute('allow','autoplay; fullscreen; picture-in-picture; encrypted-media');
       hf.setAttribute('allowfullscreen','');
       hf.setAttribute('allowautoplay','');
-      hf.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none';
+      hf.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:auto';
       var heroHash = hashes[String(vids[0])] ? '?h='+hashes[String(vids[0])]+'&' : '?';
       hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=1';
       hero.appendChild(hf);
