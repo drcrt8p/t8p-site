@@ -42,7 +42,7 @@
       '@media(max-width:767px){#t8p-cur{display:none}}',
 
       /* ── T8P logo icon ── */
-      '#t8p-icon{position:fixed;top:18px;left:20px;z-index:9000;width:34px;height:34px;',
+      '#t8p-icon{position:fixed;top:20px;left:22px;z-index:9000;width:42px;height:42px;',
       'display:flex;align-items:center;justify-content:center;text-decoration:none;',
       'opacity:.9;transition:opacity .2s;color:#fff}',
       '#t8p-icon:hover{opacity:1}',
@@ -574,11 +574,15 @@
     var LOGO_UUID = 'd4325d9d-7519-4511-9a6d-61a47a7b3772';
     var FAVICON_UUID = 'ac99735c-ce86-40fe-9c43-cf78ce4c1e9e';
     function fetchThumb(cell, slug) {
+      var item = (window._t8pDATA||{})[slug];
+      var vids = item ? (item.v||[]) : [];
+      var vid0 = vids.length > 0 ? (typeof vids[0]==='string'?parseInt(vids[0],10):vids[0]) : 0;
       fetch('/' + slug)
         .then(function(r){ return r.text(); })
         .then(function(html){
           var matches = html.match(/images\.squarespace-cdn\.com\/content\/[^"'\s?]+/g) || [];
           var seen = {};
+          var found = false;
           for (var i = 0; i < matches.length; i++) {
             var u = matches[i];
             if (u.indexOf(LOGO_UUID) > -1) continue;
@@ -588,11 +592,22 @@
             if (!seen[base]) {
               seen[base] = true;
               var img = cell.querySelector('img');
-              if (img) img.src = 'https://' + base + '?format=600w';
+              if (img) { img.src = 'https://' + base + '?format=600w'; found = true; }
               return;
             }
           }
-        }).catch(function(){});
+          /* fallback: vumbnail for video projects */
+          if (!found && vid0) {
+            var img = cell.querySelector('img');
+            if (img) img.src = 'https://vumbnail.com/' + vid0 + '.jpg';
+          }
+        }).catch(function(){
+          /* last resort */
+          if (vid0) {
+            var img = cell.querySelector('img');
+            if (img) img.src = 'https://vumbnail.com/' + vid0 + '.jpg';
+          }
+        });
     }
     /* stagger fetches - 5 concurrent bursts */
     var allCells = Array.from(document.querySelectorAll('.t8p-cell'));
@@ -684,17 +699,9 @@
         var image = el('img', {});
         image.src = it.src || '';
         image.alt = it.name;
-        /* Use vimeo thumbnail as immediate visual - instant, no iframe needed */
-        if (it.vids.length > 0) {
-          image.src = 'https://vumbnail.com/' + it.vids[0] + '.jpg';
-          image.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;visibility:visible';
-          image.onerror = function() {
-            /* fallback to i.vimeocdn.com if vumbnail fails */
-            if (this.src.indexOf('vumbnail') > -1) {
-              this.src = 'https://i.vimeocdn.com/video/' + it.vids[0] + '_1280.jpg';
-            }
-          };
-        }
+        image.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
+        /* set placeholder so cell has visible bg while fetching */
+        image.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
         media.appendChild(image);
 
         cell.appendChild(media);
