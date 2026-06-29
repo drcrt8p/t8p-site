@@ -571,7 +571,7 @@
     });
 
     /* Sort by Squarespace page priority — top of list = inner ring */
-    var PRIORITY = ['doritos', 'woxerpolaroid', 'calvinklein', 'micasaestucasa', 'microsoft', 'mauryricky', 'pbpm', 'hers', 'brooklinen', 'arena', 'laboca', 'woxer', 't8pcommercial', '787coffee', 'reglamento', 'ddlp', 'classy101', 'reglamento-1', 'txtrano', 'rubirose', 'ekka', 'sotano', 'dreamstudios', 'rulay', 'enladisco', '2r1n', 'horoscopo', 'natalia', 'mezcal', 'mensajedevoz', 'paolaguanche', 'normal', 'shaz', 'sadvalentin', 'monster'];
+    var PRIORITY = ['microsoft','hers','calvinklein','woxerpolaroid','doritos','arena','laboca','micasaestucasa','mauryricky','brooklinen','pbpm','woxer','t8pcommercial','787coffee','reglamento','ddlp','classy101','reglamento-1','txtrano','rubirose','ekka','sotano','dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
     items.sort(function(a,b){
       var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
       if (ai === -1) ai = 999; if (bi === -1) bi = 999;
@@ -673,17 +673,24 @@
     var COLS = 5, ROWS = 4;
     var GAP_X = W * 0.04, GAP_Y = H * 0.04;
     /* Grid spans ~90% of viewport, centered */
-    var gridW = W * 0.88, gridH = H * 0.86;
+    var gridW = W * 1.10, gridH = H * 1.08; /* overflow viewport -- pan reveals edges */
     var cellW = (gridW - (COLS-1)*GAP_X) / COLS;
     var cellH = (gridH - (ROWS-1)*GAP_Y) / ROWS;
     var gridLeft = (W - gridW) / 2, gridTop = (H - gridH) / 2;
 
-    /* Priority order — inner cells first */
-    var PRIORITY = ['doritos','woxerpolaroid','calvinklein','micasaestucasa','microsoft',
-      'mauryricky','pbpm','hers','brooklinen','arena','laboca','woxer','t8pcommercial',
-      '787coffee','reglamento','ddlp','classy101','reglamento-1','txtrano','rubirose',
-      'ekka','sotano','dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia',
-      'mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
+    /* Priority order — David's exact center-first list */
+    var PRIORITY = [
+      /* CENTER (innermost) */
+      'microsoft','hers','calvinklein','woxerpolaroid','doritos','arena','laboca',
+      /* 'airbnb' -- include if slug exists */
+      /* MIDDLE RING */
+      'micasaestucasa','mauryricky','brooklinen','pbpm','woxer','t8pcommercial',
+      '787coffee','reglamento','ddlp',
+      /* OUTER RING */
+      'classy101','reglamento-1','txtrano','rubirose','ekka','sotano',
+      'dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia',
+      'mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'
+    ];
     items.sort(function(a,b){
       var ai=PRIORITY.indexOf(a.slug), bi=PRIORITY.indexOf(b.slug);
       return (ai<0?999:ai)-(bi<0?999:bi);
@@ -738,7 +745,7 @@
       var rawRatio = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || it.ratio || 0;
       var defR = rawRatio > 0 ? (1/rawRatio) : (9/16);
       /* card width fits in cell */
-      var baseW = Math.min(cellW * 0.92, 300);
+      var baseW = Math.min(cellW * 1.18, 360); /* 25% larger so edges visible on pan */
 
       var cell = el('a', {className:'t8p-cell', href:it.href});
       cell.style.width  = baseW + 'px';
@@ -856,8 +863,8 @@
        per-card displacement adds secondary parallax (depth feel) */
     function clamp(v,a,b){ return v<a?a:v>b?b:v; }
 
-    var ROT = 14;          /* max rotation degrees */
-    var PAN = 280;         /* max pan pixels */
+    var ROT = 16;          /* max rotation degrees */
+    var PAN = 420;         /* pan enough to reveal overflow at edges */
     var LERP = 0.028;      /* church uses 0.03 — slightly slower for more liquid */
     var DISP = 0.06;       /* per-card displacement scale — church uses 0.08 */
 
@@ -873,10 +880,19 @@
       mouseNY = clamp(-((e.clientY/H)*2 - 1), -1, 1); /* Y flipped like Three.js */
     }, {passive:true});
 
+    /* velocity carry for smooth full-arc deceleration */
+    var velX = 0, velY = 0;
+    var FRICTION = 0.88;   /* how much velocity carries -- higher = longer tail */
+
     (function frame(){
-      /* church: lerp current toward target each frame */
-      curRY += (mouseNX - curRY) * LERP;
-      curRX += (mouseNY - curRX) * LERP;
+      /* velocity lerps toward (target - pos), then friction slows it */
+      /* this gives smooth deceleration all the way to rest, never abrupt */
+      velY += (mouseNX - curRY) * LERP * 0.7;
+      velX += (mouseNY - curRX) * LERP * 0.7;
+      velY *= FRICTION;
+      velX *= FRICTION;
+      curRY += velY;
+      curRX += velX;
 
       /* sphere rotates + pans */
       sphere.style.transform =
