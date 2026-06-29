@@ -1,5 +1,5 @@
 /* ============================================================
-   T8P STUDIOS — Site Script v9.4
+   T8P STUDIOS — Site Script v9.5
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
    ============================================================ */
@@ -568,7 +568,7 @@
     });
 
     /* Sort by Squarespace page priority — top of list = inner ring */
-    var PRIORITY = ['microsoft','sotano','calvinklein','laboca','brooklinen','ekka','woxerpolaroid','micasaestucasa','mauryricky','hers','pbpm','doritos','t8pcommercial','787coffee','reglamento','arena','ddlp','classy101','reglamento-1','txtrano','rubirose','new-project','woxer','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
+    var PRIORITY = ['calvinklein','sotano','microsoft','laboca','brooklinen','ekka','woxerpolaroid','micasaestucasa','mauryricky','hers','pbpm','doritos','t8pcommercial','787coffee','reglamento','arena','ddlp','classy101','reglamento-1','txtrano','rubirose','new-project','woxer','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
     items.sort(function(a,b){
       var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
       if (ai === -1) ai = 999; if (bi === -1) bi = 999;
@@ -694,14 +694,14 @@
 
     /* Priority order — center-first, David's swaps applied */
     var PRIORITY = [
-      /* CENTER (innermost) -- sotano replaces hers, arena moved in, brooklinen replaces doritos */
-      'microsoft','sotano','calvinklein','laboca','brooklinen','ekka','woxerpolaroid',
-      /* MIDDLE RING -- hers and doritos pushed here */
-      'micasaestucasa','mauryricky','hers','pbpm','woxer','t8pcommercial',
-      '787coffee','reglamento','doritos','ddlp',
+      /* CENTER -- CK innermost, microsoft nearby */
+      'calvinklein','sotano','microsoft','laboca','brooklinen','ekka','woxerpolaroid',
+      /* MIDDLE RING */
+      'micasaestucasa','mauryricky','hers','pbpm','doritos','t8pcommercial',
+      '787coffee','reglamento','arena','ddlp',
       /* OUTER RING */
-      'classy101','reglamento-1','txtrano','rubirose','ekka',
-      'dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia',
+      'classy101','reglamento-1','txtrano','rubirose',
+      'new-project','woxer','rulay','enladisco','2r1n','horoscopo','natalia',
       'mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'
     ];
     items.sort(function(a,b){
