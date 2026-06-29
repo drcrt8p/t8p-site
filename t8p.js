@@ -669,80 +669,122 @@
     var W = window.innerWidth, H = window.innerHeight;
     var cx = W/2, cy = H/2;
 
-    var rings = [{r:.28,n:5,w:256},{r:.50,n:8,w:228},{r:.72,n:9,w:200},{r:.94,n:6,w:176}];
-    var cells = [];
-    var idx = 0;
-    var ordered = items;
+    /* Church-style layout: loose grid with per-cell jitter, Z varies by distance from center */
+    var COLS = 5, ROWS = 4;
+    var GAP_X = W * 0.04, GAP_Y = H * 0.04;
+    /* Grid spans ~90% of viewport, centered */
+    var gridW = W * 0.88, gridH = H * 0.86;
+    var cellW = (gridW - (COLS-1)*GAP_X) / COLS;
+    var cellH = (gridH - (ROWS-1)*GAP_Y) / ROWS;
+    var gridLeft = (W - gridW) / 2, gridTop = (H - gridH) / 2;
 
-    for (var ri = 0; ri < rings.length && idx < ordered.length; ri++) {
-      var ring = rings[ri];
-      var count = Math.min(ring.n, ordered.length - idx);
-      var angStep = (Math.PI*2) / ring.n;
-      var angOff = ri * 0.42;
-      for (var k = 0; k < count && idx < ordered.length; k++, idx++) {
-        var it = ordered[idx];
-        var ang = angOff + k * angStep;
-        var jitter = Math.sin(idx*2.6) * 0.018;
-        var rad = ring.r + jitter;
-        var nx = Math.cos(ang), ny = Math.sin(ang);
-        var px = cx + nx * rad * W * 0.32;
-        var py = cy + ny * rad * H * 0.40;
-        var baseW = ring.w * (0.96 + Math.sin(idx*3.1) * 0.04);
-        var depthZ = ri===0 ? -120 : ri===1 ? -60 : ri===2 ? 0 : 50;
-        var rotY = (-nx) * 12, rotX = ny * 8;
-        var rotZ = Math.sin(idx*2.1) * 2.5;
-        /* native aspect: use _t8pRATIOS[slug] if available */
-        var rawRatio = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || it.ratio || 0;
-        /* rawRatio is width/height (e.g. 1.777 for 16:9, 1.333 for 4:3) */
-        var defR = rawRatio > 0 ? (1 / rawRatio) : (9/16);
+    /* Priority order — inner cells first */
+    var PRIORITY = ['doritos','woxerpolaroid','calvinklein','micasaestucasa','microsoft',
+      'mauryricky','pbpm','hers','brooklinen','arena','laboca','woxer','t8pcommercial',
+      '787coffee','reglamento','ddlp','classy101','reglamento-1','txtrano','rubirose',
+      'ekka','sotano','dreamstudios','rulay','enladisco','2r1n','horoscopo','natalia',
+      'mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
+    items.sort(function(a,b){
+      var ai=PRIORITY.indexOf(a.slug), bi=PRIORITY.indexOf(b.slug);
+      return (ai<0?999:ai)-(bi<0?999:bi);
+    });
 
-        var cell = el('a', {className:'t8p-cell', href:it.href});
-        if (it.vids.length === 0) cell.setAttribute('data-photo','1');
-        cell.style.width  = Math.max(285, baseW) + 'px';
-        cell.style.height = (Math.max(285, baseW) * defR) + 'px';
-        cell.style.left   = '0px';
-        cell.style.top    = '0px';
-        cell._px = px; cell._py = py; cell._z = depthZ;
-        cell._rx = rotX; cell._ry = rotY; cell._rz = rotZ;
-        cell._baseW = Math.max(285, baseW);
-        cell._h = Math.max(285, baseW) * defR;
-
-        var media = el('div', {className:'t8p-cell-media'});
-        var image = el('img', {});
-        image.src = it.src || '';
-        image.alt = it.name;
-        image.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1';
-        image.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-        media.appendChild(image);
-        /* Vimeo autoplay iframe — fades in over thumbnail */
-        (function(slug, vids){
-          var d = (window._t8pDATA||{})[slug] || {};
-          var hashes = d.h || {};
-          var vid = vids[0];
-          var hs = hashes[String(vid)] ? '?h=' + hashes[String(vid)] + '&' : '?';
-          var ifr = document.createElement('iframe');
-          ifr.setAttribute('frameborder','0');
-          ifr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
-          ifr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;opacity:0;transition:opacity 1.2s';
-          /* delay src set to stagger loads */
-          ifr.src = 'https://player.vimeo.com/video/'+vid+hs+'background=1&autoplay=1&loop=1&muted=1&autopause=0&playsinline=1';
-          ifr.addEventListener('load', function(){ ifr.style.opacity='1'; });
-          media.appendChild(ifr);
-        })(it.slug, it.vids);
-
-        cell.appendChild(media);
-
-        var lbl = el('div', {className:'t8p-cell-lbl'});
-        var d = (window._t8pDATA||{})[it.slug];
-        var title = d ? (d.t||it.name).replace(/^"|"$/g,'') : it.name;
-        lbl.innerHTML = '<span class="t8p-cell-name">'+title+'</span><span class="t8p-cell-arr">&#8599;</span>';
-        cell.appendChild(lbl);
-        sphere.appendChild(cell);
-        cells.push(cell);
-      }
+    /* Assign grid cells — spiral from center outward so priority = center */
+    var cellOrder = [];
+    var cr = Math.floor(ROWS/2), cc = Math.floor(COLS/2);
+    /* Build spiral order */
+    var visited = []; for(var i=0;i<ROWS;i++){visited[i]=[];for(var j=0;j<COLS;j++)visited[i][j]=false;}
+    var dirs=[[0,1],[1,0],[0,-1],[-1,0]]; var di=0; var r=cr,c=cc; var steps=1,stepCount=0,turns=0;
+    for(var n=0;n<ROWS*COLS;n++){
+      cellOrder.push([r,c]); visited[r][c]=true;
+      var nr=r+dirs[di][0], nc=c+dirs[di][1];
+      stepCount++;
+      if(stepCount===steps){stepCount=0;di=(di+1)%4;turns++;if(turns%2===0)steps++;}
+      r+=dirs[di][0]; c+=dirs[di][1];
+      if(r<0||r>=ROWS||c<0||c>=COLS){break;}
     }
+    /* fill any missed cells */
+    for(var ri2=0;ri2<ROWS;ri2++)for(var ci2=0;ci2<COLS;ci2++)if(!visited[ri2][ci2])cellOrder.push([ri2,ci2]);
 
-    /* position cells */
+    var cells = [];
+    var maxCards = Math.min(items.length, cellOrder.length);
+
+    for (var idx = 0; idx < maxCards; idx++) {
+      var it = items[idx];
+      var gridCell = cellOrder[idx] || [Math.floor(idx/COLS), idx%COLS];
+      var row = gridCell[0], col = gridCell[1];
+
+      /* cell center */
+      var baseCX = gridLeft + col * (cellW + GAP_X) + cellW/2;
+      var baseCY = gridTop  + row * (cellH + GAP_Y) + cellH/2;
+
+      /* random jitter within cell — church uses 30% of cell size */
+      var jx = (Math.random()-0.5) * cellW * 0.28;
+      var jy = (Math.random()-0.5) * cellH * 0.28;
+      var px = baseCX + jx;
+      var py = baseCY + jy;
+
+      /* Z based on distance from center — center=deepest (concave bowl) */
+      var dx = (px - cx) / (W/2), dy = (py - cy) / (H/2);
+      var dist = Math.sqrt(dx*dx + dy*dy); /* 0=center, ~1.4=corner */
+      var depthZ = -180 + dist * 160; /* center=-180, edges~+46 */
+
+      /* card tilt faces center */
+      var rotY = -(px-cx)/cx * 10;
+      var rotX = (py-cy)/cy * 7;
+      var rotZ = (Math.random()-0.5) * 2.5; /* slight random roll */
+
+      /* native aspect ratio */
+      var rawRatio = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || it.ratio || 0;
+      var defR = rawRatio > 0 ? (1/rawRatio) : (9/16);
+      /* card width fits in cell */
+      var baseW = Math.min(cellW * 0.92, 300);
+
+      var cell = el('a', {className:'t8p-cell', href:it.href});
+      cell.style.width  = baseW + 'px';
+      cell.style.height = (baseW * defR) + 'px';
+      cell.style.left   = '0px';
+      cell.style.top    = '0px';
+      cell._px = px; cell._py = py; cell._z = depthZ;
+      cell._rx = rotX; cell._ry = rotY; cell._rz = rotZ;
+      cell._baseW = baseW;
+      cell._h = baseW * defR;
+
+      /* media */
+      var media = el('div', {className:'t8p-cell-media'});
+      var image = el('img', {});
+      image.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1';
+      image.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+      media.appendChild(image);
+
+      /* Vimeo autoplay iframe */
+      (function(slug, vids){
+        var d = (window._t8pDATA||{})[slug] || {};
+        var hashes = d.h || {};
+        var vid = vids[0];
+        var hs = hashes[String(vid)] ? '?h=' + hashes[String(vid)] + '&' : '?';
+        var ifr = document.createElement('iframe');
+        ifr.setAttribute('frameborder','0');
+        ifr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+        ifr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;opacity:0;transition:opacity 1.2s';
+        ifr.src = 'https://player.vimeo.com/video/'+vid+hs+'background=1&autoplay=1&loop=1&muted=1&autopause=0&playsinline=1';
+        ifr.addEventListener('load', function(){ ifr.style.opacity='1'; });
+        media.appendChild(ifr);
+      })(it.slug, it.vids);
+
+      cell.appendChild(media);
+
+      /* label */
+      var lbl = el('div', {className:'t8p-cell-lbl'});
+      var d2 = (window._t8pDATA||{})[it.slug];
+      var title = d2 ? (d2.t||it.name).replace(/^\"|\"$/g,'') : it.name;
+      lbl.innerHTML = '<span class="t8p-cell-name">'+title+'</span><span class="t8p-cell-arr">&#8599;</span>';
+      cell.appendChild(lbl);
+      sphere.appendChild(cell);
+      cells.push(cell);
+    } /* end for idx */
+
+
     function positionCell(c) {
       var x = c._px - c._baseW/2;
       var y = c._py - c._h/2;
@@ -809,54 +851,61 @@
       if (c) { e.preventDefault(); window.location.href = c.getAttribute('href'); }
     }, true);
 
-    /* sphere rotation — spring physics (approved model, church-like liquid feel) */
+    /* Motion: church-style pure lerp — no spring, no snap-back
+       cursor sets target, camera lerps at 0.03 per frame (liquid lag)
+       per-card displacement adds secondary parallax (depth feel) */
     function clamp(v,a,b){ return v<a?a:v>b?b:v; }
 
-    /* Spring constants: STIFF=low = more lag, DAMP=high = less overshoot */
-    var STIFF = 0.048, DAMP = 0.82;
-    var ROT = 22, PAN = 480;   /* rotation degrees and pan pixels at full deflection */
+    var ROT = 14;          /* max rotation degrees */
+    var PAN = 280;         /* max pan pixels */
+    var LERP = 0.028;      /* church uses 0.03 — slightly slower for more liquid */
+    var DISP = 0.06;       /* per-card displacement scale — church uses 0.08 */
 
-    var mx=0, my=0;            /* cursor target (normalized -1..1) */
-    var cxp=0, cyp=0;          /* current position */
-    var vx=0, vy=0;            /* velocity */
-
+    var mouseNX = 0, mouseNY = 0;  /* normalized mouse target [-1,1] */
+    var curRX = 0, curRY = 0;      /* current eased rotation */
     var center = document.getElementById('t8p-center');
 
     window.addEventListener('resize', function(){ W=window.innerWidth; H=window.innerHeight; });
 
     document.addEventListener('mousemove', function(e){
-      var nx = clamp((e.clientX/W - 0.5) * 2, -1, 1);
-      var ny = clamp((e.clientY/H - 0.5) * 2, -1, 1);
-      /* power curve — edge feels heavier */
-      mx = Math.sign(nx) * Math.pow(Math.abs(nx), 1.3) * 0.82;
-      my = Math.sign(ny) * Math.pow(Math.abs(ny), 1.3) * 0.82;
+      /* straight normalization, no power curve — church does linear */
+      mouseNX = clamp((e.clientX/W)*2 - 1, -1, 1);
+      mouseNY = clamp(-((e.clientY/H)*2 - 1), -1, 1); /* Y flipped like Three.js */
     }, {passive:true});
 
     (function frame(){
-      /* spring: accelerate toward target, damp velocity → overshoot + liquid settle */
-      var ax = (mx - cxp) * STIFF;
-      var ay = (my - cyp) * STIFF;
-      vx = (vx + ax) * DAMP;
-      vy = (vy + ay) * DAMP;
-      cxp += vx;
-      cyp += vy;
-      cxp = clamp(cxp, -1, 1);
-      cyp = clamp(cyp, -1, 1);
+      /* church: lerp current toward target each frame */
+      curRY += (mouseNX - curRY) * LERP;
+      curRX += (mouseNY - curRX) * LERP;
 
-      /* sphere: rotate + pan so cards actually move across screen */
+      /* sphere rotates + pans */
       sphere.style.transform =
-        'rotateY('+(cxp*ROT)+'deg)' +
-        ' rotateX('+(-cyp*ROT*0.78)+'deg)' +
-        ' translateX('+(-cxp*PAN)+'px)' +
-        ' translateY('+(-cyp*PAN*0.74)+'px)';
+        'rotateY('+(curRY*ROT)+'deg)' +
+        ' rotateX('+(curRX*ROT*0.7)+'deg)' +
+        ' translateX('+(-curRY*PAN)+'px)' +
+        ' translateY('+(curRX*PAN*0.6)+'px)';
 
-      /* logo: tilts in 3D with cursor — depth parallax opposite to sphere */
+      /* per-card secondary displacement — each card drifts slightly (church's parallax) */
+      var dispX = (mouseNX - curRY) * DISP;
+      var dispY = (mouseNY - curRX) * DISP;
+      cells.forEach(function(c) {
+        var ox = parseFloat(c.dataset.ox || 0) + dispX * c._baseW * 0.12;
+        var oy = parseFloat(c.dataset.oy || 0) + dispY * c._h * 0.12;
+        /* clamp card drift to ±20px so nothing goes off screen */
+        ox = clamp(ox, -20, 20); oy = clamp(oy, -20, 20);
+        c.dataset.ox = ox; c.dataset.oy = oy;
+        /* reapply full transform with drift offset */
+        var bx = c._px - c._baseW/2 + ox;
+        var by = c._py - c._h/2 + oy;
+        c.style.transform = 'translate3d('+bx+'px,'+by+'px,'+c._z+'px) rotateX('+c._rx+'deg) rotateY('+c._ry+'deg) rotateZ('+c._rz+'deg)';
+      });
+
+      /* logo tilts gently opposite sphere */
       if (center) {
         center.style.transform =
-          'translate(-50%,-50%)' +
-          ' perspective(1200px)' +
-          ' rotateY('+(cxp*8)+'deg)' +
-          ' rotateX('+(-cyp*7)+'deg)';
+          'translate(-50%,-50%) perspective(1400px)' +
+          ' rotateY('+(curRY*6)+'deg)' +
+          ' rotateX('+(curRX*5)+'deg)';
       }
 
       requestAnimationFrame(frame);
