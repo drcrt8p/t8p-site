@@ -1,5 +1,5 @@
 /* ============================================================
-   T8P STUDIOS — Site Script v10.3
+   T8P STUDIOS — Site Script v10.4
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
    ============================================================ */
@@ -1045,10 +1045,25 @@
       hf.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;z-index:2';
       var heroHash = hashes[String(vids[0])] ? '?h='+hashes[String(vids[0])]+'&' : '?';
       hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=1&dnt=1';
-      /* poster thumbnail shows before video loads */
+      /* poster: scrape page for real thumbnail, fallback to vumbnail */
       var poster = el('img',{});
-      poster.src = 'https://vumbnail.com/'+vids[0]+'.jpg';
       poster.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1';
+      var SKIP_UUID = 'd4325d9d-7519-4511-9a6d-61a47a7b3772';
+      fetch(location.pathname).then(function(r){return r.text();}).then(function(html){
+        var imgs = (html.match(/images\.squarespace-cdn\.com\/content\/[^"'\s?]+/g)||[]);
+        for(var i=0;i<imgs.length;i++){
+          if(imgs[i].indexOf(SKIP_UUID)>-1) continue;
+          if(imgs[i].match(/\.(ico|svg|gif)$/i)) continue;
+          poster.src = 'https://'+imgs[i].split('?')[0]+'?format=2500w';
+          return;
+        }
+        /* fallback: vumbnail -- works for public videos */
+        poster.src = 'https://vumbnail.com/'+vids[0]+'.jpg';
+        poster.onerror = function(){ poster.style.display='none'; };
+      }).catch(function(){
+        poster.src = 'https://vumbnail.com/'+vids[0]+'.jpg';
+        poster.onerror = function(){ poster.style.display='none'; };
+      });
       hero.appendChild(poster);
       hero.appendChild(hf);
     } else {
