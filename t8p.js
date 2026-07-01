@@ -697,10 +697,10 @@
     }
     pos(); window.addEventListener('resize', pos); setInterval(pos, 500);
     shield.addEventListener('click', function(e){
-      e.stopPropagation(); e.preventDefault();
+      e.stopPropagation(); e.stopImmediatePropagation(); e.preventDefault();
       var o = nav.classList.toggle('open');
       document.body.classList.toggle('nav-open', o);
-    });
+    }, true);
     home.appendChild(shield);
   }
 
@@ -1404,7 +1404,9 @@
         /* click-through for sphere cards (desktop) */
         document.addEventListener('click', function(e){
           var navEl = document.getElementById('t8p-nav');
+          var shieldEl = document.getElementById('t8p-nav-shield');
           if (navEl && navEl.contains(e.target)) return;
+          if (shieldEl && shieldEl.contains(e.target)) return;
           if (!document.body.classList.contains('is-pp') && !document.body.classList.contains('nav-open')) {
             var hov = document.querySelector('.t8p-cell.is-hov');
             if (hov) { e.preventDefault(); e.stopImmediatePropagation(); location.href = hov.getAttribute('href'); }
