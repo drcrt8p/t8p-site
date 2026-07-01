@@ -1,5 +1,5 @@
 /* ============================================================
-   T8P STUDIOS — Site Script v10.2
+   T8P STUDIOS — Site Script v10.3
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
    ============================================================ */
@@ -177,7 +177,7 @@
       '@media(max-width:767px){#t8p-pp-wm{height:44px}#t8p-pp-wm svg{height:20px}}',
       '.t8p-pp-hero{position:relative;width:100%;height:100vh;flex-shrink:0;overflow:hidden}',
       '#t8p-vp-main{position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none}',
-      '#t8p-ov{position:absolute;inset:0;z-index:1}',
+      '#t8p-ov{position:absolute;inset:0;z-index:0}',
       '.t8p-pp-bar{position:absolute;bottom:0;left:0;right:0;z-index:2;',
       'padding:11px 24px;display:flex;align-items:center;gap:16px;',
       'background:var(--blue)}',
@@ -1042,10 +1042,14 @@
       hf.setAttribute('allow','autoplay; fullscreen; picture-in-picture; encrypted-media');
       hf.setAttribute('allowfullscreen','');
       hf.setAttribute('allowautoplay','');
-      /* Overflow iframe so Vimeo's letterboxing is hidden behind the container */
-      hf.style.cssText = 'position:absolute;top:-10%;left:-10%;width:120%;height:120%;border:none;pointer-events:auto';
+      hf.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;z-index:2';
       var heroHash = hashes[String(vids[0])] ? '?h='+hashes[String(vids[0])]+'&' : '?';
-      hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=1&dnt=1&quality=auto';
+      hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=1&dnt=1';
+      /* poster thumbnail shows before video loads */
+      var poster = el('img',{});
+      poster.src = 'https://vumbnail.com/'+vids[0]+'.jpg';
+      poster.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1';
+      hero.appendChild(poster);
       hero.appendChild(hf);
     } else {
       /* photo-only project: scrape and show first image as hero */
