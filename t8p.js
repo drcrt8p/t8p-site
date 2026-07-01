@@ -68,10 +68,9 @@
       'transform:translate(-50%,-50%);transform-origin:center center;',
       'z-index:500;pointer-events:none;display:flex;flex-direction:column;',
       'align-items:center;gap:4px;text-align:center;will-change:transform;',
-      'transition:transform .55s cubic-bezier(.34,1.56,.64,1)}',
-      'body.nav-open #t8p-center{transform:translate(-50%,-50%) translateY(60px)}',
-      '#t8p-wm-wrap{position:relative;width:min(64vw,560px);',
-      'transition:transform .55s cubic-bezier(.34,1.56,.64,1),opacity .4s}',
+      'will-change:transform}',
+      '#t8p-wm-wrap{position:relative;width:min(64vw,560px)}',
+      '#t8p-wm-wrap{transition:transform .55s cubic-bezier(.34,1.56,.64,1),opacity .4s}',
       /* open: logo shrinks and rises up out of the way */
       '#t8p-nav.open ~ #t8p-wm-wrap,body.nav-open #t8p-wm-wrap{',
       'transform:translateY(-32px) scale(0.72);opacity:0.35}',
@@ -539,6 +538,8 @@
         e.stopPropagation(); e.stopImmediatePropagation();
         nav.classList.remove('open');
         document.body.classList.remove('nav-open');
+        var wm2 = document.getElementById('t8p-wm-wrap');
+        if (wm2) { wm2.style.transform = ''; wm2.style.opacity = ''; }
       });
     }
     document.addEventListener('click', function(e){
@@ -546,6 +547,8 @@
       if (nav.classList.contains('open') && !nav.contains(e.target) && e.target !== shield && !(shield && shield.contains(e.target))) {
         nav.classList.remove('open');
         document.body.classList.remove('nav-open');
+        var wm3 = document.getElementById('t8p-wm-wrap');
+        if (wm3) { wm3.style.transform = ''; wm3.style.opacity = ''; }
       }
     });
     if (dim) dim.addEventListener('click', function(){
@@ -722,7 +725,17 @@
       e.stopPropagation(); e.stopImmediatePropagation(); e.preventDefault();
       var o = nav.classList.toggle('open');
       document.body.classList.toggle('nav-open', o);
-      window._t8pNavClick = Date.now(); /* timestamp for sphere cooldown */
+      window._t8pNavClick = Date.now();
+      var wm = document.getElementById('t8p-wm-wrap');
+      if (wm) {
+        if (o) {
+          wm.style.transform = 'translateY(-28px) scale(0.75)';
+          wm.style.opacity = '0.3';
+        } else {
+          wm.style.transform = '';
+          wm.style.opacity = '';
+        }
+      }
     }, true);
     home.appendChild(shield);
   }
