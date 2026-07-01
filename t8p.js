@@ -1,10 +1,9 @@
 /* ============================================================
    T8P STUDIOS — Site Script v10.5
-   ⚠️  SPHERE LOCKED v10.9 — DO NOT MODIFY WITHOUT DAVID'S EXPLICIT CONFIRMATION
-   Locked elements: buildGrid(), card sizes, aspect ratios, jitter, Z depth,
-   motion physics (LERP_C=0.03, MAX_ROT_X/Y), per-card drift (deltaX*180, 0.88 friction),
-   grid dimensions, gap values, priority order, rainbow ::before (mask technique, z-index:10),
-   cell overflow:hidden, border-radius:12px, autoplay iframes.
+   ⚠️  ENTIRE HOMEPAGE LOCKED — DO NOT MODIFY WITHOUT DAVID'S EXPLICIT CONFIRMATION
+   Locked: sphere grid/motion/physics/cards/ratios/rainbow, logo SVG/animation,
+   nav shield/pill/X/guards/cooldown, marquee items, layout positions.
+   Last approved: 2026-07-01 — full homepage lock
    Last approved: 2026-07-01 — re-locked v2 + nav cooldown
    ============================================================
    External hosted — no Squarespace minifier issues
