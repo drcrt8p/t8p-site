@@ -754,7 +754,7 @@
 
       /* native aspect ratio -- default 16:9 for video, known 4:3 overrides */
       /* 4:3 projects */ var RATIO_43  = {woxerpolaroid:1,pbpm:1,rubirose:1,skechers:1};
-      /* 9:16 vertical */ var RATIO_916 = {statefarm:1,hers:1,arena:1};
+      /* 9:16 vertical */ var RATIO_916 = {statefarm:1,hers:1};
       var rawRatio  = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || 0;
       var defR;
       if      (RATIO_43[it.slug])  defR = 3/4;
@@ -1042,8 +1042,7 @@
       hf.setAttribute('allow','autoplay; fullscreen; picture-in-picture; encrypted-media');
       hf.setAttribute('allowfullscreen','');
       hf.setAttribute('allowautoplay','');
-      /* Scale 16:9 video to fill full viewport height -- width overflows, hidden by hero overflow */
-      hf.style.cssText = 'position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);height:100%;width:177.78vh;min-width:100%;border:none;pointer-events:auto';
+      hf.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:auto';
       var heroHash = hashes[String(vids[0])] ? '?h='+hashes[String(vids[0])]+'&' : '?';
       hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=1&dnt=1&quality=auto';
       hero.appendChild(hf);
