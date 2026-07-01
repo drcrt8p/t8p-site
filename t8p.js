@@ -101,10 +101,10 @@
       'body.nav-open #t8p-dim{background:rgba(0,0,0,.6);pointer-events:all}',
 
       /* ── Sphere cards ── */
-      '.t8p-cell{background:#000;position:absolute;border-radius:12px;overflow:hidden;cursor:pointer;',
+      '.t8p-cell{background:#000;position:absolute;border-radius:12px;overflow:visible;cursor:pointer;',
       'text-decoration:none;will-change:transform;transform-style:preserve-3d;',
       'box-shadow:0 18px 50px rgba(0,0,0,.55)}',
-      '.t8p-cell-media{position:absolute;inset:0;width:100%;height:100%}',
+      '.t8p-cell-media{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;border-radius:12px}',
       '.t8p-cell-media img,.t8p-cell-media iframe{position:absolute;inset:0;',
       'width:100%;height:100%;object-fit:cover;transition:filter .45s;border:0}',
       '.t8p-cell img{background:#111;width:100%;height:100%;object-fit:cover;visibility:visible;transition:filter .45s}',
