@@ -1403,6 +1403,8 @@
       setTimeout(function(){
         /* click-through for sphere cards (desktop) */
         document.addEventListener('click', function(e){
+          var navEl = document.getElementById('t8p-nav');
+          if (navEl && navEl.contains(e.target)) return;
           if (!document.body.classList.contains('is-pp') && !document.body.classList.contains('nav-open')) {
             var hov = document.querySelector('.t8p-cell.is-hov');
             if (hov) { e.preventDefault(); e.stopImmediatePropagation(); location.href = hov.getAttribute('href'); }
