@@ -1,5 +1,5 @@
 /* ============================================================
-   T8P STUDIOS — Site Script v10.0
+   T8P STUDIOS — Site Script v10.1
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
    ============================================================ */
@@ -676,7 +676,7 @@
     /* Church-style layout: loose grid with per-cell jitter, Z varies by distance from center */
     var COLS = 5, ROWS = 4;
     /* Gap: generous breathing room between panels */
-    var GAP_X = W * 0.055, GAP_Y = H * 0.06;
+    var GAP_X = W * 0.028, GAP_Y = H * 0.030;
     /* Grid wider than viewport so outer panels are ~90% hidden at rest,
        revealed as cursor moves to edges via sphere pan + per-card drift */
     var gridW = W * 1.55, gridH = H * 1.45;
@@ -732,15 +732,18 @@
       var baseCY = gridTop  + row * (cellH + GAP_Y) + cellH/2;
 
       /* random jitter within cell — church uses 30% of cell size */
-      var jx = (Math.random()-0.5) * cellW * 0.22;
-      var jy = (Math.random()-0.5) * cellH * 0.22;
+      /* per-card random offset for organic floating feel */
+      var jx = (Math.random()-0.5) * cellW * 0.32;
+      var jy = (Math.random()-0.5) * cellH * 0.28;
+      /* also add tiny random Z wobble per card */
+      var jz = (Math.random()-0.5) * 60;
       var px = baseCX + jx;
       var py = baseCY + jy;
 
       /* Z based on distance from center — center=deepest (concave bowl) */
       var dx = (px - cx) / (W/2), dy = (py - cy) / (H/2);
       var dist = Math.sqrt(dx*dx + dy*dy); /* 0=center, ~1.4=corner */
-      var depthZ = -500 + dist * 500; /* center=-500, edges~+200 — deep sphere bowl */
+      var depthZ = (-500 + dist * 500) + jz; /* center=-500, edges~+200 + per-card wobble */
 
       /* church-style lookAt: card tilts to face center of scene
          angle = atan2(offset, depth) -- deeper Z = stronger tilt */
@@ -762,7 +765,7 @@
       /* card width: sized so ~12 panels visible at rest (3 cols x 4 rows) */
       var isVertical = defR > 1.0;
       /* horizontal: fit ~3 across viewport with gaps */
-      var baseW = isVertical ? Math.min(cellW * 0.696, 216) : Math.min(cellW * 0.72, 310);
+      var baseW = isVertical ? Math.min(cellW * 0.800, 248) : Math.min(cellW * 0.828, 356);
 
       var cell = el('a', {className:'t8p-cell', href:it.href});
       cell.style.width  = baseW + 'px';
@@ -791,7 +794,7 @@
         ifr.setAttribute('frameborder','0');
         ifr.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
         ifr.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;opacity:0;transition:opacity 1.2s';
-        ifr.src = 'https://player.vimeo.com/video/'+vid+hs+'background=1&autoplay=1&loop=1&muted=1&autopause=0&playsinline=1';
+        ifr.src = 'https://player.vimeo.com/video/'+vid+hs+'background=1&autoplay=1&loop=1&muted=1&autopause=0&playsinline=1&dnt=1';
         ifr.addEventListener('load', function(){ ifr.style.opacity='1'; });
         media.appendChild(ifr);
       })(it.slug, it.vids);
@@ -1041,7 +1044,7 @@
       hf.setAttribute('allowautoplay','');
       hf.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:auto';
       var heroHash = hashes[String(vids[0])] ? '?h='+hashes[String(vids[0])]+'&' : '?';
-      hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=1';
+      hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=1&dnt=1&quality=auto';
       hero.appendChild(hf);
     } else {
       /* photo-only project: scrape and show first image as hero */
