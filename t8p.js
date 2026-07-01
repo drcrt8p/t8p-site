@@ -730,7 +730,7 @@
     var gridLeft = (W - gridW) / 2, gridTop = (H - gridH) / 2;
 
     /* Priority order — center-first, David's swaps applied */
-    vvar PRIORITY = [
+    var PRIORITY = [
       /* CENTER 7 -- always visible at rest */
       'calvinklein','skechers','brooklinen','woxer','t8pcommercial','statefarm','hers',
       /* MIDDLE 9 -- complete on slight cursor move */
