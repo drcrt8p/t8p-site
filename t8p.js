@@ -1,5 +1,5 @@
 /* ============================================================
-   T8P STUDIOS — Site Script v9.9
+   T8P STUDIOS — Site Script v10.0
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
    ============================================================ */
@@ -558,7 +558,7 @@
     });
 
     /* Sort by Squarespace page priority — top of list = inner ring */
-    var PRIORITY = ['microsoft','doritos','woxerpolaroid','micasaestucasa','calvinklein','hers','arena','skechers','brooklinen','laboca','sotano','pbpm','mauryricky','t8pcommercial','787coffee','ddlp','woxer','classy101','reglamento-1','txtrano','statefarm','ekka','reglamento','rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz','paolaguanche','normal','shaz','sadvalentin','monster'];
+    var PRIORITY = ['calvinklein','doritos','microsoft','woxerpolaroid','arena','statefarm','hers','micasaestucasa','skechers','classy101','brooklinen','787coffee','laboca','sotano','mauryricky','pbpm','t8pcommercial','reglamento','ekka','woxer','rulay','enladisco','14bystayleave','purgatory','doing-a-lot','banco-virao','casualidad','shaz','2r1n','horoscopo','natalia','mezcal','mensajedevoz','sadvalentin','monster','paolaguanche','txtrano','reglamento-1'];
     items.sort(function(a,b){
       var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
       if (ai === -1) ai = 999; if (bi === -1) bi = 999;
@@ -686,14 +686,16 @@
 
     /* Priority order — center-first, David's swaps applied */
     var PRIORITY = [
-      /* CENTER -- David's exact list */
-      'microsoft','doritos','woxerpolaroid','micasaestucasa','calvinklein','hers','arena',
-      /* MIDDLE RING */
-      'skechers','brooklinen','laboca','sotano','pbpm','mauryricky','t8pcommercial','787coffee','ddlp',
-      /* OUTER RING */
-      'woxer','classy101','reglamento-1','txtrano','statefarm','ekka','reglamento',
-      'rulay','enladisco','2r1n','horoscopo','natalia','mezcal','mensajedevoz',
-      'paolaguanche','normal','shaz','sadvalentin','monster'
+      /* CENTER 7 -- always visible at rest */
+      'calvinklein','doritos','microsoft','woxerpolaroid','arena','statefarm','hers',
+      /* MIDDLE 9 -- complete on slight cursor move */
+      'micasaestucasa','skechers','classy101','brooklinen','787coffee',
+      'laboca','sotano','mauryricky','pbpm',
+      /* OUTER -- revealed at edges */
+      't8pcommercial','reglamento','ekka','woxer','rulay','enladisco',
+      '14bystayleave','purgatory','doing-a-lot','banco-virao','casualidad',
+      'shaz','2r1n','horoscopo','natalia','mezcal','mensajedevoz',
+      'sadvalentin','monster','paolaguanche','txtrano','reglamento-1'
     ];
     items.sort(function(a,b){
       var ai=PRIORITY.indexOf(a.slug), bi=PRIORITY.indexOf(b.slug);
@@ -748,8 +750,8 @@
       var rotZ = (Math.random()-0.5) * 2.5; /* slight random roll */
 
       /* native aspect ratio -- default 16:9 for video, known 4:3 overrides */
-      var RATIO_43  = {woxerpolaroid:1,pbpm:1,hers:1,rubirose:1,skechers:1};
-      var RATIO_916 = {statefarm:1};
+      /* 4:3 projects */ var RATIO_43  = {woxerpolaroid:1,pbpm:1,rubirose:1,skechers:1};
+      /* 9:16 vertical */ var RATIO_916 = {statefarm:1,hers:1};
       var rawRatio  = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || 0;
       var defR;
       if      (RATIO_43[it.slug])  defR = 3/4;
@@ -757,9 +759,10 @@
       else if (rawRatio > 0)       defR = 1/rawRatio;
       else                         defR = 9/16; /* arena, doritos, calvinklein etc = 16:9 */
       /* card width fits in cell */
-      /* card width: +25% overall, vertical slightly bigger relative */
+      /* card width: sized so ~12 panels visible at rest (3 cols x 4 rows) */
       var isVertical = defR > 1.0;
-      var baseW = isVertical ? Math.min(cellW * 0.95, 244) : Math.min(cellW * 1.26, 375);
+      /* horizontal: fit ~3 across viewport with gaps */
+      var baseW = isVertical ? Math.min(cellW * 0.58, 180) : Math.min(cellW * 0.72, 310);
 
       var cell = el('a', {className:'t8p-cell', href:it.href});
       cell.style.width  = baseW + 'px';
@@ -911,9 +914,10 @@
         ' translateX('+(-panX)+'px)' +
         ' translateY('+(panY)+'px)';
 
-      /* church-exact per-card displacement: each card accumulates drift
-         by (targetRot - cameraRot) * 0.08 every frame, independently.
-         Cards process at slightly different times so they feel unlinked. */
+      /* ═══ MOTION LOCKED - DO NOT MODIFY ═══
+         church-exact per-card accumulative drift. Each card independently
+         accumulates (targetRot - cameraRot) * 0.08 per frame with 0.88 friction.
+         This was approved by David on 2025-06-30. Do not change these values. */
       var deltaX = (tgtY - curRY) * 0.08; /* church uses displacementScale=0.08 */
       var deltaY = (tgtX - curRX) * 0.08;
       cells.forEach(function(c) {
