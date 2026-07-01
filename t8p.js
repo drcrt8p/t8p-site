@@ -1378,11 +1378,11 @@
     var _s = location.pathname.replace(/[/]/g,'');
     var _pp = document.getElementById('t8p-pp');
 
-    /* un-hide siteWrapper for all pages (hidden by header flash-fix) */
+    /* un-hide siteWrapper for non-home/non-pp pages (hidden by header flash-fix) */
     var _sw = document.getElementById('siteWrapper');
     var _pg = document.getElementById('page');
-    if (_sw) { _sw.style.visibility=''; _sw.style.opacity=''; }
-    if (_pg) { _pg.style.visibility=''; _pg.style.opacity=''; }
+    var _fl = document.getElementById('t8p-flash');
+    if (_fl) _fl.remove(); /* remove the header flash-fix style entirely */
 
     if (_s && _pp) {
       /* project page */
@@ -1415,7 +1415,7 @@
     injectStyles();
     injectHTML();
     initCursor();
-    setTimeout(go, 500);
+    setTimeout(go, 0);
   }
 
   if (document.readyState === 'loading') {
