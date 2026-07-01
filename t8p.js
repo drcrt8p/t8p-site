@@ -480,7 +480,8 @@
   ────────────────────────────────────────────────────────── */
   function buildMarquee() {
     var items = ['T8P STUDIOS','MEDIA PRODUCTION','CREATIVE DIRECTION',
-                 'MUSIC VIDEOS','BRAND CONTENT','EST 2019'];
+                 'MUSIC VIDEOS','BRAND STRATEGY','PRESS ACTIVATIONS',
+                 'EU, LATAM & US MARKETS','1B+ VIEWS','EST 2019'];
     var h = '';
     for (var i = 0; i < 3; i++) {
       items.forEach(function(x){
