@@ -754,7 +754,7 @@
 
       /* native aspect ratio -- default 16:9 for video, known 4:3 overrides */
       /* 4:3 projects */ var RATIO_43  = {woxerpolaroid:1,pbpm:1,rubirose:1,skechers:1};
-      /* 9:16 vertical */ var RATIO_916 = {statefarm:1,hers:1};
+      /* 9:16 vertical */ var RATIO_916 = {statefarm:1,hers:1,arena:1};
       var rawRatio  = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || 0;
       var defR;
       if      (RATIO_43[it.slug])  defR = 3/4;
