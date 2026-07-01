@@ -597,7 +597,7 @@
     });
 
     /* Sort by Squarespace page priority — top of list = inner ring */
-    var PRIORITY = ['calvinklein','skechers','rulay','woxer','t8pcommercial','statefarm','hers','micasaestucasa','classy101','brooklinen','787coffee','laboca','doritos','woxerpolaroid','mauryricky','pbpm','arena','reglamento','ekka','woxer','microsoft','enladisco','14bystayleave','purgatory','doing-a-lot','banco-virao','casualidad','shaz','2r1n','horoscopo','natalia','mezcal','mensajedevoz','sadvalentin','monster','paolaguanche','txtrano','reglamento-1'];
+    var PRIORITY = ['calvinklein','skechers','rulay','woxer','t8pcommercial','statefarm','hers','micasaestucasa','doritos','brooklinen','787coffee','laboca','classy101','woxerpolaroid','mauryricky','pbpm','arena','reglamento','ekka','woxer','microsoft','enladisco','14bystayleave','purgatory','doing-a-lot','banco-virao','casualidad','shaz','2r1n','horoscopo','natalia','mezcal','mensajedevoz','sadvalentin','monster','paolaguanche','txtrano','reglamento-1'];
     items.sort(function(a,b){
       var ai = PRIORITY.indexOf(a.slug), bi = PRIORITY.indexOf(b.slug);
       if (ai === -1) ai = 999; if (bi === -1) bi = 999;
@@ -734,8 +734,8 @@
       /* CENTER 7 -- always visible at rest */
       'calvinklein','skechers','rulay','woxer','t8pcommercial','statefarm','hers',
       /* MIDDLE 9 -- complete on slight cursor move */
-      'micasaestucasa','classy101','brooklinen','787coffee',
-      'laboca','doritos','woxerpolaroid','mauryricky','pbpm',
+      'micasaestucasa','doritos','brooklinen','787coffee',
+      'laboca','classy101','woxerpolaroid','mauryricky','pbpm',
       /* OUTER -- revealed at edges */
       'arena','reglamento','ekka','woxer','microsoft','enladisco',
       '14bystayleave','purgatory','doing-a-lot','banco-virao','casualidad',
