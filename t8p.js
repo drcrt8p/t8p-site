@@ -209,13 +209,14 @@
       '@media(max-width:767px){.t8p-pp-bar .t8p-pp-d{display:none}}',
       /* ── Church-style video interaction ── */
       /* Center play/pause button */
-      '#t8p-playbtn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);',
-      'width:64px;height:64px;border-radius:50%;background:#c9e6fd;cursor:none;',
+      /* Floating cursor button -- follows mouse over video */
+      '#t8p-vidcur{position:fixed;width:56px;height:56px;border-radius:50%;background:#c9e6fd;',
       'display:flex;align-items:center;justify-content:center;z-index:9050;pointer-events:none;',
-      'opacity:0;transition:opacity .3s ease}',
-      '#t8p-playbtn svg{width:24px;height:24px}',
-      '.vid-active #t8p-playbtn{opacity:1;pointer-events:auto}',
-      '.scrub-active #t8p-playbtn{opacity:0!important;pointer-events:none}',
+      'opacity:0;transition:opacity .2s ease;transform:translate(-50%,-50%);',
+      'will-change:transform,left,top}',
+      '#t8p-vidcur svg{width:20px;height:20px;flex-shrink:0}',
+      '#t8p-vidcur.visible{opacity:1}',
+      '#t8p-vidcur.on-scrub{opacity:0}',
       '#t8p-scrub-zone{position:absolute;bottom:0;left:0;right:0;height:48px;z-index:10;cursor:none}',
       '#t8p-scrub-track{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(201,230,253,.25)}',
       '#t8p-scrub-fill{height:100%;background:#c9e6fd;width:0;transition:width .1s linear}',
@@ -1129,7 +1130,7 @@
     var cb2 = document.createElement('div');
     cb2.id = 't8p-close-btn'; cb2.className = 't8p-btn';
     cb2.innerHTML = '<div class="t8p-btn-shape"></div><div class="t8p-btn-icon">'+CICO+'</div>';
-    cb2.onclick = function(){ location.href='/'; };
+    cb2.onclick = function(){ if(vidCur) vidCur.remove(); location.href='/'; };
     btns.appendChild(mb); btns.appendChild(cb2);
     pp.appendChild(btns);
 
@@ -1203,17 +1204,17 @@
     ov.style.cssText = 'position:absolute;inset:0;z-index:3;cursor:none';
     hero.appendChild(ov);
 
-    /* ── Center play/pause button ── */
-    var playBtn = document.createElement('div');
-    playBtn.id = 't8p-playbtn';
-    hero.appendChild(playBtn);
+    /* ── Floating cursor button (follows mouse) ── */
+    var vidCur = document.createElement('div');
+    vidCur.id = 't8p-vidcur';
+    document.documentElement.appendChild(vidCur);
 
     function updatePlayBtn(playing) {
       _playing = playing;
       if (playing) {
-        playBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="5" y="4" width="4" height="16" fill="#080808"/><rect x="15" y="4" width="4" height="16" fill="#080808"/></svg>';
+        vidCur.innerHTML = '<svg viewBox="0 0 24 24"><rect x="5" y="4" width="4" height="16" fill="#080808"/><rect x="15" y="4" width="4" height="16" fill="#080808"/></svg>';
       } else {
-        playBtn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20" fill="#080808"/></svg>';
+        vidCur.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20" fill="#080808"/></svg>';
       }
     }
     updatePlayBtn(true); /* starts playing */
@@ -1451,22 +1452,25 @@
         var onTopBar = !!(elAt.closest('#t8p-pp-wm') || elAt.closest('#t8p-btns'));
         var onBotBar = !!(elAt.closest('.t8p-pp-bar'));
         var onOv = elAt.id === 't8p-ov' || elAt.id === 't8p-vp-main';
+        var onScrubZone = !!(elAt.closest && elAt.closest('#t8p-scrub-zone'));
         var onScrubZone = !!(elAt.closest('#t8p-scrub-zone'));
 
         /* Inverted cursor: bars only */
         ppCur.style.opacity = (onTopBar || onBotBar) ? '1' : '0';
 
-        /* Play/pause cursor: video zone only (not scrub) */
-        playBtn.style.pointerEvents = onOv ? 'auto' : 'none';
+        /* Floating cursor: show on video zone, hide on scrub zone */
+        if (onOv && !onScrubZone) {
+          vidCur.classList.add('visible');
+          vidCur.classList.remove('on-scrub');
+          vidCur.style.left = e.clientX + 'px';
+          vidCur.style.top = e.clientY + 'px';
+        } else {
+          vidCur.classList.remove('visible');
+        }
 
         if (onOv) showUI();
       });
 
-      /* Play button hover: show as cursor */
-      playBtn.addEventListener('click', function(){
-        handleVideoClick();
-        showUI();
-      });
     }
   }
 
