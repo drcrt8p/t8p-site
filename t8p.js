@@ -762,7 +762,7 @@
       /* card width: sized so ~12 panels visible at rest (3 cols x 4 rows) */
       var isVertical = defR > 1.0;
       /* horizontal: fit ~3 across viewport with gaps */
-      var baseW = isVertical ? Math.min(cellW * 0.58, 180) : Math.min(cellW * 0.72, 310);
+      var baseW = isVertical ? Math.min(cellW * 0.696, 216) : Math.min(cellW * 0.72, 310);
 
       var cell = el('a', {className:'t8p-cell', href:it.href});
       cell.style.width  = baseW + 'px';
