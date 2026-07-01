@@ -811,6 +811,9 @@
       var isVertical = defR > 1.0;
       /* horizontal: fit ~3 across viewport with gaps */
       var baseW = isVertical ? Math.min(cellW * 0.800, 248) : Math.min(cellW * 0.828, 356);
+      /* per-card size overrides */
+      if (it.slug === 'calvinklein') baseW = 480;
+      if (it.slug === 'doritos')     baseW = 453;
 
       var cell = el('a', {className:'t8p-cell', href:it.href});
       cell.style.width  = baseW + 'px';
