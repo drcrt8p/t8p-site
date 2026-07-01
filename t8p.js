@@ -925,6 +925,10 @@
     });
     document.addEventListener('click', function(e){
       if (document.body.classList.contains('nav-open')) return;
+      if (document.getElementById('t8p-nav') && document.getElementById('t8p-nav').classList.contains('open')) return;
+      var shieldEl = document.getElementById('t8p-nav-shield');
+      if (shieldEl && shieldEl.contains(e.target)) return;
+      if (window._t8pNavClick && Date.now() - window._t8pNavClick < 1200) return;
       var c = cardAt(e.clientX, e.clientY);
       if (c) { e.preventDefault(); window.location.href = c.getAttribute('href'); }
     }, true);
