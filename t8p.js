@@ -521,7 +521,8 @@
       document.body.classList.toggle('nav-open', o);
     });
     document.addEventListener('click', function(e){
-      if (nav.classList.contains('open') && !nav.contains(e.target)) {
+      var shield = document.getElementById('t8p-nav-shield');
+      if (nav.classList.contains('open') && !nav.contains(e.target) && e.target !== shield && !(shield && shield.contains(e.target))) {
         nav.classList.remove('open');
         document.body.classList.remove('nav-open');
       }
