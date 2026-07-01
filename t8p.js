@@ -233,15 +233,26 @@
 
       /* Scrub track: thin line at very bottom of bar */
       '#t8p-scrub-track{height:3px;background:rgba(201,230,253,.25);position:relative;cursor:none}',
-      '#t8p-scrub-fill{height:100%;background:#c9e6fd;width:0%;transition:width .1s linear}',
-      '.scrub-hover #t8p-scrub-fill{transition:none}',
-      '#t8p-scrub-vline{position:fixed;top:0;bottom:0;width:1px;background:#c9e6fd;',
-      'pointer-events:none;z-index:9091;opacity:0;left:-999px;transition:opacity .15s}',
-      '.scrub-hover #t8p-scrub-vline,.show-timecode #t8p-scrub-vline{opacity:1}',
-      '#t8p-timecode{position:fixed;bottom:52px;font-size:11px;letter-spacing:.12em;',
+      /* Scrub track: thin line at bottom */
+      '#t8p-scrub-fill{height:100%;background:#c9e6fd;width:0%;transition:width .25s linear;position:relative}',
+      /* The playhead vline -- vertical line at current progress x */
+      '#t8p-scrub-head{position:fixed;top:0;bottom:40px;width:1px;background:#c9e6fd;',
+      'pointer-events:none;z-index:9091;opacity:0;left:-999px;transition:opacity .3s}',
+      '.ui-visible #t8p-scrub-head{opacity:1}',
+      /* Grab zone: wide invisible clickable strip around the playhead */
+      '#t8p-grab-zone{position:fixed;top:0;bottom:0;width:40px;z-index:9093;',
+      'left:-999px;cursor:none;transform:translateX(-50%)}',
+      /* Scrub cursor icon (replaces floating play/pause cursor when on grab zone) */
+      '#t8p-scrub-cur{position:fixed;width:32px;height:32px;border-radius:50%;',
+      'background:#c9e6fd;display:flex;align-items:center;justify-content:center;',
+      'z-index:9094;pointer-events:none;opacity:0;transform:translate(-50%,-50%);',
+      'transition:opacity .15s;left:-999px;top:-999px}',
+      '#t8p-scrub-cur svg{width:16px;height:16px}',
+      /* Timecode: centered on the vline, just above bottom bar */
+      '#t8p-timecode{position:fixed;bottom:52px;font-size:10px;letter-spacing:.12em;',
       'color:#c9e6fd;pointer-events:none;opacity:0;left:-999px;',
-      'z-index:9092;white-space:nowrap;transform:translateX(-50%);transition:opacity .15s}',
-      '.show-timecode #t8p-timecode,.scrub-hover #t8p-timecode{opacity:1}',
+      'z-index:9092;white-space:nowrap;transform:translateX(-50%);transition:opacity .3s}',
+      '.ui-visible #t8p-timecode{opacity:1}',
 
 
       /* Inverted cursor on bars */
@@ -1126,7 +1137,6 @@
     var _playing = true;
     var _muted = true;
     var _duration = 0;
-    var _scrubbing = false;
     var _firstClick = true;
 
     function loadVimeoSDK(cb) {
@@ -1206,22 +1216,7 @@
       hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=0&dnt=1&transparent=0';
       hero.appendChild(hf);
 
-      loadVimeoSDK(function(){
-        vplayer = new window.Vimeo.Player(hf);
-        vplayer.getDuration().then(function(dur){ _duration = dur; });
-        vplayer.on('timeupdate', function(data){
-          if (_scrubbing) return;
-          var pct = _duration > 0 ? data.seconds / _duration : 0;
-          scrubFill.style.width = (pct*100)+'%';
-          timeCode.textContent = fmtTime(data.seconds) + ((_duration)?' / '+fmtTime(_duration):'');
-        });
-        vplayer.on('ended', function(){
-          _muted = true; _firstClick = true; _playing = true;
-          vplayer.setMuted(true); vplayer.setVolume(0);
-          vplayer.setCurrentTime(0); vplayer.play();
-          updatePlayBtn(true); setMuteUI(true);
-        });
-      });
+
     } else {
       var heroImg = document.createElement('img');
       heroImg.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none';
@@ -1260,13 +1255,27 @@
     }
     updatePlayBtn(true);
 
-    /* ── Timecode + vline (both follow mouse x) ── */
+    /* ── Playhead vline (tracks video progress) ── */
+    var scrubHead = document.createElement('div');
+    scrubHead.id = 't8p-scrub-head';
+    pp.appendChild(scrubHead);
+
+    /* Grab zone: invisible strip around the playhead for dragging */
+    var grabZone = document.createElement('div');
+    grabZone.id = 't8p-grab-zone';
+    pp.appendChild(grabZone);
+
+    /* Scrub cursor icon (shown instead of play/pause when on grab zone) */
+    var scrubCur = document.createElement('div');
+    scrubCur.id = 't8p-scrub-cur';
+    /* left-right arrows icon */
+    scrubCur.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5" stroke="#080808" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><line x1="3" y1="12" x2="21" y2="12" stroke="#080808" stroke-width="2" stroke-linecap="round"/></svg>';
+    pp.appendChild(scrubCur);
+
+    /* Timecode: centered on playhead vline */
     var timeCode = document.createElement('div');
     timeCode.id = 't8p-timecode';
     pp.appendChild(timeCode);
-    var scrubVline = document.createElement('div');
-    scrubVline.id = 't8p-scrub-vline';
-    pp.appendChild(scrubVline);
 
     /* ── Scrub zone (bottom bar + track) ── */
     var scrubZone = document.createElement('div');
@@ -1326,7 +1335,39 @@
       return m+':'+(sec<10?'0':'')+sec;
     }
 
-    /* Mute UI */
+    /* ── UI visibility (sleep system) ── */
+    var _sleepTimer = null;
+    var _uiShown = false;
+
+    function showUI() {
+      if (!_uiShown) { _uiShown = true; pp.classList.add('ui-visible'); }
+      clearTimeout(_sleepTimer);
+      _sleepTimer = setTimeout(function(){
+        _uiShown = false;
+        pp.classList.remove('ui-visible');
+        pp.classList.add('pp-sleep');
+      }, 3000);
+    }
+    function wakeUI() {
+      pp.classList.remove('pp-sleep');
+      showUI();
+    }
+
+    /* ── Playhead position update ── */
+    var _headPct = 0; /* 0-1, tracks video progress */
+
+    function updateHeadPos(pct) {
+      _headPct = pct;
+      /* position head at pct of the scrub track width */
+      var trackRect = scrubTrack.getBoundingClientRect();
+      var x = trackRect.left + pct * trackRect.width;
+      scrubFill.style.width = (pct * 100) + '%';
+      scrubHead.style.left = x + 'px';
+      grabZone.style.left = x + 'px';
+      timeCode.style.left = x + 'px';
+    }
+
+    /* ── Mute UI ── */
     function setMuteUI(muted) {
       _muted = muted;
       mb.classList.toggle('sound-on', !muted);
@@ -1334,14 +1375,48 @@
     }
     setMuteUI(true);
 
-    /* Play/pause toggle */
+    /* ── Play/pause cursor ── */
+    function updatePlayBtn(playing) {
+      _playing = playing;
+      if (playing) {
+        vidCur.innerHTML = '<svg viewBox="0 0 24 24"><rect x="5" y="4" width="4" height="16" fill="#080808"/><rect x="15" y="4" width="4" height="16" fill="#080808"/></svg>';
+      } else {
+        vidCur.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20" fill="#080808"/></svg>';
+      }
+    }
+    updatePlayBtn(true);
+
+    /* ── Vimeo SDK callbacks ── */
+    function onVimeoSDKReady() {
+      vplayer = new window.Vimeo.Player(document.getElementById('t8p-vp-main'));
+      vplayer.getDuration().then(function(dur){ _duration = dur; });
+      vplayer.on('timeupdate', function(data){
+        if (_scrubbing) return;
+        var pct = _duration > 0 ? data.seconds / _duration : 0;
+        timeCode.textContent = fmtTime(data.seconds) + (_duration ? ' / '+fmtTime(_duration) : '');
+        updateHeadPos(pct);
+        /* show ui when video is playing with sound */
+        if (!_muted && !_firstClick) showUI();
+      });
+      vplayer.on('ended', function(){
+        _muted = true; _firstClick = true; _playing = true;
+        vplayer.setMuted(true); vplayer.setVolume(0);
+        vplayer.setCurrentTime(0); vplayer.play();
+        updatePlayBtn(true); setMuteUI(true);
+        pp.classList.remove('ui-visible');
+        updateHeadPos(0);
+      });
+    }
+    loadVimeoSDK(onVimeoSDKReady);
+
+    /* ── Play toggle ── */
     function togglePlay() {
       if (!vplayer) return;
       if (_playing) { vplayer.pause(); updatePlayBtn(false); }
       else { vplayer.play(); updatePlayBtn(true); }
     }
 
-    /* First click: restart unmuted */
+    /* First click: restart from 0 unmuted, show UI */
     function handleVideoClick() {
       if (!vplayer) return;
       if (_firstClick) {
@@ -1352,157 +1427,154 @@
         vplayer.play();
         _playing = true; _muted = false;
         updatePlayBtn(true); setMuteUI(false);
+        wakeUI();
       } else {
         togglePlay();
+        wakeUI();
       }
     }
 
-    /* Sleep system: hide topbar/btns/dock after 3s idle */
-    var _sleepTimer = null;
-    function wakeUp() {
-      pp.classList.remove('pp-sleep');
-      clearTimeout(_sleepTimer);
-      _sleepTimer = setTimeout(function(){ pp.classList.add('pp-sleep'); }, 3000);
-    }
+    /* ── Click handlers ── */
+    ov.addEventListener('click', function(){ handleVideoClick(); });
+    vidCur.addEventListener('click', function(){ handleVideoClick(); });
 
-    /* Ov click */
-    ov.addEventListener('click', function(){ handleVideoClick(); wakeUp(); });
-    vidCur.addEventListener('click', function(){ handleVideoClick(); wakeUp(); });
-
-    /* Space */
+    /* ── Keyboard ── */
     document.addEventListener('keydown', function onKey(e){
       if (!document.getElementById('t8p-pp')) { document.removeEventListener('keydown', onKey); return; }
       if (e.code === 'Space' && !e.target.matches('input,textarea')) {
-        e.preventDefault(); handleVideoClick(); wakeUp();
+        e.preventDefault(); handleVideoClick();
       }
       if (e.code === 'KeyM' && !e.target.matches('input,textarea')) {
         if (!vplayer) return;
         _muted = !_muted;
-        vplayer.setMuted(_muted); vplayer.setVolume(_muted?0:1);
+        vplayer.setMuted(_muted); vplayer.setVolume(_muted ? 0 : 1);
         setMuteUI(_muted);
         if (!_muted && _firstClick) {
           _firstClick = false;
           vplayer.setCurrentTime(0); vplayer.play();
           _playing = true; updatePlayBtn(true);
         }
+        wakeUI(); /* M key wakes the UI */
       }
     });
 
-    /* Mute button */
+    /* ── Mute button ── */
     mb.addEventListener('click', function(){
       if (!vplayer) return;
       _muted = !_muted;
-      vplayer.setMuted(_muted); vplayer.setVolume(_muted?0:1);
+      vplayer.setMuted(_muted); vplayer.setVolume(_muted ? 0 : 1);
       setMuteUI(_muted);
       if (!_muted && _firstClick) {
         _firstClick = false;
         vplayer.setCurrentTime(0); vplayer.play();
         _playing = true; updatePlayBtn(true);
       }
+      wakeUI();
     });
 
-    /* Scrub */
-    var _scrubHovering = false;
-    function getScrubPct(e) {
+    /* ── Scrub drag on grab zone ── */
+    var _scrubbing = false;
+
+    function getScrubPct(clientX) {
       var rect = scrubTrack.getBoundingClientRect();
-      return Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     }
-    scrubTrack.addEventListener('mouseenter', function(){
-      _scrubHovering = true;
-      pp.classList.add('scrub-hover');
-      pp.classList.add('show-timecode');
+
+    var _onGrab = false;
+    grabZone.addEventListener('mouseenter', function(){
+      _onGrab = true;
+      vidCur.classList.remove('visible'); /* hide play/pause cursor */
+      scrubCur.style.opacity = '1';
     });
-    scrubTrack.addEventListener('mouseleave', function(){
+    grabZone.addEventListener('mouseleave', function(){
       if (!_scrubbing) {
-        _scrubHovering = false;
-        pp.classList.remove('scrub-hover');
-        pp.classList.remove('show-timecode');
+        _onGrab = false;
+        scrubCur.style.opacity = '0';
       }
     });
-    scrubTrack.addEventListener('mousemove', function(e){
-      var pct = getScrubPct(e);
-      scrubFill.style.width = (pct*100)+'%';
-      scrubVline.style.left = e.clientX + 'px';
-      timeCode.style.left = e.clientX + 'px';
-      if (_duration) timeCode.textContent = fmtTime(pct*_duration)+' / '+fmtTime(_duration);
+    grabZone.addEventListener('mousemove', function(e){
+      scrubCur.style.left = e.clientX + 'px';
+      scrubCur.style.top = e.clientY + 'px';
     });
-    scrubTrack.addEventListener('mousedown', function(e){
-      _scrubbing = true;
+    grabZone.addEventListener('mousedown', function(e){
       e.preventDefault();
-      var p = getScrubPct(e);
-      if (vplayer && _duration) vplayer.setCurrentTime(p*_duration);
-      scrubFill.style.width = (p*100)+'%';
-      if (_duration) timeCode.textContent = fmtTime(p*_duration)+' / '+fmtTime(_duration);
+      _scrubbing = true;
+      scrubCur.style.opacity = '1';
+      var wasPaused = !_playing;
+
+      /* pause during scrub for cleaner seeking */
+      if (vplayer && _playing) vplayer.pause();
 
       function onMove(e2){
-        var p2=getScrubPct(e2);
-        scrubFill.style.width=(p2*100)+'%';
-        scrubVline.style.left=e2.clientX+'px';
-        timeCode.style.left=e2.clientX+'px';
-        if(vplayer&&_duration)vplayer.setCurrentTime(p2*_duration);
-        if(_duration)timeCode.textContent=fmtTime(p2*_duration)+' / '+fmtTime(_duration);
+        var pct = getScrubPct(e2.clientX);
+        updateHeadPos(pct);
+        scrubCur.style.left = e2.clientX + 'px';
+        scrubCur.style.top = e2.clientY + 'px';
+        if (_duration) timeCode.textContent = fmtTime(pct*_duration)+' / '+fmtTime(_duration);
+        if (vplayer && _duration) vplayer.setCurrentTime(pct * _duration);
+        wakeUI();
       }
       function onUp(){
-        _scrubbing=false;
-        document.removeEventListener('mousemove',onMove);
-        document.removeEventListener('mouseup',onUp);
-        if(!_scrubHovering){
-          pp.classList.remove('scrub-hover');
-          pp.classList.remove('show-timecode');
-        }
+        _scrubbing = false;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        if (!_onGrab) scrubCur.style.opacity = '0';
+        /* resume if was playing */
+        if (!wasPaused && vplayer) { vplayer.play(); }
+        wakeUI();
       }
-      document.addEventListener('mousemove',onMove);
-      document.addEventListener('mouseup',onUp);
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
     });
 
-    /* Main mousemove */
+    /* ── Main mousemove ── */
     if (!IS_MOBILE) {
       document.addEventListener('mousemove', function onMM(e){
-        if (!document.getElementById('t8p-pp')) { document.removeEventListener('mousemove',onMM); return; }
+        if (!document.getElementById('t8p-pp')) { document.removeEventListener('mousemove', onMM); return; }
+
+        /* inverted cursor position */
         ppCur.style.left = e.clientX+'px'; ppCur.style.top = e.clientY+'px';
         var elAt = document.elementFromPoint(e.clientX, e.clientY);
         if (!elAt) return;
+
         var onTopBar = !!(elAt.closest('#t8p-pp-wm') || elAt.closest('#t8p-btns'));
         var onBotBar = !!(elAt.closest('#t8p-scrub-zone'));
-        var onOv = elAt.id==='t8p-ov' || elAt.id==='t8p-vp-main';
-        var onScrub = !!(elAt.closest('#t8p-scrub-track'));
+        var onOv = elAt.id === 't8p-ov' || elAt.id === 't8p-vp-main';
+        var onGrab = elAt.id === 't8p-grab-zone' || elAt.closest('#t8p-grab-zone');
 
         /* Inverted cursor: bars only */
         ppCur.classList.toggle('on-bar', onTopBar || onBotBar);
 
-        /* Floating cursor: video zone, not scrub track */
-        /* Move vline and timecode to cursor x on video or scrub */
-        if (onOv || onScrub) {
-          scrubVline.style.left = e.clientX + 'px';
-          timeCode.style.left = e.clientX + 'px';
-          /* Update timecode from current video position while on video */
-          if (onOv && !_scrubHovering && vplayer) {
-            vplayer.getCurrentTime().then(function(t){
-              timeCode.textContent = fmtTime(t) + (_duration?' / '+fmtTime(_duration):'');
-            });
-          }
-        }
-        if (onOv) {
+        /* Floating play/pause cursor: video zone only, not when on grab zone */
+        if (onOv && !onGrab && !_scrubbing) {
           vidCur.classList.add('visible');
           vidCur.style.left = e.clientX+'px';
           vidCur.style.top = e.clientY+'px';
-          wakeUp();
-          pp.classList.add('show-timecode');
-        } else {
+        } else if (!onGrab && !_scrubbing) {
           vidCur.classList.remove('visible');
-          if (!onScrub && !_scrubHovering) pp.classList.remove('show-timecode');
+        }
+
+        /* Wake on any cursor movement over video */
+        if (onOv || onGrab) wakeUI();
+
+        /* Scrub cursor pos when scrubbing */
+        if (_scrubbing) {
+          scrubCur.style.left = e.clientX+'px';
+          scrubCur.style.top = e.clientY+'px';
         }
       });
     }
 
-    /* Cleanup on page leave */
+    /* ── Cleanup ── */
     function cleanup() {
-      if (vidCur) { vidCur.remove(); }
+      clearTimeout(_sleepTimer);
+      if (vidCur) vidCur.remove();
+      if (scrubCur) scrubCur.remove();
+      if (grabZone) grabZone.remove();
+      if (scrubHead) scrubHead.remove();
+      if (timeCode) timeCode.remove();
       if (ppCur) { ppCur.style.opacity='0'; ppCur.classList.remove('on-bar'); }
     }
-
-    /* Start sleep timer immediately */
-    wakeUp();
   }
 
   function buildDockPanel(pp, vidsAll, hashes, d, title, desc, release, hasGallery) {
