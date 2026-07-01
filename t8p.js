@@ -175,7 +175,7 @@
       'border-bottom:1px solid rgba(240,237,230,0.1);cursor:pointer;}',
       '#t8p-pp-wm svg{height:28px;width:auto;display:block;fill:#f0ede6}',
       '@media(max-width:767px){#t8p-pp-wm{height:44px}#t8p-pp-wm svg{height:20px}}',
-      '.t8p-pp-hero{position:relative;width:100%;height:100vh;flex-shrink:0}',
+      '.t8p-pp-hero{position:relative;width:100%;height:100vh;flex-shrink:0;overflow:hidden}',
       '#t8p-vp-main{position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none}',
       '#t8p-ov{position:absolute;inset:0;z-index:1}',
       '.t8p-pp-bar{position:absolute;bottom:0;left:0;right:0;z-index:2;',
@@ -1042,7 +1042,8 @@
       hf.setAttribute('allow','autoplay; fullscreen; picture-in-picture; encrypted-media');
       hf.setAttribute('allowfullscreen','');
       hf.setAttribute('allowautoplay','');
-      hf.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:auto';
+      /* Scale 16:9 video to fill full viewport height -- width overflows, hidden by hero overflow */
+      hf.style.cssText = 'position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);height:100%;width:177.78vh;min-width:100%;border:none;pointer-events:auto';
       var heroHash = hashes[String(vids[0])] ? '?h='+hashes[String(vids[0])]+'&' : '?';
       hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=1&dnt=1&quality=auto';
       hero.appendChild(hf);
