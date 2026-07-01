@@ -1190,7 +1190,7 @@
       hf.setAttribute('allow','autoplay; fullscreen; picture-in-picture; encrypted-media');
       hf.setAttribute('allowfullscreen','');
       hf.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;z-index:2';
-      hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=0&muted=1&controls=0&autopause=0&background=0&dnt=1&transparent=0';
+      hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=0&dnt=1&transparent=0';
       hero.appendChild(hf);
 
       /* Init Vimeo SDK player */
@@ -1203,8 +1203,16 @@
           updateScrubUI(pct, data.seconds, _duration);
         });
         vplayer.on('ended', function(){
-          _playing = false;
-          updatePlayBtn(false);
+          /* restart muted regardless of how it ended */
+          _muted = true;
+          _firstClick = true;
+          _playing = true;
+          vplayer.setMuted(true);
+          vplayer.setVolume(0);
+          vplayer.setCurrentTime(0);
+          vplayer.play();
+          updatePlayBtn(true);
+          setMuteUI(true);
         });
       });
     } else {
