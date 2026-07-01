@@ -798,7 +798,7 @@
       var rotZ = (Math.random()-0.5) * 2.5; /* slight random roll */
 
       /* native aspect ratio -- default 16:9 for video, known 4:3 overrides */
-      /* 4:3 projects */ var RATIO_43  = {woxerpolaroid:1,pbpm:1,rubirose:1,skechers:1};
+      /* 4:3 projects */ var RATIO_43  = {woxerpolaroid:1,pbpm:1,rubirose:1,skechers:1,nike:1};
       /* 9:16 vertical */ var RATIO_916 = {statefarm:1,hers:1};
       var rawRatio  = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || 0;
       var defR;
@@ -813,6 +813,7 @@
       var baseW = isVertical ? Math.min(cellW * 0.800, 248) : Math.min(cellW * 0.828, 356);
       /* per-card size overrides */
       if (it.slug === 'calvinklein') baseW = 480;
+      if (it.slug === 'nike')        baseW = 480;
       if (it.slug === 'doritos')     baseW = 426;
 
       var cell = el('a', {className:'t8p-cell', href:it.href});
