@@ -1,5 +1,5 @@
 /* ============================================================
-   T8P STUDIOS — Site Script v9.7
+   T8P STUDIOS — Site Script v9.9
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
    ============================================================ */
@@ -675,9 +675,11 @@
 
     /* Church-style layout: loose grid with per-cell jitter, Z varies by distance from center */
     var COLS = 5, ROWS = 4;
-    var GAP_X = W * 0.075, GAP_Y = H * 0.075; /* more breathing room between cells */
-    /* Grid pulled in from edges -- more margin, less overwhelming */
-    var gridW = W * 0.92, gridH = H * 0.90;
+    /* Gap: generous breathing room between panels */
+    var GAP_X = W * 0.055, GAP_Y = H * 0.06;
+    /* Grid wider than viewport so outer panels are ~90% hidden at rest,
+       revealed as cursor moves to edges via sphere pan + per-card drift */
+    var gridW = W * 1.55, gridH = H * 1.45;
     var cellW = (gridW - (COLS-1)*GAP_X) / COLS;
     var cellH = (gridH - (ROWS-1)*GAP_Y) / ROWS;
     var gridLeft = (W - gridW) / 2, gridTop = (H - gridH) / 2;
@@ -728,8 +730,8 @@
       var baseCY = gridTop  + row * (cellH + GAP_Y) + cellH/2;
 
       /* random jitter within cell — church uses 30% of cell size */
-      var jx = (Math.random()-0.5) * cellW * 0.18;
-      var jy = (Math.random()-0.5) * cellH * 0.18;
+      var jx = (Math.random()-0.5) * cellW * 0.22;
+      var jy = (Math.random()-0.5) * cellH * 0.22;
       var px = baseCX + jx;
       var py = baseCY + jy;
 
@@ -755,9 +757,9 @@
       else if (rawRatio > 0)       defR = 1/rawRatio;
       else                         defR = 9/16; /* arena, doritos, calvinklein etc = 16:9 */
       /* card width fits in cell */
-      /* card width: smaller overall, vertical relatively bigger for balance */
+      /* card width: +25% overall, vertical slightly bigger relative */
       var isVertical = defR > 1.0;
-      var baseW = isVertical ? Math.min(cellW * 0.78, 195) : Math.min(cellW * 1.02, 300);
+      var baseW = isVertical ? Math.min(cellW * 0.95, 244) : Math.min(cellW * 1.26, 375);
 
       var cell = el('a', {className:'t8p-cell', href:it.href});
       cell.style.width  = baseW + 'px';
@@ -909,20 +911,22 @@
         ' translateX('+(-panX)+'px)' +
         ' translateY('+(panY)+'px)';
 
-      /* per-card depth-based parallax: cards deeper in Z drift MORE than
-         near cards -- this is what makes it feel like looking around objects
-         rather than one rigid plane moving together (true 3D parallax) */
-      var baseDX = (tgtY - curRY);
-      var baseDY = (tgtX - curRX);
+      /* church-exact per-card displacement: each card accumulates drift
+         by (targetRot - cameraRot) * 0.08 every frame, independently.
+         Cards process at slightly different times so they feel unlinked. */
+      var deltaX = (tgtY - curRY) * 0.08; /* church uses displacementScale=0.08 */
+      var deltaY = (tgtX - curRX) * 0.08;
       cells.forEach(function(c) {
-        /* depth factor: deeper (-Z) cards move more, near (+Z) cards move less
-           normalize _z range roughly -500..+200 to a 0.4..1.6 multiplier */
-        var depthFactor = 1 - (c._z / 700); /* center(-500)→1.71, edge(+200)→0.71 */
-        depthFactor = clamp(depthFactor, 0.5, 1.8);
-        var dx = baseDX * depthFactor * 26; /* px drift scaled by depth */
-        var dy = baseDY * depthFactor * 20;
-        var bx = c._px - c._baseW/2 + dx;
-        var by = c._py - c._h/2    + dy;
+        /* accumulate drift on the card's stored offset */
+        if (!c._ox) c._ox = 0;
+        if (!c._oy) c._oy = 0;
+        c._ox += deltaX * 180; /* scale to px (church is in 3D units, we're in px) */
+        c._oy += deltaY * 140;
+        /* soft clamp: ease back toward 0 when delta shrinks -- prevents infinite drift */
+        c._ox *= 0.88;
+        c._oy *= 0.88;
+        var bx = c._px - c._baseW/2 + c._ox;
+        var by = c._py - c._h/2    + c._oy;
         c.style.transform = 'translate3d('+bx+'px,'+by+'px,'+c._z+'px) rotateX('+c._rx+'deg) rotateY('+c._ry+'deg) rotateZ('+c._rz+'deg)';
       });
 
