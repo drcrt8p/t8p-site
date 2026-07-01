@@ -1042,7 +1042,8 @@
       hf.setAttribute('allow','autoplay; fullscreen; picture-in-picture; encrypted-media');
       hf.setAttribute('allowfullscreen','');
       hf.setAttribute('allowautoplay','');
-      hf.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:auto';
+      /* Overflow iframe so Vimeo's letterboxing is hidden behind the container */
+      hf.style.cssText = 'position:absolute;top:-10%;left:-10%;width:120%;height:120%;border:none;pointer-events:auto';
       var heroHash = hashes[String(vids[0])] ? '?h='+hashes[String(vids[0])]+'&' : '?';
       hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=1&dnt=1&quality=auto';
       hero.appendChild(hf);
