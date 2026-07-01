@@ -1,5 +1,5 @@
 /* ============================================================
-   T8P STUDIOS — Site Script v10.1
+   T8P STUDIOS — Site Script v10.2
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
    ============================================================ */
