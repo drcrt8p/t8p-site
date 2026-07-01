@@ -78,7 +78,7 @@
       '@media(max-width:767px){#t8p-wm-wrap{width:min(80vw,320px)}}',
 
       /* ── Nav pill ── */
-      '#t8p-nav{will-change:transform;margin-top:2px;position:relative;',
+      '#t8p-nav{will-change:transform;margin-top:10px;position:relative;',
       'pointer-events:auto;z-index:600;display:flex;justify-content:center}',
       '#t8p-nav-btn{width:54px;height:54px;border-radius:50%;background:rgba(20,20,20,.6);',
       'backdrop-filter:blur(8px);border:1px solid rgba(240,237,230,.18);',
