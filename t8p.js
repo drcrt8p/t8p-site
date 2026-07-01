@@ -207,7 +207,35 @@
       '.t8p-pp-bar .t8p-pp-d{font-size:9px;letter-spacing:.06em;color:rgba(255,255,255,.85);',
       'flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#080808}',
       '@media(max-width:767px){.t8p-pp-bar .t8p-pp-d{display:none}}',
-      '#t8p-scrub-line{position:relative;height:3px;background:rgba(255,255,255,.08);',
+      /* ── Church-style video interaction ── */
+      /* Hide UI by default, show on hover of #t8p-ov */
+      '#t8p-vid-ui{opacity:0;transition:opacity .3s ease;pointer-events:none}',
+      '.vid-active #t8p-vid-ui{opacity:1;pointer-events:auto}',
+      '.vid-active #t8p-playbtn{opacity:1}',
+
+      /* Center play/pause button */
+      '#t8p-playbtn{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);',
+      'opacity:0;transition:opacity .3s ease;',
+
+      'width:64px;height:64px;border-radius:50%;background:#c9e6fd;cursor:none;',
+      'display:flex;align-items:center;justify-content:center;z-index:9050;pointer-events:none}',
+      '#t8p-playbtn svg{width:24px;height:24px;fill:#080808}',
+      /* Hide play button when hovering scrub */
+      '.scrub-active #t8p-playbtn{opacity:0}',
+      /* Scrub vertical line cursor */
+      '#t8p-scrub-vline{position:fixed;top:0;bottom:0;width:1px;background:#c9e6fd;',
+      'opacity:0;pointer-events:none;z-index:9060;transition:opacity .15s}',
+      '.scrub-active #t8p-scrub-vline{opacity:1}',
+      /* Inverted cursor: active on bars, hidden on video */
+      '#t8p-pp-cur{position:fixed;width:10px;height:10px;border-radius:50%;background:#fff;',
+      'mix-blend-mode:difference;pointer-events:none;z-index:99999;',
+      'transform:translate(-50%,-50%);left:-100px;top:-100px;opacity:0}',
+      '#t8p-pp-cur.on-bar{opacity:1}',
+      /* Bottom info bar: three-column */
+      '.t8p-pp-bar{justify-content:space-between}',
+      '.t8p-pp-bar .t8p-pp-r{font-size:9px;letter-spacing:.06em;color:#080808;',
+      'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '#t8p-scrub-line{position:relative;height:3px;background:rgba(0,0,0,.15);',
       'cursor:pointer;flex-shrink:0}',
       '#t8p-scrub-time{position:absolute;left:0;top:0;height:100%;',
       'background:#080808;width:0;transition:width .1s linear}',
@@ -1052,7 +1080,7 @@
     if (oc) oc.remove();
 
     /* state vars for scrub/cursor */
-    var state = 'paused', scrubPct = 0, scrubLineRef = null;
+    var state = 'playing', scrubPct = 0, scrubLineRef = null;
 
     var DATA = window._t8pDATA || {};
     var sl = location.pathname.replace(/[/]/g,'');
@@ -1071,41 +1099,61 @@
     var ck = document.getElementById('t8p-ck');
     if (ck) ck.style.setProperty('display','none','important');
 
-    /* custom cursor */
-    var cur = el('div', {id:'t8p-cursor'});
-    cur.innerHTML = PSVG;
-    cur.style.cssText = 'position:fixed;top:-100px;left:-100px;z-index:99999;pointer-events:none;transform:translate(-50%,-50%);opacity:0;transition:opacity .1s';
-    if (!IS_MOBILE) document.body.appendChild(cur);
+    /* church-style inverted cursor -- only visible on bars */
+    var ppCur = el('div', {id:'t8p-pp-cur'});
+    if (!IS_MOBILE) document.documentElement.appendChild(ppCur);
+
+    /* play/pause center button */
+    var playBtn = el('div', {id:'t8p-playbtn'});
+    playBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="5" y="4" width="4" height="16" fill="#080808"/><rect x="15" y="4" width="4" height="16" fill="#080808"/></svg>';
+    pp.appendChild(playBtn);
+
+    /* vertical scrub line cursor */
+    var vline = el('div', {id:'t8p-scrub-vline'});
+    document.body.appendChild(vline);
+
+    /* idle timer to hide UI */
+    var vidUI = null; /* will be set after build */
+    var idleTimer = null;
+    function showUI() {
+      if (vidUI) { pp.classList.add('vid-active'); }
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(hideUI, 2200);
+    }
+    function hideUI() {
+      pp.classList.remove('vid-active');
+    }
 
     if (!IS_MOBILE) {
       document.addEventListener('mousemove', function(e){
-        cur.style.left = e.clientX+'px'; cur.style.top = e.clientY+'px';
+        ppCur.style.left = e.clientX+'px'; ppCur.style.top = e.clientY+'px';
         var elAt = document.elementFromPoint(e.clientX,e.clientY);
-        var onOv = elAt && elAt.id==='t8p-ov';
+        var onOv  = elAt && (elAt.id==='t8p-ov' || elAt.id==='t8p-vp-main');
         var onScr = elAt && (elAt.id==='t8p-scrub-line' || elAt.id==='t8p-scrub-time');
-        var onVid = onOv || onScr;
-        var onUI = !!(elAt && elAt.closest && (
-          elAt.closest('#t8p-pp-wm') ||
-          elAt.closest('#t8p-topbar') ||
-          elAt.closest('#t8p-btns') ||
-          elAt.closest('.t8p-credits-section') ||
-          elAt.closest('#t8p-dock') ||
-          elAt.closest('#t8p-panel-topbar')
+        var onTopBar = !!(elAt && elAt.closest && (
+          elAt.closest('#t8p-pp-wm') || elAt.closest('#t8p-btns')
         ));
-        if (onUI) {
-          cur.style.opacity = '1';
-          cur.style.width = '8px';
-          cur.style.height = '8px';
-          cur.innerHTML = '';
+        var onBotBar = !!(elAt && elAt.closest && elAt.closest('.t8p-pp-bar'));
+
+        /* inverted cursor: show on bars only */
+        ppCur.classList.toggle('on-bar', onTopBar || onBotBar);
+
+        /* video hover: show UI, start idle timer */
+        if (onOv || onScr) {
+          showUI();
+          pp.classList.toggle('scrub-active', onScr);
+          if (onScr && scrubLineRef) {
+            var rect = scrubLineRef.getBoundingClientRect();
+            scrubPct = Math.max(0, Math.min(1, (e.clientX-rect.left)/rect.width));
+            vline.style.left = e.clientX+'px';
+          }
         } else {
-          cur.style.width = '';
-          cur.style.height = '';
-          cur.style.opacity = onVid ? '1' : '0';
-          cur.innerHTML = onVid ? (state === 'playing' ? PSSVG : PSVG) : '';
+          pp.classList.remove('scrub-active');
         }
+
         if (onScr && scrubLineRef) {
-          var rect = scrubLineRef.getBoundingClientRect();
-          scrubPct = Math.max(0, Math.min(1, (e.clientX-rect.left)/rect.width));
+          var rect2 = scrubLineRef.getBoundingClientRect();
+          scrubPct = Math.max(0, Math.min(1, (e.clientX-rect2.left)/rect2.width));
         }
       });
     }
@@ -1172,10 +1220,28 @@
       hero.appendChild(heroImg);
     }
     var ov = el('div', {id:'t8p-ov'}); hero.appendChild(ov);
+    /* wire ov click to toggle play/pause via Vimeo postMessage */
+    ov.style.cursor = 'none';
+    ov.addEventListener('click', function(){
+      var hf2 = document.getElementById('t8p-vp-main');
+      if (!hf2 || !hf2.contentWindow) return;
+      if (state === 'playing') {
+        hf2.contentWindow.postMessage('{"method":"pause"}','*');
+        state = 'paused';
+        playBtn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20" fill="#080808"/></svg>';
+      } else {
+        hf2.contentWindow.postMessage('{"method":"play"}','*');
+        state = 'playing';
+        playBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="5" y="4" width="4" height="16" fill="#080808"/><rect x="15" y="4" width="4" height="16" fill="#080808"/></svg>';
+      }
+    });
     var bar = el('div', {className:'t8p-pp-bar'});
-    bar.innerHTML = '<span class="t8p-pp-t">'+(release?title+' &ndash; '+release:title)+'</span><span class="t8p-pp-d">'+desc+'</span>';
+    bar.innerHTML = '<span class="t8p-pp-t">'+title+'</span>'
+      +'<span class="t8p-pp-d">'+desc+'</span>'
+      +(release?'<span class="t8p-pp-r">'+release+'</span>':'');
     hero.appendChild(bar);
     pp.appendChild(hero);
+    vidUI = hero; /* UI visibility target */
 
     /* scrub line */
     var scrubLine = el('div',{id:'t8p-scrub-line'});
@@ -1211,6 +1277,14 @@
     var cb=el('div',{id:'t8p-close-btn',className:'t8p-btn'});
     cb.innerHTML='<div class="t8p-btn-shape"></div><div class="t8p-btn-icon">'+CICO+'</div>';
     cb.onclick=function(){ location.href='/'; };
+    var _muted = true;
+    mb.onclick = function(){
+      var hf3 = document.getElementById('t8p-vp-main');
+      if (!hf3 || !hf3.contentWindow) return;
+      _muted = !_muted;
+      hf3.contentWindow.postMessage('{"method":"setVolume","value":'+(+!_muted)+'}','*');
+      mb.style.opacity = _muted ? '0.5' : '1';
+    };
     btns.appendChild(mb); btns.appendChild(cb);
     pp.appendChild(btns);
 
