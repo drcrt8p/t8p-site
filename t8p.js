@@ -1378,6 +1378,12 @@
     var _s = location.pathname.replace(/[/]/g,'');
     var _pp = document.getElementById('t8p-pp');
 
+    /* un-hide siteWrapper for all pages (hidden by header flash-fix) */
+    var _sw = document.getElementById('siteWrapper');
+    var _pg = document.getElementById('page');
+    if (_sw) { _sw.style.visibility=''; _sw.style.opacity=''; }
+    if (_pg) { _pg.style.visibility=''; _pg.style.opacity=''; }
+
     if (_s && _pp) {
       /* project page */
       buildProject();
