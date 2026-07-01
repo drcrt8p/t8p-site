@@ -614,15 +614,21 @@
       var d = (window._t8pDATA||{})[slug]||{};
       var vids = d.v||[];
       if (vids.length > 0) {
-        /* Video project: use Vimeo thumbnail as poster -- correct frame, always */
+        /* Video project: use Vimeo thumbnail, but skip vumbnail for private videos */
         var vid = typeof vids[0]==='string'?parseInt(vids[0],10):vids[0];
+        var hasPrivateHash = d.h && d.h[String(vids[0])];
         var img = cell.querySelector('img');
         if (img) {
-          img.src = 'https://vumbnail.com/'+vid+'.jpg';
-          img.onerror = function(){
-            /* Private video fallback: scrape page for real thumbnail */
-            fetchThumb(cell, slug);
-          };
+          if (hasPrivateHash) {
+            /* Private video -- vumbnail returns folder icon, scrape page instead */
+            setTimeout(function(){ fetchThumb(cell, slug); }, i * 80);
+          } else {
+            img.src = 'https://vumbnail.com/'+vid+'.jpg';
+            img.onerror = function(){
+              /* Public video fallback: scrape page for real thumbnail */
+              fetchThumb(cell, slug);
+            };
+          }
         }
       } else {
         /* Photo project: scrape page */
