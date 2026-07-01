@@ -1,5 +1,11 @@
 /* ============================================================
    T8P STUDIOS — Site Script v10.4
+   ⚠️  SPHERE LOCKED — DO NOT MODIFY WITHOUT DAVID'S EXPLICIT CONFIRMATION
+   Locked elements: buildGrid(), card sizes, aspect ratios, jitter, Z depth,
+   motion physics (LERP_C=0.03, MAX_ROT_X/Y), per-card drift (deltaX*180, 0.88 friction),
+   grid dimensions, gap values, priority order, rainbow ::before, autoplay iframes.
+   Last approved: 2026-07-01
+   ============================================================
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
    ============================================================ */
