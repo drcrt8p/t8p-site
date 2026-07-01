@@ -78,7 +78,8 @@
       '#t8p-nav-btn{width:54px;height:54px;border-radius:50%;background:rgba(20,20,20,.6);',
       'backdrop-filter:blur(8px);border:1px solid rgba(240,237,230,.18);',
       'display:flex;align-items:center;justify-content:center;cursor:pointer;',
-      'transition:transform .5s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:2}',
+      'transition:opacity .25s,transform .5s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:2}',
+      '#t8p-nav.open #t8p-nav-btn{opacity:0;pointer-events:none}',
       '#t8p-nav-btn>svg{width:28px;height:28px;fill:#f0ede6;transition:opacity .3s}',
       '#t8p-nav-pill{position:absolute;top:50%;left:50%;',
       'transform:translate(-50%,-50%) scaleX(0);transform-origin:center;',
@@ -93,6 +94,11 @@
       'text-decoration:none;padding:6px 12px;border-radius:14px;',
       'transition:opacity .15s;font-weight:500}',
       '#t8p-nav-pill a:hover{opacity:.5}',
+      '#t8p-nav-close{position:absolute;right:8px;top:50%;transform:translateY(-50%);',
+      'width:38px;height:38px;border-radius:50%;background:rgba(20,20,20,.08);',
+      'border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;',
+      'color:#080808;font-size:18px;line-height:1;padding:0;transition:opacity .15s}',
+      '#t8p-nav-close:hover{opacity:.5}',
       '#t8p-nav-pill a.on{font-weight:700}',
       '#t8p-nav-btn::before{content:"";position:absolute;inset:-12px;border-radius:50%;z-index:-1}',
 
@@ -374,6 +380,7 @@
             '<a href="/projects">PROJECTS</a>',
             '<a href="/clients">CLIENTS</a>',
             '<a href="/contact">CONTACT</a>',
+            '<button id="t8p-nav-close" aria-label="Close menu">&times;</button>',
           '</div>',
           '<button id="t8p-nav-btn" aria-label="Menu">',
             CIRCLE_SVG,
@@ -520,6 +527,14 @@
       var o = nav.classList.toggle('open');
       document.body.classList.toggle('nav-open', o);
     });
+    var closeBtn = document.getElementById('t8p-nav-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function(e){
+        e.stopPropagation(); e.stopImmediatePropagation();
+        nav.classList.remove('open');
+        document.body.classList.remove('nav-open');
+      });
+    }
     document.addEventListener('click', function(e){
       var shield = document.getElementById('t8p-nav-shield');
       if (nav.classList.contains('open') && !nav.contains(e.target) && e.target !== shield && !(shield && shield.contains(e.target))) {
