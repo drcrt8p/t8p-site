@@ -410,7 +410,7 @@
     mobHeader.appendChild(mobNav);
     mobHome.appendChild(mobHeader);
     var mobGrid = el('div', {id:'t8p-mob-grid'}); mobHome.appendChild(mobGrid);
-    var mobFoot = el('div', {className:'t8p-mob-foot'}); mobFoot.innerHTML = 'T8P STUDIOS &middot; MIAMI FL &middot; EST 2016'; mobHome.appendChild(mobFoot);
+    var mobFoot = el('div', {className:'t8p-mob-foot'}); mobFoot.innerHTML = 'T8P STUDIOS &middot; EST 2019'; mobHome.appendChild(mobFoot);
     document.body.appendChild(mobHome);
 
     /* project page */
@@ -479,8 +479,8 @@
      MARQUEE
   ────────────────────────────────────────────────────────── */
   function buildMarquee() {
-    var items = ['T8P STUDIOS','MIAMI FL','VIDEO PRODUCTION','CREATIVE DIRECTION',
-                 'MUSIC VIDEOS','BRAND CONTENT','AI PRODUCTION','EST 2016'];
+    var items = ['T8P STUDIOS','MEDIA PRODUCTION','CREATIVE DIRECTION',
+                 'MUSIC VIDEOS','BRAND CONTENT','EST 2019'];
     var h = '';
     for (var i = 0; i < 3; i++) {
       items.forEach(function(x){
