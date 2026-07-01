@@ -1,6 +1,6 @@
 /* ============================================================
    T8P STUDIOS — Site Script v10.5
-   ⚠️  SPHERE LOCKED — DO NOT MODIFY WITHOUT DAVID'S EXPLICIT CONFIRMATION
+   ⚠️  SPHERE LOCKED v10.8 — DO NOT MODIFY WITHOUT DAVID'S EXPLICIT CONFIRMATION
    Locked elements: buildGrid(), card sizes, aspect ratios, jitter, Z depth,
    motion physics (LERP_C=0.03, MAX_ROT_X/Y), per-card drift (deltaX*180, 0.88 friction),
    grid dimensions, gap values, priority order, rainbow ::before, autoplay iframes.
