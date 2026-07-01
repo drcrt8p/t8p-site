@@ -5,7 +5,7 @@
    motion physics (LERP_C=0.03, MAX_ROT_X/Y), per-card drift (deltaX*180, 0.88 friction),
    grid dimensions, gap values, priority order, rainbow ::before (mask technique, z-index:10),
    cell overflow:hidden, border-radius:12px, autoplay iframes.
-   Last approved: 2026-07-01 — re-locked after nike/priority/ratio changes
+   Last approved: 2026-07-01 — re-locked v2 + nav cooldown
    ============================================================
    External hosted — no Squarespace minifier issues
    Mobile-first with desktop sphere experience
