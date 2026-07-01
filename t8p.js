@@ -232,23 +232,17 @@
       '.t8p-pp-d{text-align:center;flex:1;padding:0 16px}',
 
       /* Scrub track: thin line at very bottom of bar */
-      '#t8p-scrub-track{height:3px;background:rgba(8,8,8,.15);position:relative;cursor:none}',
-      '#t8p-scrub-fill{height:100%;background:#080808;width:0%;position:relative;',
-      'transition:width .1s linear}',
+      '#t8p-scrub-track{height:3px;background:rgba(201,230,253,.25);position:relative;cursor:none}',
+      '#t8p-scrub-fill{height:100%;background:#c9e6fd;width:0%;transition:width .1s linear}',
       '.scrub-hover #t8p-scrub-fill{transition:none}',
+      '#t8p-scrub-vline{position:fixed;top:0;bottom:0;width:1px;background:#c9e6fd;',
+      'pointer-events:none;z-index:9091;opacity:0;left:-999px;transition:opacity .15s}',
+      '.scrub-hover #t8p-scrub-vline,.show-timecode #t8p-scrub-vline{opacity:1}',
+      '#t8p-timecode{position:fixed;bottom:52px;font-size:11px;letter-spacing:.12em;',
+      'color:#c9e6fd;pointer-events:none;opacity:0;left:-999px;',
+      'z-index:9092;white-space:nowrap;transform:translateX(-50%);transition:opacity .15s}',
+      '.show-timecode #t8p-timecode,.scrub-hover #t8p-timecode{opacity:1}',
 
-      /* Full-height vertical line -- the playhead (church-style ::before on fill) */
-      '#t8p-scrub-fill::after{content:"";position:absolute;right:0;top:0;',
-      'width:1px;background:#080808;',
-      'height:0;transition:height .2s ease;pointer-events:none}',
-      '.scrub-hover #t8p-scrub-fill::after{height:calc(-1*(100vh - 100%));',
-      'transform:translateY(calc(-100vh + 100%))}',
-
-      /* Timecode label */
-      '#t8p-timecode{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);',
-      'font-size:11px;letter-spacing:.12em;color:#c9e6fd;pointer-events:none;',
-      'opacity:0;transition:opacity .2s ease;z-index:9150;white-space:nowrap}',
-      '.show-timecode #t8p-timecode{opacity:1}',
 
       /* Inverted cursor on bars */
       '#t8p-pp-cur{position:fixed;width:10px;height:10px;border-radius:50%;background:#fff;',
@@ -1266,10 +1260,13 @@
     }
     updatePlayBtn(true);
 
-    /* ── Timecode label (center screen) ── */
+    /* ── Timecode + vline (both follow mouse x) ── */
     var timeCode = document.createElement('div');
     timeCode.id = 't8p-timecode';
     pp.appendChild(timeCode);
+    var scrubVline = document.createElement('div');
+    scrubVline.id = 't8p-scrub-vline';
+    pp.appendChild(scrubVline);
 
     /* ── Scrub zone (bottom bar + track) ── */
     var scrubZone = document.createElement('div');
@@ -1425,6 +1422,8 @@
     scrubTrack.addEventListener('mousemove', function(e){
       var pct = getScrubPct(e);
       scrubFill.style.width = (pct*100)+'%';
+      scrubVline.style.left = e.clientX + 'px';
+      timeCode.style.left = e.clientX + 'px';
       if (_duration) timeCode.textContent = fmtTime(pct*_duration)+' / '+fmtTime(_duration);
     });
     scrubTrack.addEventListener('mousedown', function(e){
@@ -1438,6 +1437,8 @@
       function onMove(e2){
         var p2=getScrubPct(e2);
         scrubFill.style.width=(p2*100)+'%';
+        scrubVline.style.left=e2.clientX+'px';
+        timeCode.style.left=e2.clientX+'px';
         if(vplayer&&_duration)vplayer.setCurrentTime(p2*_duration);
         if(_duration)timeCode.textContent=fmtTime(p2*_duration)+' / '+fmtTime(_duration);
       }
@@ -1470,6 +1471,17 @@
         ppCur.classList.toggle('on-bar', onTopBar || onBotBar);
 
         /* Floating cursor: video zone, not scrub track */
+        /* Move vline and timecode to cursor x on video or scrub */
+        if (onOv || onScrub) {
+          scrubVline.style.left = e.clientX + 'px';
+          timeCode.style.left = e.clientX + 'px';
+          /* Update timecode from current video position while on video */
+          if (onOv && !_scrubHovering && vplayer) {
+            vplayer.getCurrentTime().then(function(t){
+              timeCode.textContent = fmtTime(t) + (_duration?' / '+fmtTime(_duration):'');
+            });
+          }
+        }
         if (onOv) {
           vidCur.classList.add('visible');
           vidCur.style.left = e.clientX+'px';
