@@ -217,18 +217,42 @@
       '#t8p-vidcur svg{width:20px;height:20px;flex-shrink:0}',
       '#t8p-vidcur.visible{opacity:1}',
       '#t8p-vidcur.on-scrub{opacity:0}',
-      '#t8p-scrub-zone{position:absolute;bottom:0;left:0;right:0;height:48px;z-index:10;cursor:none}',
-      '#t8p-scrub-track{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(201,230,253,.25)}',
-      '#t8p-scrub-fill{height:100%;background:#c9e6fd;width:0;transition:width .1s linear}',
-      '.scrub-active #t8p-scrub-fill{transition:none}',
-      '#t8p-scrub-vline{position:absolute;top:0;bottom:0;width:1px;background:#c9e6fd;',
-      'left:0;opacity:0;pointer-events:none;z-index:11;transition:opacity .15s}',
-      '.scrub-active #t8p-scrub-vline{opacity:1}',
-      '#t8p-scrub-time-label{position:absolute;bottom:12px;left:8px;',
-      'font-size:9px;letter-spacing:.1em;color:#c9e6fd;white-space:nowrap;pointer-events:none}',
+      /* ── Scrub bar: church-style full-height vline ── */
+      '#t8p-scrub-zone{position:absolute;bottom:0;left:0;right:0;z-index:10;cursor:none;',
+      'display:flex;flex-direction:column}',
+      /* Thin 2px line at very bottom -- the actual progress track */
+      '#t8p-scrub-track{left:0;right:0;height:2px;',
+      'background:rgba(201,230,253,.2);opacity:0;transition:opacity .2s;order:1}',
+      '.scrub-hover #t8p-scrub-track{opacity:1}',
+      '#t8p-scrub-fill{height:100%;background:#c9e6fd;width:0;transition:width .1s linear;position:relative}',
+      '.scrub-hover #t8p-scrub-fill{transition:none}',
+      /* Full viewport-height vertical line at current position -- church-style */
+      '#t8p-scrub-fill::before{content:"";position:absolute;right:0;top:0;',
+      'height:100vh;width:1px;background:#c9e6fd;transform:translateY(-100%);',
+      'display:flex;align-items:center;pointer-events:none}',
+      /* Time label rides the vline */
+      '#t8p-scrub-time-label{position:absolute;bottom:16px;right:-4px;',
+      'font-size:9px;letter-spacing:.1em;color:#c9e6fd;white-space:nowrap;pointer-events:none;',
+      'transform:translateX(-100%);padding-right:8px}',
       '.t8p-pp-bar{justify-content:space-between}',
       '.t8p-pp-bar .t8p-pp-r{font-size:9px;letter-spacing:.06em;color:#080808;',
       'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      /* ── Wave animation for mute button ── */
+      '@keyframes t8p-quiet{25%{transform:scaleY(.6)}50%{transform:scaleY(.4)}75%{transform:scaleY(.8)}}',
+      '@keyframes t8p-normal{25%{transform:scaleY(1)}50%{transform:scaleY(.4)}75%{transform:scaleY(.6)}}',
+      '@keyframes t8p-loud{25%{transform:scaleY(1)}50%{transform:scaleY(.4)}75%{transform:scaleY(1.2)}}',
+      '.t8p-wave-container{display:flex;justify-content:space-between;align-items:center;gap:2px;width:16px;height:16px}',
+      '.t8p-wave{transform:scaleY(.4);height:12px;width:2px;background:#080808;border-radius:4px;',
+      'animation-duration:1.2s;animation-timing-function:ease-in-out;animation-iteration-count:infinite}',
+      '.sound-on .t8p-wave1{animation-name:t8p-quiet}',
+      '.sound-on .t8p-wave2{animation-name:t8p-normal}',
+      '.sound-on .t8p-wave3{animation-name:t8p-loud}',
+      '.sound-on .t8p-wave4{animation-name:t8p-quiet}',
+      /* Mute icon: X over waves when muted */
+      '.t8p-mute-x{width:16px;height:16px;position:relative;display:none}',
+      '.t8p-mute-x::before,.t8p-mute-x::after{content:"";position:absolute;top:50%;left:50%;',
+      'width:14px;height:1.5px;background:#080808;border-radius:2px;transform:translate(-50%,-50%) rotate(45deg)}',
+      '.t8p-mute-x::after{transform:translate(-50%,-50%) rotate(-45deg)}',
       '#t8p-scrub-line{position:relative;height:3px;background:rgba(0,0,0,.15);',
       'cursor:pointer;flex-shrink:0}',
       '#t8p-scrub-time{position:absolute;left:0;top:0;height:100%;',
@@ -1117,7 +1141,7 @@
     /* ── Wordmark topbar ── */
     var wmDiv = document.createElement('div');
     wmDiv.id = 't8p-pp-wm';
-    wmDiv.innerHTML = window._T8P_WM || '';
+    wmDiv.innerHTML = WM_SVG;
     wmDiv.onclick = function(){ location.href='/'; };
     pp.appendChild(wmDiv);
 
@@ -1126,7 +1150,7 @@
     btns.id = 't8p-btns';
     var mb = document.createElement('div');
     mb.id = 't8p-mute-btn'; mb.className = 't8p-btn';
-    mb.innerHTML = '<div class="t8p-btn-shape"></div><div class="t8p-btn-icon">'+MICO+'</div>';
+    mb.innerHTML = '<div class="t8p-btn-shape"></div>'+'<div class="t8p-wave-container"><div class="t8p-wave t8p-wave1"></div><div class="t8p-wave t8p-wave2"></div><div class="t8p-wave t8p-wave3"></div><div class="t8p-wave t8p-wave4"></div></div>';
     var cb2 = document.createElement('div');
     cb2.id = 't8p-close-btn'; cb2.className = 't8p-btn';
     cb2.innerHTML = '<div class="t8p-btn-shape"></div><div class="t8p-btn-icon">'+CICO+'</div>';
@@ -1225,31 +1249,22 @@
     bar.innerHTML = '<span class="t8p-pp-t">'+title+'</span>'
       +'<span class="t8p-pp-d">'+desc+'</span>'
       +(release ? '<span class="t8p-pp-r">'+release+'</span>' : '');
-    hero.appendChild(bar);
-
-    /* ── Scrub bar ── */
+    /* ── Scrub zone: bar IS the scrub hit area ── */
     var scrubZone = document.createElement('div');
     scrubZone.id = 't8p-scrub-zone';
-    scrubZone.style.cssText = 'position:absolute;bottom:0;left:0;right:0;height:48px;z-index:10;cursor:none';
+    scrubZone.appendChild(bar);
     hero.appendChild(scrubZone);
 
     var scrubTrack = document.createElement('div');
     scrubTrack.id = 't8p-scrub-track';
-    scrubZone.appendChild(scrubTrack);
-
     var scrubFill = document.createElement('div');
     scrubFill.id = 't8p-scrub-fill';
+    var scrubTimeLabel = document.createElement('div');
+    scrubTimeLabel.id = 't8p-scrub-time-label';
+    scrubFill.appendChild(scrubTimeLabel);
     scrubTrack.appendChild(scrubFill);
+    scrubZone.appendChild(scrubTrack);
 
-    /* Vertical line at cursor position */
-    var scrubVline = document.createElement('div');
-    scrubVline.id = 't8p-scrub-vline';
-    hero.appendChild(scrubVline);
-
-    /* Time label on the vline */
-    var scrubTime = document.createElement('div');
-    scrubTime.id = 't8p-scrub-time-label';
-    scrubVline.appendChild(scrubTime);
 
     function fmtTime(s) {
       var m = Math.floor(s/60), sec = Math.floor(s%60);
@@ -1257,8 +1272,7 @@
     }
     function updateScrubUI(pct, cur, dur) {
       scrubFill.style.width = (pct*100)+'%';
-      scrubVline.style.left = (pct*100)+'%';
-      scrubTime.textContent = fmtTime(cur) + (dur?' / '+fmtTime(dur):'');
+      if (scrubTimeLabel) scrubTimeLabel.textContent = fmtTime(cur) + (dur?' / '+fmtTime(dur):'');
     }
 
     pp.appendChild(hero);
@@ -1312,7 +1326,7 @@
     function hideUI() {
       _uiVisible = false;
       pp.classList.remove('vid-active');
-      pp.classList.remove('scrub-active');
+      pp.classList.remove('scrub-hover');
     }
 
     /* Play/pause toggle */
@@ -1347,7 +1361,7 @@
 
     /* Ov click */
     ov.addEventListener('click', function(e){
-      if (!pp.classList.contains('scrub-active')) {
+      if (!pp.classList.contains('scrub-hover')) {
         handleVideoClick();
         showUI();
       }
@@ -1368,56 +1382,62 @@
         if (!vplayer) return;
         _muted = !_muted;
         vplayer.setMuted(_muted);
-        mb.style.opacity = _muted ? '0.4' : '1';
+        vplayer.setVolume(_muted ? 0 : 1);
+        setMuteUI(_muted);
       }
     });
 
     /* Mute button click */
+    function setMuteUI(muted) {
+      _muted = muted;
+      if (muted) {
+        mb.classList.remove('sound-on');
+        mb.style.opacity = '0.45';
+      } else {
+        mb.classList.add('sound-on');
+        mb.style.opacity = '1';
+      }
+    }
     mb.addEventListener('click', function(){
       if (!vplayer) return;
       _muted = !_muted;
       vplayer.setMuted(_muted);
-      if (_muted) {
-        vplayer.setVolume(0);
-        mb.style.opacity = '0.4';
-      } else {
-        vplayer.setVolume(1);
-        mb.style.opacity = '1';
-        /* first unmute = restart from beginning */
-        if (_firstClick) {
-          _firstClick = false;
-          vplayer.setCurrentTime(0);
-          vplayer.play();
-          _playing = true;
-          updatePlayBtn(true);
-        }
+      vplayer.setVolume(_muted ? 0 : 1);
+      setMuteUI(_muted);
+      if (!_muted && _firstClick) {
+        _firstClick = false;
+        vplayer.setCurrentTime(0);
+        vplayer.play();
+        _playing = true;
+        updatePlayBtn(true);
       }
     });
+    /* start muted -- waves still but dimmed */
+    setMuteUI(true);
 
     /* Scrub zone interaction */
     var _scrubHovering = false;
     function getScrubPct(e) {
-      var rect = scrubZone.getBoundingClientRect();
+      var rect = scrubTrack.getBoundingClientRect();
       return Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     }
 
     scrubZone.addEventListener('mouseenter', function(){
       _scrubHovering = true;
-      pp.classList.add('scrub-active');
+      pp.classList.add('scrub-hover');
       pp.classList.add('vid-active');
     });
     scrubZone.addEventListener('mouseleave', function(){
       if (!_scrubbing) {
         _scrubHovering = false;
-        pp.classList.remove('scrub-active');
+        pp.classList.remove('scrub-hover');
         showUI();
       }
     });
     scrubZone.addEventListener('mousemove', function(e){
       var pct = getScrubPct(e);
-      /* move vline to cursor x */
-      scrubVline.style.left = (pct * 100) + '%';
-      if (_duration) scrubTime.textContent = fmtTime(pct * _duration) + ' / ' + fmtTime(_duration);
+      scrubFill.style.width = (pct * 100) + '%';
+      if (_duration && scrubTimeLabel) scrubTimeLabel.textContent = fmtTime(pct * _duration) + ' / ' + fmtTime(_duration);
     });
     scrubZone.addEventListener('mousedown', function(e){
       _scrubbing = true;
@@ -1429,15 +1449,14 @@
       function onMove(e2) {
         var p2 = getScrubPct(e2);
         scrubFill.style.width = (p2*100)+'%';
-        scrubVline.style.left = (p2*100)+'%';
         if (vplayer && _duration) vplayer.setCurrentTime(p2 * _duration);
-        if (_duration) scrubTime.textContent = fmtTime(p2*_duration)+' / '+fmtTime(_duration);
+        if (_duration && scrubTimeLabel) scrubTimeLabel.textContent = fmtTime(p2*_duration)+' / '+fmtTime(_duration);
       }
       function onUp() {
         _scrubbing = false;
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
-        if (!_scrubHovering) pp.classList.remove('scrub-active');
+        if (!_scrubHovering) pp.classList.remove('scrub-hover');
       }
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
