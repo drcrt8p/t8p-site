@@ -187,6 +187,8 @@
       '#t8p-pp{display:none;position:fixed;inset:0;z-index:8000;background:#000;overflow:hidden}',
       'body.is-pp #t8p-pp{display:block}',
       'body.is-pp #siteWrapper{display:none!important}',
+      /* Kill the global cursor on project pages */
+      'body.is-pp #t8p-cur{opacity:0!important;visibility:hidden!important;pointer-events:none!important}',
 
       /* Frosted milk bar across the top */
       '#t8p-topbar{position:fixed;top:0;left:0;right:0;height:80px;z-index:9050;',
@@ -1195,6 +1197,9 @@
   ────────────────────────────────────────────────────────── */
   function buildProject() {
     document.body.classList.add('is-pp');
+    /* Hide the global homepage cursor on project pages */
+    var _gc = document.getElementById('t8p-cur');
+    if (_gc) { _gc.style.opacity = '0'; _gc.style.visibility = 'hidden'; _gc.style.pointerEvents = 'none'; }
 
     var DATA = window._t8pDATA || {};
     var sl = location.pathname.replace(/[/]/g,'');
