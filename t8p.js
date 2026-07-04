@@ -313,29 +313,18 @@
       '.t8p-cred-name{font-size:10px;letter-spacing:.06em;color:#080808}',
       '.t8p-cred-name a{color:#080808;text-decoration:none}',
 
-      /* Dock hover animation */
-      '@keyframes t8p-card-bounce{0%{transform:var(--card-rot) translateY(0)}',
-      '30%{transform:var(--card-rot) translateY(-6px)}',
-      '60%{transform:var(--card-rot) translateY(-2px)}',
-      '80%{transform:var(--card-rot) translateY(-4px)}',
-      '100%{transform:var(--card-rot) translateY(0)}}',
-      '.t8p-dock-stack{transition:transform .2s ease}',
-      '.t8p-dock-stack:hover{transform:scale(1.08)}',
-      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(1){',
-      '--card-rot:rotate(0deg);',
-      'animation:t8p-card-bounce .5s ease forwards .0s}',
-      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(2){',
-      '--card-rot:rotate(-3deg);',
-      'animation:t8p-card-bounce .5s ease forwards .05s}',
-      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(3){',
-      '--card-rot:rotate(3deg);',
-      'animation:t8p-card-bounce .5s ease forwards .1s}',
-      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(4){',
-      '--card-rot:rotate(-5deg);',
-      'animation:t8p-card-bounce .5s ease forwards .15s}',
-      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(5){',
-      '--card-rot:rotate(5deg);',
-      'animation:t8p-card-bounce .5s ease forwards .2s}',
+      /* Dock hover: fan-out on hover, fan-in on leave */
+      '.t8p-dock-stack{transition:transform .25s ease}',
+      '.t8p-dock-stack:hover{transform:scale(1.06)}',
+      /* All cards transition smoothly */
+      '.t8p-dock-stack .t8p-dock-card{transition:transform .3s cubic-bezier(.34,1.56,.64,1)}',
+      /* Resting state rotations (set on each card already) */
+      /* Hover: fan out further */
+      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(1){transform:rotate(0deg) translateY(-2px)}',
+      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(2){transform:rotate(-10deg) translateY(-1px);transform-origin:bottom center}',
+      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(3){transform:rotate(10deg) translateY(-1px);transform-origin:bottom center}',
+      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(4){transform:rotate(-16deg);transform-origin:bottom center}',
+      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(5){transform:rotate(16deg);transform-origin:bottom center}',
 
       /* Wave animation */
       '@keyframes t8p-quiet{25%{transform:scaleY(.6)}50%{transform:scaleY(.4)}75%{transform:scaleY(.8)}}',
