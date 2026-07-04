@@ -295,26 +295,25 @@
 
       /* Credits section (below bottom bar, hidden until space/scroll) */
       /* Credits reveal: hero slides UP, credits exposed below bar */
-      /* Hero slides when credits-open on pp */
       '.t8p-pp-hero{transition:transform .4s cubic-bezier(.4,0,.2,1)}',
-      '.credits-open .t8p-pp-hero{transform:translateY(-280px)}',
-      /* Credits section: sits at bottom, normally hidden under bar */
-      '#t8p-pp-credits{position:fixed;bottom:34px;left:0;right:0;height:280px;',
-      'background:#c9e6fd;z-index:9079;',
+      '.credits-open .t8p-pp-hero{transform:translateY(-320px)}',
+      '#t8p-pp-credits{position:fixed;bottom:34px;left:0;right:0;',
+      'max-height:70vh;background:#c9e6fd;z-index:9079;',
       'transform:translateY(100%);transition:transform .4s cubic-bezier(.4,0,.2,1)}',
       '.credits-open #t8p-pp-credits{transform:translateY(0)}',
-      '#t8p-credits-inner{height:100%;padding:16px 24px 20px;overflow-y:auto;',
-      'display:flex;flex-direction:column}',
-      '.t8p-cred-title{font-size:9px;letter-spacing:.2em;text-transform:uppercase;',
-      'color:rgba(8,8,8,.4);margin-bottom:10px;padding-bottom:8px;',
-      'border-bottom:1px solid rgba(8,8,8,.12);font-weight:700;flex-shrink:0}',
-      '.t8p-cred-row{display:flex;gap:24px;padding:6px 0;',
-      'border-bottom:1px solid rgba(8,8,8,.1);flex-shrink:0}',
+      '#t8p-credits-inner{padding:20px 32px 28px;overflow-y:auto;max-height:70vh}',
+      '.t8p-cred-title{font-size:10px;letter-spacing:.2em;text-transform:uppercase;',
+      'color:rgba(8,8,8,.45);margin-bottom:12px;padding-bottom:10px;',
+      'border-bottom:1px solid rgba(8,8,8,.15);font-weight:700}',
+      '.t8p-cred-row{display:flex;gap:32px;padding:8px 0;',
+      'border-bottom:1px solid rgba(8,8,8,.1)}',
       '.t8p-cred-row:last-child{border-bottom:none}',
-      '.t8p-cred-role{font-size:10px;letter-spacing:.08em;color:rgba(8,8,8,.5);',
-      'width:160px;flex-shrink:0;text-transform:uppercase;padding-top:1px}',
-      '.t8p-cred-name{font-size:10px;letter-spacing:.06em;color:#080808}',
-      '.t8p-cred-name a{color:#080808;text-decoration:none}',
+      '.t8p-cred-role{font-size:11px;letter-spacing:.06em;color:rgba(8,8,8,.5);',
+      'width:180px;flex-shrink:0;text-transform:uppercase;font-weight:700;padding-top:1px}',
+      '.t8p-cred-name{font-size:13px;letter-spacing:.02em;color:#080808}',
+      '.t8p-cred-name a{color:#080808;text-decoration:underline;',
+      'text-underline-offset:3px;text-decoration-color:rgba(8,8,8,.4)}',
+      '.t8p-cred-name a:hover{text-decoration-color:#080808}',
 
       /* Dock hover: fan-out on hover, fan-in on leave */
       '.t8p-dock-stack{transition:transform .25s ease}',
