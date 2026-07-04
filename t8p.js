@@ -237,38 +237,39 @@
       'transform:translate(-50%,-50%);left:-100px;top:-100px;opacity:0;transition:opacity .1s}',
       '#t8p-pp-cur.on-bar{opacity:1}',
 
-      /* Scrub: thin 2px bar sitting just above bottom info bar */
-      '#t8p-scrub-track{position:fixed;bottom:40px;left:0;right:0;height:2px;',
+      /* Scrub track: thin bar at bottom, fills as video plays */
+      '#t8p-scrub-track{position:fixed;bottom:42px;left:0;right:0;height:2px;',
       'background:rgba(201,230,253,.15);pointer-events:none;z-index:9089;',
       'opacity:0;transition:opacity .3s}',
       '.ui-visible #t8p-scrub-track{opacity:1}',
-      /* The fill bar + its ::before = the church-exact vline */
-      '#t8p-scrub-fill{height:100%;width:0%;position:relative;',
-      'background:rgba(201,230,253,.6);transition:width .25s linear}',
+      '#t8p-scrub-fill{height:100%;width:0%;background:rgba(201,230,253,.7);',
+      'transition:width .25s linear;position:relative}',
       '.scrubbing #t8p-scrub-fill{transition:none}',
-      /* ::before = full-height vertical line at right edge of fill */
-      '#t8p-scrub-fill::before{content:attr(data-time);',
-      'position:absolute;right:0;bottom:0;',
-      'width:0;height:100vh;',
-      'border-left:0.5px solid #c9e6fd;',
-      'color:#c9e6fd;font-size:11px;letter-spacing:.08em;',
-      'padding-left:8px;',
-      'display:flex;align-items:flex-start;padding-top:8px;',
-      'pointer-events:none;white-space:nowrap;',
-      'transform:translateY(-100%)}',
-      /* Wide invisible grab zone on the vline */
-      '#t8p-grab-zone{position:fixed;bottom:0;width:40px;height:100vh;',
-      'z-index:9090;cursor:col-resize;transform:translateX(-50%);left:-999px}',
+      /* Vertical playhead line: full viewport height, church-exact */
+      '#t8p-scrub-head{position:fixed;top:0;bottom:42px;width:0;',
+      'border-left:0.5px solid #c9e6fd;pointer-events:none;z-index:9090;',
+      'opacity:0;left:-999px;transition:opacity .3s}',
+      '.ui-visible #t8p-scrub-head{opacity:1}',
+      /* Timecode label rides the vline */
+      '#t8p-scrub-time{position:fixed;top:88px;font-size:11px;letter-spacing:.08em;',
+      'color:#c9e6fd;pointer-events:none;z-index:9091;left:-999px;',
+      'padding-left:6px;white-space:nowrap;opacity:0;transition:opacity .3s}',
+      '.ui-visible #t8p-scrub-time{opacity:1}',
+      /* Grab zone: 40px wide strip centered on vline */
+      '#t8p-grab-zone{position:fixed;top:0;bottom:0;width:40px;',
+      'z-index:9092;cursor:col-resize;transform:translateX(-50%);left:-999px;',
+      'pointer-events:none}',
       '.ui-visible #t8p-grab-zone{pointer-events:auto}',
 
       /* Bottom info bar: always visible */
       '#t8p-scrub-zone{position:fixed;bottom:0;left:0;right:0;z-index:9100;',
       'background:#c9e6fd;cursor:default}',
       '.t8p-pp-bar{display:flex;align-items:center;justify-content:space-between;',
-      'padding:10px 24px}',
-      '.t8p-pp-t,.t8p-pp-d,.t8p-pp-r{font-size:9px;letter-spacing:.08em;font-weight:700;',
+      'padding:10px 20px}',
+      '.t8p-pp-t,.t8p-pp-d,.t8p-pp-r{font-size:12px;letter-spacing:.04em;font-weight:400;',
       'text-transform:uppercase;color:#080808;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.t8p-pp-d{text-align:center;flex:1;padding:0 16px}',
+      '.t8p-pp-r{flex-shrink:0}',
 
       /* Sleep */
       '.t8p-pp-sleep #t8p-topbar{opacity:0}',
@@ -277,6 +278,23 @@
       '.t8p-pp-sleep #t8p-mute-btn{opacity:0;pointer-events:none}',
       '.t8p-pp-sleep #t8p-dock{opacity:0;pointer-events:none}',
       '.t8p-pp-sleep #t8p-vidcur{opacity:0!important}',
+
+      /* Credits section (below bottom bar, hidden until space/scroll) */
+      '#t8p-pp-credits{position:fixed;bottom:0;left:0;right:0;',
+      'background:#c9e6fd;z-index:9080;overflow:hidden;',
+      'max-height:0;transition:max-height .4s ease}',
+      '#t8p-pp-credits.open{max-height:60vh}',
+      '#t8p-credits-inner{padding:20px 24px;overflow-y:auto;max-height:60vh}',
+      '.t8p-cred-title{font-size:9px;letter-spacing:.2em;text-transform:uppercase;',
+      'color:rgba(8,8,8,.4);margin-bottom:12px;padding-bottom:10px;',
+      'border-bottom:1px solid rgba(8,8,8,.12);font-weight:700}',
+      '.t8p-cred-row{display:flex;gap:24px;padding:6px 0;',
+      'border-bottom:1px solid rgba(8,8,8,.1)}',
+      '.t8p-cred-row:last-child{border-bottom:none}',
+      '.t8p-cred-role{font-size:11px;letter-spacing:.08em;color:rgba(8,8,8,.5);',
+      'width:160px;flex-shrink:0;text-transform:uppercase}',
+      '.t8p-cred-name{font-size:11px;letter-spacing:.06em;color:#080808}',
+      '.t8p-cred-name a{color:#080808;text-decoration:none}',
 
       /* Wave animation */
       '@keyframes t8p-quiet{25%{transform:scaleY(.6)}50%{transform:scaleY(.4)}75%{transform:scaleY(.8)}}',
@@ -1262,7 +1280,17 @@
     scrubTrack.appendChild(scrubFill);
     pp.appendChild(scrubTrack);
 
-    /* Grab zone: wide invisible strip centered on the vline */
+    /* Playhead vline: fixed, tracks video progress */
+    var scrubHead = document.createElement('div');
+    scrubHead.id = 't8p-scrub-head';
+    pp.appendChild(scrubHead);
+
+    /* Timecode riding the vline */
+    var scrubTime = document.createElement('div');
+    scrubTime.id = 't8p-scrub-time';
+    pp.appendChild(scrubTime);
+
+    /* Grab zone: 40px wide strip on the vline */
     var grabZone = document.createElement('div');
     grabZone.id = 't8p-grab-zone';
     pp.appendChild(grabZone);
@@ -1300,6 +1328,32 @@
       });
       pp.appendChild(credSection);
     }
+
+    /* ── Credits reveal section (space/scroll to open) ── */
+    var creditsPanel = document.createElement('div');
+    creditsPanel.id = 't8p-pp-credits';
+    var creditsInner = document.createElement('div');
+    creditsInner.id = 't8p-credits-inner';
+    if (Object.keys(credits).length > 0) {
+      var ctitle = document.createElement('div');
+      ctitle.className = 't8p-cred-title';
+      ctitle.textContent = 'Credits';
+      creditsInner.appendChild(ctitle);
+      Object.keys(credits).forEach(function(role){
+        var val = credits[role]; if(!val) return;
+        var name = typeof val==='object'?val.n:val;
+        var ig   = typeof val==='object'?val.ig:null;
+        var row = document.createElement('div'); row.className='t8p-cred-row';
+        var roleEl = document.createElement('div'); roleEl.className='t8p-cred-role'; roleEl.textContent=role;
+        var nameEl = document.createElement('div'); nameEl.className='t8p-cred-name';
+        if (ig) { nameEl.innerHTML='<a href="https://instagram.com/'+ig+'" target="_blank" rel="noopener">'+name+'</a>'; }
+        else { nameEl.textContent=name; }
+        row.appendChild(roleEl); row.appendChild(nameEl);
+        creditsInner.appendChild(row);
+      });
+    }
+    creditsPanel.appendChild(creditsInner);
+    pp.appendChild(creditsPanel);
 
     /* ── Dock ── */
     if (vids.length > 1 || d.g) {
@@ -1344,6 +1398,11 @@
     /* ── Add .ui-visible for scrub track after first real play ── */
     function showScrubTrack() {
       pp.classList.add('ui-visible');
+      /* initialise head at left edge */
+      var tr = scrubTrack.getBoundingClientRect();
+      scrubHead.style.left = tr.left + 'px';
+      grabZone.style.left = tr.left + 'px';
+      scrubTime.style.left = tr.left + 'px';
     }
 
     /* ── Mute UI ── */
@@ -1363,11 +1422,13 @@
           if (_scrubbing) return;
           var pct = _duration > 0 ? data.seconds / _duration : 0;
           scrubFill.style.width = (pct*100)+'%';
-          if (!_firstClick) {
-            scrubFill.setAttribute('data-time', fmtTime(data.seconds));
-            /* update grab zone x to match vline */
+          if (!_firstClick && !_scrubbing) {
             var tr = scrubTrack.getBoundingClientRect();
-            grabZone.style.left = (tr.left + pct * tr.width) + 'px';
+            var vx = tr.left + pct * tr.width;
+            scrubHead.style.left = vx + 'px';
+            grabZone.style.left = vx + 'px';
+            scrubTime.style.left = vx + 'px';
+            scrubTime.textContent = fmtTime(data.seconds) + (_duration?' / '+fmtTime(_duration):'');
           }
         });
         vplayer.on('ended', function(){
@@ -1412,7 +1473,9 @@
     document.addEventListener('keydown', function onKey(e){
       if (!document.getElementById('t8p-pp')) { document.removeEventListener('keydown',onKey); return; }
       if (e.code==='Space' && !e.target.matches('input,textarea')) {
-        e.preventDefault(); handleVideoClick();
+        e.preventDefault();
+        /* Space = toggle credits panel (church behavior) */
+        creditsPanel.classList.toggle('open');
       }
       if (e.code==='KeyM' && !e.target.matches('input,textarea')) {
         if (!vplayer) return;
@@ -1456,9 +1519,12 @@
       function onMove(e2){
         var p2 = getScrubPct(e2.clientX);
         scrubFill.style.width = (p2*100)+'%';
-        scrubFill.setAttribute('data-time', _duration ? fmtTime(p2*_duration) : '');
-        var tr = scrubTrack.getBoundingClientRect();
-        grabZone.style.left = (tr.left + p2 * tr.width) + 'px';
+        var tr2 = scrubTrack.getBoundingClientRect();
+        var vx2 = tr2.left + p2 * tr2.width;
+        scrubHead.style.left = vx2+'px';
+        grabZone.style.left = vx2+'px';
+        scrubTime.style.left = vx2+'px';
+        if (_duration) scrubTime.textContent = fmtTime(p2*_duration)+' / '+fmtTime(_duration);
         if (vplayer&&_duration) vplayer.setCurrentTime(p2*_duration);
       }
       function onUp(){
@@ -1510,6 +1576,8 @@
       document.removeEventListener('keydown', onActivity);
       if (vidCur) vidCur.remove();
       if (grabZone) grabZone.remove();
+      if (scrubHead) scrubHead.remove();
+      if (scrubTime) scrubTime.remove();
       if (ppCur) { ppCur.style.opacity='0'; ppCur.classList.remove('on-bar'); }
     }
   }
@@ -1528,8 +1596,24 @@
         card.style.zIndex = previewCount-i;
         card.style.transform = 'translateY('+(i*4)+'px) scale('+(1-i*.04)+')';
         var th = el('img');
-        th.src = 'https://vumbnail.com/'+vidsAll[i]+'.jpg';
         th.style.cssText = 'width:100%;height:100%;object-fit:cover;opacity:.75';
+        var _vid = vidsAll[i];
+        var _hash = hashes ? hashes[String(_vid)] : null;
+        if (_hash) {
+          /* private video -- scrape page thumbnail */
+          fetch(location.pathname).then(function(r){return r.text();}).then(function(html){
+            var imgs=(html.match(/images\.squarespace-cdn\.com\/content\/[^"'\s?]+/g)||[]);
+            var UUID='d4325d9d-7519-4511-9a6d-61a47a7b3772';
+            for(var ii=0;ii<imgs.length;ii++){
+              if(imgs[ii].indexOf(UUID)>-1) continue;
+              if(imgs[ii].match(/\.(ico|svg|gif)$/i)) continue;
+              th.src='https://'+imgs[ii].split('?')[0]+'?format=300w'; return;
+            }
+            th.src='https://vumbnail.com/'+_vid+'.jpg';
+          }).catch(function(){ th.src='https://vumbnail.com/'+_vid+'.jpg'; });
+        } else {
+          th.src = 'https://vumbnail.com/'+_vid+'.jpg';
+        }
         card.appendChild(th);
         stack.appendChild(card);
       })(pi);
