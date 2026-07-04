@@ -571,13 +571,6 @@
       '<div id="t8p-dock"></div>',
       '<div id="t8p-pp-ctrls"></div>',
       '<div id="t8p-pp-bar"></div>',
-      '<div id="t8p-dock-panel">',
-        '<div id="t8p-dock-panel-close"><svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></div>',
-        '<div id="t8p-dock-panel-inner">',
-          '<div id="t8p-dock-panel-head"></div>',
-          '<div id="t8p-dock-gallery"></div>',
-        '</div>',
-      '</div>',
     ].join('');
     document.body.appendChild(pp);
     var ppLogoEl = document.getElementById('t8p-pp-logo');
