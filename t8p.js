@@ -1812,8 +1812,10 @@
     var isPanelOpen=false;
     var LOGO_UUID = 'd4325d9d-7519-4511-9a6d-61a47a7b3772';
     function openPanel() {
-      if(isPanelOpen)return; isPanelOpen=true;
-      panel.style.cssText='position:fixed;inset:0;background:#c9e6fd;z-index:9900;display:flex;flex-direction:column;overflow:hidden;opacity:1;pointer-events:auto;';
+      isPanelOpen=true;
+      /* Move panel to documentElement to escape ALL Squarespace wrappers */
+      document.documentElement.appendChild(panel);
+      panel.setAttribute('style','position:fixed!important;inset:0!important;background:#c9e6fd!important;z-index:9900!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;opacity:1!important;pointer-events:auto!important;');
       if(hasGallery&&galGrid&&!galGrid.children.length){
         /* fetch raw HTML of the Squarespace project page and parse figure imgs */
         fetch(location.pathname+'?format=json-pretty')
@@ -1862,7 +1864,7 @@
       panel.classList.add('open');
       document.body.style.overflow='hidden';
     }
-    function closePanel() { panel.classList.remove('open'); panel.style.cssText='position:fixed;inset:0;background:#c9e6fd;z-index:9900;display:none;flex-direction:column;overflow:hidden;opacity:0;pointer-events:none;'; isPanelOpen=false; document.body.style.overflow=''; }
+    function closePanel() { isPanelOpen=false; panel.setAttribute('style','display:none!important;'); document.body.style.overflow=''; }
     stack.addEventListener('click',openPanel);
     closeBtn.addEventListener('click',closePanel);
 
