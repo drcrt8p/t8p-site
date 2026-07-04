@@ -232,11 +232,12 @@
       '#t8p-vidcur.visible{opacity:1}',
 
       /* Inverted cursor: dot on bars */
-      /* Inverted cursor: bars/credits/dock only, strictly hidden otherwise */
+      /* Inverted cursor: bars/credits/dock only. visibility:hidden kills blend-mode bleed */
       '#t8p-pp-cur{position:fixed;width:10px;height:10px;border-radius:50%;background:#fff;',
       'mix-blend-mode:difference;pointer-events:none;z-index:9045;',
-      'transform:translate(-50%,-50%);left:-9999px;top:-9999px;opacity:0;transition:opacity .1s}',
-      '#t8p-pp-cur.on-bar{opacity:1}',
+      'transform:translate(-50%,-50%);left:-9999px;top:-9999px;',
+      'opacity:0;visibility:hidden;transition:opacity .1s,visibility .1s}',
+      '#t8p-pp-cur.on-bar{opacity:1;visibility:visible}',
 
       /* Scrub track: thin bar at bottom, fills as video plays */
       /* Scrub track hidden under bottom bar (z-index below bar) */
