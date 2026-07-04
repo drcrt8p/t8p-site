@@ -398,9 +398,8 @@
 
       /* ── Panel ── */
       '#t8p-dock-panel{position:fixed;inset:0;background:#c9e6fd;z-index:9900;',
-      'display:flex;flex-direction:column;opacity:0;pointer-events:none;',
-      'transition:opacity .4s ease;overflow:hidden}',
-      '#t8p-dock-panel.open{opacity:1;pointer-events:auto}',
+      'display:none;flex-direction:column;overflow:hidden}',
+      '#t8p-dock-panel.open{display:flex}',
       '#t8p-panel-topbar{display:flex;align-items:center;justify-content:space-between;',
       'padding:24px 40px;border-bottom:1px solid rgba(8,8,8,.1);flex-shrink:0}',
       '@media(max-width:767px){#t8p-panel-topbar{padding:16px 20px}}',
@@ -1815,6 +1814,9 @@
     function openPanel() {
       if(isPanelOpen)return; isPanelOpen=true;
       wakeUI();
+      panel.style.display='flex';
+      panel.style.opacity='1';
+      panel.style.pointerEvents='auto';
       if(hasGallery&&galGrid&&!galGrid.children.length){
         /* fetch raw HTML of the Squarespace project page and parse figure imgs */
         fetch(location.pathname+'?format=json-pretty')
@@ -1863,7 +1865,7 @@
       panel.classList.add('open');
       document.body.style.overflow='hidden';
     }
-    function closePanel() { panel.classList.remove('open'); isPanelOpen=false; document.body.style.overflow=''; }
+    function closePanel() { panel.classList.remove('open'); panel.style.display='none'; panel.style.opacity='0'; panel.style.pointerEvents='none'; isPanelOpen=false; document.body.style.overflow=''; }
     stack.addEventListener('click',openPanel);
     closeBtn.addEventListener('click',closePanel);
 
