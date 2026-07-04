@@ -188,22 +188,33 @@
       'body.is-pp #t8p-pp{display:block}',
       'body.is-pp #siteWrapper{display:none!important}',
 
-      /* Topbar: logo centered, fixed, hides with sleep */
-      '#t8p-pp-wm{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:9100;',
+      /* Frosted milk bar across the top */
+      '#t8p-topbar{position:fixed;top:0;left:0;right:0;height:80px;z-index:9050;',
+      'background:rgba(201,230,253,0.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);',
+      'transition:opacity .5s ease-out;pointer-events:none}',
+
+      /* Logo: centered in topbar */
+      '#t8p-pp-wm{position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:9100;',
+      'height:80px;display:flex;align-items:center;justify-content:center;',
       'cursor:pointer;transition:opacity .5s ease-out}',
-      '#t8p-pp-wm svg{height:50px!important;width:auto!important;max-height:50px;',
-      'display:block;flex-shrink:0}',
+      '#t8p-pp-wm svg{height:36px!important;width:auto!important;max-height:36px;display:block}',
       '#t8p-pp-wm svg *{fill:#c9e6fd!important}',
 
-      /* Buttons top-right: sound at right:5.2rem, close at right:1.2rem */
-      '#t8p-btns{position:fixed;top:0;right:0;z-index:9200;display:flex;align-items:flex-start;',
-      'padding-top:1.2rem;padding-right:1.2rem;gap:1rem;transition:opacity .5s ease-out}',
-      '.t8p-btn{width:44px;height:44px;border-radius:50%;cursor:pointer;position:relative;',
-      'display:flex;align-items:center;justify-content:center;flex-shrink:0}',
+      /* Close button: position:fixed top:18px right:18px (church: 1.2rem) */
+      '#t8p-close-btn{position:fixed;top:18px;right:18px;z-index:9200;',
+      'width:44px;height:44px;border-radius:50%;cursor:pointer;',
+      'display:flex;align-items:center;justify-content:center;',
+      'transition:opacity .5s ease-out}',
+      /* Mute button: position:fixed top:18px right:78px (church: 5.2rem) */
+      '#t8p-mute-btn{position:fixed;top:18px;right:78px;z-index:9200;',
+      'width:44px;height:44px;border-radius:50%;cursor:pointer;',
+      'display:flex;align-items:center;justify-content:center;',
+      'transition:opacity .5s ease-out}',
       '.t8p-btn-shape{position:absolute;inset:0;border-radius:50%;background:#c9e6fd;',
       'z-index:0;transition:transform .4s}',
       '.t8p-btn:hover .t8p-btn-shape{transform:scale(1.08)}',
       '.t8p-btn-icon{position:relative;z-index:1;display:flex;align-items:center;justify-content:center}',
+      '.t8p-btn{position:relative}',
 
       /* Hero: full viewport */
       '.t8p-pp-hero{position:fixed;inset:0}',
@@ -225,29 +236,29 @@
       'transform:translate(-50%,-50%);left:-100px;top:-100px;opacity:0;transition:opacity .1s}',
       '#t8p-pp-cur.on-bar{opacity:1}',
 
-      /* VJS progress control: covers full video, always listening */
-      '#t8p-pp .vjs-progress-control,#t8p-pp .vjs-control-bar{position:absolute;top:0;left:0;',
-      'width:100%;height:100%;pointer-events:none;margin:0;padding:0;border:none;background:none}',
-      '#t8p-pp .vjs-progress-holder{height:100%;margin:0;background:none}',
-      '#t8p-pp .vjs-play-progress{background:none;height:100%;position:relative}',
-      /* THE vline: ::before on vjs-play-progress tracks video progress, full height */
-      '#t8p-pp .vjs-play-progress::before{',
-      'content:attr(data-time);',
-      'position:absolute;right:0;top:0;',
-      'width:1px;height:100vh;',
-      'border-left:1px solid #c9e6fd;',
-      'color:#c9e6fd;font-size:11px;letter-spacing:.1em;',
-      'padding-left:8px;',
-      'display:flex;align-items:center;',
-      'pointer-events:all;cursor:col-resize;',
-      'white-space:nowrap}',
-      /* Scrub track: thin bar at very bottom showing progress */
+      /* Scrub: thin 2px bar sitting just above bottom info bar */
       '#t8p-scrub-track{position:fixed;bottom:40px;left:0;right:0;height:2px;',
-      'background:rgba(201,230,253,.2);pointer-events:none;z-index:9089;opacity:0;',
-      'transition:opacity .3s}',
-      '#t8p-scrub-fill{height:100%;background:#c9e6fd;width:0%;transition:width .25s linear}',
+      'background:rgba(201,230,253,.15);pointer-events:none;z-index:9089;',
+      'opacity:0;transition:opacity .3s}',
       '.ui-visible #t8p-scrub-track{opacity:1}',
+      /* The fill bar + its ::before = the church-exact vline */
+      '#t8p-scrub-fill{height:100%;width:0%;position:relative;',
+      'background:rgba(201,230,253,.6);transition:width .25s linear}',
       '.scrubbing #t8p-scrub-fill{transition:none}',
+      /* ::before = full-height vertical line at right edge of fill */
+      '#t8p-scrub-fill::before{content:attr(data-time);',
+      'position:absolute;right:0;bottom:0;',
+      'width:0;height:100vh;',
+      'border-left:0.5px solid #c9e6fd;',
+      'color:#c9e6fd;font-size:11px;letter-spacing:.08em;',
+      'padding-left:8px;',
+      'display:flex;align-items:flex-start;padding-top:8px;',
+      'pointer-events:none;white-space:nowrap;',
+      'transform:translateY(-100%)}',
+      /* Wide invisible grab zone on the vline */
+      '#t8p-grab-zone{position:fixed;bottom:0;width:40px;height:100vh;',
+      'z-index:9090;cursor:col-resize;transform:translateX(-50%);left:-999px}',
+      '.ui-visible #t8p-grab-zone{pointer-events:auto}',
 
       /* Bottom info bar: always visible */
       '#t8p-scrub-zone{position:fixed;bottom:0;left:0;right:0;z-index:9100;',
@@ -258,9 +269,11 @@
       'text-transform:uppercase;color:#080808;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.t8p-pp-d{text-align:center;flex:1;padding:0 16px}',
 
-      /* Sleep: .hide-interface class, transition:0.5s ease-out, opacity:0 */
+      /* Sleep */
+      '.t8p-pp-sleep #t8p-topbar{opacity:0}',
       '.t8p-pp-sleep #t8p-pp-wm{opacity:0;pointer-events:none}',
-      '.t8p-pp-sleep #t8p-btns{opacity:0;pointer-events:none}',
+      '.t8p-pp-sleep #t8p-close-btn{opacity:0;pointer-events:none}',
+      '.t8p-pp-sleep #t8p-mute-btn{opacity:0;pointer-events:none}',
       '.t8p-pp-sleep #t8p-dock{opacity:0;pointer-events:none}',
       '.t8p-pp-sleep #t8p-vidcur{opacity:0!important}',
 
@@ -1150,16 +1163,19 @@
       document.documentElement.appendChild(ppCur);
     }
 
-    /* ── Logo topbar (centered, fixed) ── */
+    /* ── Frosted milk bar ── */
+    var topbar = document.createElement('div');
+    topbar.id = 't8p-topbar';
+    pp.appendChild(topbar);
+
+    /* ── Logo: centered in topbar ── */
     var wmDiv = document.createElement('div');
     wmDiv.id = 't8p-pp-wm';
     wmDiv.innerHTML = WM_SVG;
     wmDiv.onclick = function(){ cleanup(); location.href='/'; };
     pp.appendChild(wmDiv);
 
-    /* ── Buttons: mute (right:5.2rem) + close (right:1.2rem) ── */
-    var btns = document.createElement('div');
-    btns.id = 't8p-btns';
+    /* ── Mute button: fixed top:18px right:78px ── */
     var mb = document.createElement('div');
     mb.id = 't8p-mute-btn'; mb.className = 't8p-btn';
     mb.innerHTML = '<div class="t8p-btn-shape"></div>'
@@ -1169,12 +1185,14 @@
       +'<div class="t8p-wave t8p-wave3"></div>'
       +'<div class="t8p-wave t8p-wave4"></div>'
       +'</div>';
+    pp.appendChild(mb);
+
+    /* ── Close button: fixed top:18px right:18px ── */
     var cb2 = document.createElement('div');
     cb2.id = 't8p-close-btn'; cb2.className = 't8p-btn';
     cb2.innerHTML = '<div class="t8p-btn-shape"></div><div class="t8p-btn-icon">'+CICO+'</div>';
     cb2.onclick = function(){ cleanup(); location.href='/'; };
-    btns.appendChild(mb); btns.appendChild(cb2);
-    pp.appendChild(btns);
+    pp.appendChild(cb2);
 
     /* ── Hero ── */
     var hero = document.createElement('div');
@@ -1242,6 +1260,11 @@
     scrubFill.id = 't8p-scrub-fill';
     scrubTrack.appendChild(scrubFill);
     pp.appendChild(scrubTrack);
+
+    /* Grab zone: wide invisible strip centered on the vline */
+    var grabZone = document.createElement('div');
+    grabZone.id = 't8p-grab-zone';
+    pp.appendChild(grabZone);
 
     /* ── Bottom info bar (always visible) ── */
     var scrubZone = document.createElement('div');
@@ -1340,8 +1363,10 @@
           var pct = _duration > 0 ? data.seconds / _duration : 0;
           scrubFill.style.width = (pct*100)+'%';
           if (!_firstClick) {
-            /* update data-time for ::before content (church approach) */
-            scrubFill.setAttribute('data-time', fmtTime(data.seconds)+' / '+fmtTime(_duration));
+            scrubFill.setAttribute('data-time', fmtTime(data.seconds));
+            /* update grab zone x to match vline */
+            var tr = scrubTrack.getBoundingClientRect();
+            grabZone.style.left = (tr.left + pct * tr.width) + 'px';
           }
         });
         vplayer.on('ended', function(){
@@ -1414,25 +1439,25 @@
       }
     });
 
-    /* ── Scrub: grab the thin track at bottom:40px ── */
+    /* ── Scrub: grab zone centered on the vline ── */
     var _wasPlaying = false;
     function getScrubPct(clientX) {
       var rect = scrubTrack.getBoundingClientRect();
       return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     }
-    scrubTrack.addEventListener('mousedown', function(e){
+    function startScrub(e) {
       if (!pp.classList.contains('ui-visible')) return;
       e.preventDefault();
       _scrubbing = true;
       pp.classList.add('scrubbing');
       _wasPlaying = _playing;
       if (vplayer && _playing) vplayer.pause();
-      var p = getScrubPct(e.clientX);
-      scrubFill.style.width = (p*100)+'%';
-      if (vplayer && _duration) vplayer.setCurrentTime(p*_duration);
       function onMove(e2){
         var p2 = getScrubPct(e2.clientX);
         scrubFill.style.width = (p2*100)+'%';
+        scrubFill.setAttribute('data-time', _duration ? fmtTime(p2*_duration) : '');
+        var tr = scrubTrack.getBoundingClientRect();
+        grabZone.style.left = (tr.left + p2 * tr.width) + 'px';
         if (vplayer&&_duration) vplayer.setCurrentTime(p2*_duration);
       }
       function onUp(){
@@ -1445,7 +1470,9 @@
       }
       document.addEventListener('mousemove',onMove);
       document.addEventListener('mouseup',onUp);
-    });
+    }
+    grabZone.addEventListener('mousedown', startScrub);
+    scrubTrack.addEventListener('mousedown', startScrub);
 
     /* ── Main mousemove: floating cursor + inverted dot ── */
     if (!IS_MOBILE) {
@@ -1481,6 +1508,7 @@
       document.removeEventListener('click', onActivity);
       document.removeEventListener('keydown', onActivity);
       if (vidCur) vidCur.remove();
+      if (grabZone) grabZone.remove();
       if (ppCur) { ppCur.style.opacity='0'; ppCur.classList.remove('on-bar'); }
     }
   }
