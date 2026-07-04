@@ -226,7 +226,7 @@
 
       /* Floating cursor (play/pause circle that follows mouse -- IS the cursor on video) */
       '#t8p-vidcur{position:fixed;width:44px;height:44px;border-radius:50%;background:#c9e6fd;',
-      'display:flex;align-items:center;justify-content:center;z-index:9050;pointer-events:none;',
+      'display:flex;align-items:center;justify-content:center;z-index:9055;pointer-events:none;',
       'opacity:0;transform:translate(-50%,-50%);will-change:left,top}',
       '#t8p-vidcur svg{width:16px;height:16px;flex-shrink:0}',
       '#t8p-vidcur.visible{opacity:1}',
@@ -267,14 +267,14 @@
       'background:#c9e6fd;display:flex;align-items:center;justify-content:center;',
       'pointer-events:none;z-index:9093;opacity:0;transform:translate(-50%,-50%);',
       'left:-999px;top:-999px}',
-      '#t8p-scrub-cur svg{width:18px;height:18px}',
+      '#t8p-scrub-cur svg{width:22px;height:22px}',
 
       /* Bottom info bar: always visible */
       '#t8p-scrub-zone{position:fixed;bottom:0;left:0;right:0;z-index:9100;',
-      'background:#c9e6fd;cursor:default}',
+      'background:#c9e6fd;cursor:default;height:34px}',
       '.t8p-pp-bar{display:flex;align-items:center;justify-content:space-between;',
-      'padding:10px 20px}',
-      '.t8p-pp-t,.t8p-pp-d,.t8p-pp-r{font-size:12px;letter-spacing:.04em;font-weight:400;',
+      'padding:10px 20px;height:34px;box-sizing:border-box}',
+      '.t8p-pp-t,.t8p-pp-d,.t8p-pp-r{font-size:13px;letter-spacing:.04em;font-weight:400;',
       'text-transform:uppercase;color:#080808;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.t8p-pp-d{text-align:center;flex:1;padding:0 16px}',
       '.t8p-pp-r{flex-shrink:0}',
@@ -288,21 +288,26 @@
       '.t8p-pp-sleep #t8p-vidcur{opacity:0!important}',
 
       /* Credits section (below bottom bar, hidden until space/scroll) */
-      /* Credits: slides up from behind bottom bar */
-      '#t8p-pp-credits{position:fixed;bottom:34px;left:0;right:0;',
-      'background:#c9e6fd;z-index:9080;overflow:hidden;',
-      'max-height:0;transition:max-height .4s ease}',
-      '#t8p-pp-credits.open{max-height:60vh}',
-      '#t8p-credits-inner{padding:16px 24px 20px;overflow-y:auto;max-height:60vh}',
+      /* Credits reveal: hero slides UP, credits exposed below bar */
+      /* Hero slides when credits-open on pp */
+      '.t8p-pp-hero{transition:transform .4s cubic-bezier(.4,0,.2,1)}',
+      '.credits-open .t8p-pp-hero{transform:translateY(-280px)}',
+      /* Credits section: sits at bottom, normally hidden under bar */
+      '#t8p-pp-credits{position:fixed;bottom:34px;left:0;right:0;height:280px;',
+      'background:#c9e6fd;z-index:9079;',
+      'transform:translateY(100%);transition:transform .4s cubic-bezier(.4,0,.2,1)}',
+      '.credits-open #t8p-pp-credits{transform:translateY(0)}',
+      '#t8p-credits-inner{height:100%;padding:16px 24px 20px;overflow-y:auto;',
+      'display:flex;flex-direction:column}',
       '.t8p-cred-title{font-size:9px;letter-spacing:.2em;text-transform:uppercase;',
-      'color:rgba(8,8,8,.4);margin-bottom:12px;padding-bottom:10px;',
-      'border-bottom:1px solid rgba(8,8,8,.12);font-weight:700}',
+      'color:rgba(8,8,8,.4);margin-bottom:10px;padding-bottom:8px;',
+      'border-bottom:1px solid rgba(8,8,8,.12);font-weight:700;flex-shrink:0}',
       '.t8p-cred-row{display:flex;gap:24px;padding:6px 0;',
-      'border-bottom:1px solid rgba(8,8,8,.1)}',
+      'border-bottom:1px solid rgba(8,8,8,.1);flex-shrink:0}',
       '.t8p-cred-row:last-child{border-bottom:none}',
-      '.t8p-cred-role{font-size:11px;letter-spacing:.08em;color:rgba(8,8,8,.5);',
-      'width:160px;flex-shrink:0;text-transform:uppercase}',
-      '.t8p-cred-name{font-size:11px;letter-spacing:.06em;color:#080808}',
+      '.t8p-cred-role{font-size:10px;letter-spacing:.08em;color:rgba(8,8,8,.5);',
+      'width:160px;flex-shrink:0;text-transform:uppercase;padding-top:1px}',
+      '.t8p-cred-name{font-size:10px;letter-spacing:.06em;color:#080808}',
       '.t8p-cred-name a{color:#080808;text-decoration:none}',
 
       /* Wave animation */
@@ -344,10 +349,15 @@
       '#t8p-dock{position:fixed;left:18px;top:50%;transform:translateY(-50%);',
       'z-index:9150;display:flex;flex-direction:column;gap:0;align-items:center}',
       '@media(max-width:767px){#t8p-dock{bottom:80px;top:auto;transform:none;left:16px}}',
-      '.t8p-dock-stack{position:relative;width:62px;height:62px;cursor:pointer}',
+      '.t8p-dock-stack{position:relative;width:62px;height:76px;cursor:pointer}',
       '.t8p-dock-stack .t8p-dock-card{position:absolute;width:62px;height:62px;',
       'border-radius:6px;overflow:hidden;background:#c9e6fd;',
-      'border:1px solid rgba(201,230,253,.8);outline:none}',
+      'border:1px solid rgba(201,230,253,.5)}',
+      '.t8p-dock-stack .t8p-dock-card:nth-child(1){top:0;left:0;z-index:3}',
+      '.t8p-dock-stack .t8p-dock-card:nth-child(2){top:5px;left:4px;z-index:2;',
+      'width:58px;height:58px}',
+      '.t8p-dock-stack .t8p-dock-card:nth-child(3){top:10px;left:8px;z-index:1;',
+      'width:54px;height:54px}',
       '.t8p-dock-stack .t8p-dock-card img{width:100%;height:100%;object-fit:cover;opacity:.85}',
       '.t8p-dock-badge{position:absolute;bottom:-8px;right:-8px;background:#c9e6fd;color:#080808;',
       'font-family:monospace;font-size:9px;font-weight:700;width:20px;height:20px;',
@@ -1420,9 +1430,14 @@
     /* Wake on any movement/click/scroll */
     function onActivity() { showUI(); }
     document.addEventListener('mousemove', onActivity, {passive:true});
-    document.addEventListener('scroll', onActivity, {passive:true});
     document.addEventListener('click', onActivity, {passive:true});
     document.addEventListener('keydown', onActivity, {passive:true});
+
+    /* Scroll on the pp element reveals credits (church behavior) */
+    pp.addEventListener('wheel', function(e) {
+      if (e.deltaY > 20) { pp.classList.add('credits-open'); }
+      else if (e.deltaY < -20) { pp.classList.remove('credits-open'); }
+    }, {passive:true});
 
     /* ── Add .ui-visible for scrub track after first real play ── */
     function showScrubTrack() {
@@ -1503,19 +1518,10 @@
       if (!document.getElementById('t8p-pp')) { document.removeEventListener('keydown',onKey); return; }
       if (e.code==='Space' && !e.target.matches('input,textarea')) {
         e.preventDefault();
-        /* Space = toggle credits panel (church behavior) */
-        creditsPanel.classList.toggle('open');
+        pp.classList.toggle('credits-open');
       }
       if (e.code==='KeyM' && !e.target.matches('input,textarea')) {
-        if (!vplayer) return;
-        _muted = !_muted;
-        vplayer.setMuted(_muted); vplayer.setVolume(_muted?0:1);
-        setMuteUI(_muted);
-        if (!_muted && _firstClick) {
-          _firstClick=false;
-          vplayer.setCurrentTime(0); vplayer.play();
-          _playing=true; updatePlayCursor(true); showScrubTrack();
-        }
+        mb.click(); /* delegate to mute button handler */
       }
     });
 
@@ -1627,6 +1633,7 @@
       if (scrubTime) scrubTime.remove();
       if (scrubCur) scrubCur.remove();
       if (ppCur) { ppCur.style.opacity='0'; ppCur.classList.remove('on-bar'); }
+      pp.classList.remove('credits-open');
     }
   }
 
@@ -1637,37 +1644,37 @@
     /* dock */
     var dock = el('div',{id:'t8p-dock'});
     var stack = el('div',{className:'t8p-dock-stack'});
-    var previewCount = Math.min(vidsAll.length, 3);
-    for (var pi=0;pi<previewCount;pi++) {
+    /* Always show 3 stacked cards -- top card has thumbnail, others are empty placeholders */
+    for (var pi=0; pi<3; pi++) {
       (function(i){
         var card = el('div',{className:'t8p-dock-card'});
-        card.style.zIndex = previewCount-i;
-        card.style.transform = 'translateY('+(i*4)+'px) scale('+(1-i*.04)+')';
-        var th = el('img');
-        th.style.cssText = 'width:100%;height:100%;object-fit:cover;opacity:.75';
-        var _vid = vidsAll[i];
-        var _hash = hashes ? hashes[String(_vid)] : null;
-        if (_hash) {
-          /* private video -- scrape page thumbnail */
-          fetch(location.pathname).then(function(r){return r.text();}).then(function(html){
-            var imgs=(html.match(/images\.squarespace-cdn\.com\/content\/[^"'\s?]+/g)||[]);
-            var UUID='d4325d9d-7519-4511-9a6d-61a47a7b3772';
-            for(var ii=0;ii<imgs.length;ii++){
-              if(imgs[ii].indexOf(UUID)>-1) continue;
-              if(imgs[ii].match(/\.(ico|svg|gif)$/i)) continue;
-              th.src='https://'+imgs[ii].split('?')[0]+'?format=300w'; return;
-            }
-            th.src='https://vumbnail.com/'+_vid+'.jpg';
-          }).catch(function(){ th.src='https://vumbnail.com/'+_vid+'.jpg'; });
-        } else {
-          th.src = 'https://vumbnail.com/'+_vid+'.jpg';
+        if (i === 0 && vidsAll.length > 0) {
+          /* top card: real thumbnail */
+          var th = el('img');
+          th.style.cssText = 'width:100%;height:100%;object-fit:cover;opacity:.85';
+          var _vid = vidsAll[0];
+          var _hash = hashes ? hashes[String(_vid)] : null;
+          if (_hash) {
+            fetch(location.pathname).then(function(r){return r.text();}).then(function(html){
+              var imgs=(html.match(/images\.squarespace-cdn\.com\/content\/[^"'\s?]+/g)||[]);
+              var UUID='d4325d9d-7519-4511-9a6d-61a47a7b3772';
+              for(var ii=0;ii<imgs.length;ii++){
+                if(imgs[ii].indexOf(UUID)>-1) continue;
+                if(imgs[ii].match(/\.(ico|svg|gif)$/i)) continue;
+                th.src='https://'+imgs[ii].split('?')[0]+'?format=300w'; return;
+              }
+              th.src='https://vumbnail.com/'+_vid+'.jpg';
+            }).catch(function(){ th.src='https://vumbnail.com/'+_vid+'.jpg'; });
+          } else {
+            th.src = 'https://vumbnail.com/'+_vid+'.jpg';
+          }
+          card.appendChild(th);
         }
-        card.appendChild(th);
         stack.appendChild(card);
       })(pi);
     }
     var totalCount = vidsAll.length + (hasGallery ? 1 : 0);
-    var badge=el('div',{className:'t8p-dock-badge'}); badge.textContent=totalCount;
+    var badge=el('div',{className:'t8p-dock-badge'}); badge.textContent=totalCount > 9 ? '9+' : totalCount;
     stack.appendChild(badge); dock.appendChild(stack);
     document.body.appendChild(dock);
 
