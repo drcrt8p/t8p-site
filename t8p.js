@@ -187,153 +187,91 @@
       '#t8p-pp{display:none;position:fixed;inset:0;z-index:8000;background:#000;overflow:hidden}',
       'body.is-pp #t8p-pp{display:block}',
       'body.is-pp #siteWrapper{display:none!important}',
-      /* Kill the global cursor on project pages */
-      'body.is-pp #t8p-cur{opacity:0!important;visibility:hidden!important;pointer-events:none!important}',
 
-      /* Frosted milk bar across the top */
-      '#t8p-topbar{position:fixed;top:0;left:0;right:0;height:80px;z-index:9050;',
-      'background:rgba(201,230,253,0.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);',
-      'transition:opacity .5s ease-out;pointer-events:none}',
-
-      /* Logo: centered in topbar, full width so flex centering works */
+      /* Topbar */
       '#t8p-pp-wm{position:fixed;top:0;left:0;right:0;z-index:9100;',
-      'height:80px;display:flex;align-items:center;justify-content:center;',
-      'pointer-events:none;cursor:pointer;transition:opacity .5s ease-out}',
-      '#t8p-pp-wm svg{height:36px!important;width:auto!important;max-height:36px;',
-      'display:block;pointer-events:auto}',
+      'height:80px;display:flex;align-items:center;justify-content:center;overflow:hidden;',
+      'background:rgba(240,237,230,0.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);',
+      'border-bottom:1px solid rgba(240,237,230,0.08);cursor:pointer;',
+      'transition:opacity .5s ease}',
+      '#t8p-pp-wm svg{height:50px!important;width:auto!important;max-height:50px;',
+      'flex-shrink:0;display:block;align-self:center}',
       '#t8p-pp-wm svg *{fill:#c9e6fd!important}',
+      '@media(max-width:767px){#t8p-pp-wm{height:54px}#t8p-pp-wm svg{height:32px!important;max-height:32px}}',
 
-      /* Close button: position:fixed top:18px right:18px (church: 1.2rem) */
-      '#t8p-close-btn{position:fixed;top:18px;right:18px;z-index:9200;',
-      'width:44px;height:44px;border-radius:50%;cursor:pointer;',
-      'display:flex;align-items:center;justify-content:center;',
-      'transition:opacity .5s ease-out}',
-      /* Mute button: position:fixed top:18px right:78px (church: 5.2rem) */
-      '#t8p-mute-btn{position:fixed;top:18px;right:78px;z-index:9200;',
-      'width:44px;height:44px;border-radius:50%;cursor:pointer;',
-      'display:flex;align-items:center;justify-content:center;',
-      'transition:opacity .5s ease-out}',
-      '.t8p-btn-shape{position:absolute;inset:0;border-radius:50%;background:#c9e6fd;',
-      'z-index:0;transition:transform .4s}',
-      '.t8p-btn:hover .t8p-btn-shape{transform:scale(1.08)}',
+      /* Buttons (top right) */
+      '#t8p-btns{position:fixed;top:0;right:20px;height:80px;z-index:9200;',
+      'display:flex;gap:10px;align-items:center;pointer-events:none;',
+      'transition:opacity .5s ease}',
+      '.t8p-btn{width:44px;height:44px;border-radius:50%;cursor:pointer;position:relative;',
+      'pointer-events:auto;display:flex;align-items:center;justify-content:center}',
+      '.t8p-btn-shape{position:absolute;inset:0;border-radius:50%;background:#c9e6fd}',
       '.t8p-btn-icon{position:relative;z-index:1;display:flex;align-items:center;justify-content:center}',
-      '.t8p-btn{position:relative}',
+      '@media(max-width:767px){.t8p-btn{width:36px;height:36px}}',
 
-      /* Hero: full viewport */
-      '.t8p-pp-hero{position:fixed;inset:0}',
+      /* Hero */
+      '.t8p-pp-hero{position:fixed;inset:0;width:100%;height:100%}',
       '#t8p-vp-main{position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;z-index:2}',
-
-      /* Overlay: invisible click target over video */
       '#t8p-ov{position:absolute;inset:0;z-index:3;cursor:none}',
 
-      /* Floating cursor (play/pause circle that follows mouse -- IS the cursor on video) */
-      '#t8p-vidcur{position:fixed;width:44px;height:44px;border-radius:50%;background:#c9e6fd;',
-      'display:flex;align-items:center;justify-content:center;z-index:9055;pointer-events:none;',
-      'opacity:0;transform:translate(-50%,-50%);will-change:left,top}',
-      '#t8p-vidcur svg{width:16px;height:16px;flex-shrink:0}',
+      /* Floating cursor (play/pause circle that follows mouse) */
+      '#t8p-vidcur{position:fixed;width:56px;height:56px;border-radius:50%;background:#c9e6fd;',
+      'display:flex;align-items:center;justify-content:center;z-index:9050;pointer-events:none;',
+      'opacity:0;transition:opacity .2s ease;transform:translate(-50%,-50%);',
+      'will-change:left,top}',
+      '#t8p-vidcur svg{width:20px;height:20px;flex-shrink:0}',
       '#t8p-vidcur.visible{opacity:1}',
 
-      /* Inverted cursor: dot on bars */
-      /* Inverted cursor: bars/credits/dock only. visibility:hidden kills blend-mode bleed */
-      '#t8p-pp-cur{position:fixed;width:10px;height:10px;border-radius:50%;background:#fff;',
-      'mix-blend-mode:difference;pointer-events:none;z-index:9045;',
-      'transform:translate(-50%,-50%);left:-9999px;top:-9999px;',
-      'opacity:0;visibility:hidden;transition:opacity .1s,visibility .1s}',
-      '#t8p-pp-cur.on-bar{opacity:1;visibility:visible}',
-
-      /* Scrub track: thin bar at bottom, fills as video plays */
-      /* Scrub track hidden under bottom bar (z-index below bar) */
-      '#t8p-scrub-track{position:fixed;bottom:0;left:0;right:0;height:2px;',
-      'background:rgba(201,230,253,.15);pointer-events:none;z-index:9079;',
-      'opacity:0;transition:opacity .3s}',
-      '.ui-visible #t8p-scrub-track{opacity:1}',
-      '#t8p-scrub-fill{height:100%;width:0%;background:rgba(201,230,253,.7);',
-      'transition:width .25s linear;position:relative}',
-      '.scrubbing #t8p-scrub-fill{transition:none}',
-      /* Vertical playhead line: from top to above bar */
-      '#t8p-scrub-head{position:fixed;top:0;bottom:44px;width:0;',
-      'border-left:0.5px solid #c9e6fd;pointer-events:none;z-index:9090;',
-      'opacity:0;left:-999px;transition:opacity .3s}',
-      '.ui-visible #t8p-scrub-head{opacity:1}',
-      /* Timecode: bottom of vline, above the dock (bottom:140px so it clears dock) */
-      '#t8p-scrub-time{position:fixed;bottom:120px;font-size:11px;letter-spacing:.08em;',
-      'color:#c9e6fd;pointer-events:none;z-index:9091;left:-999px;',
-      'padding-left:6px;white-space:nowrap;opacity:0;transition:opacity .3s}',
-      '.ui-visible #t8p-scrub-time{opacity:1}',
-      /* Grab zone: 40px wide strip centered on vline */
-      '#t8p-grab-zone{position:fixed;top:0;bottom:0;width:40px;',
-      'z-index:9092;cursor:none;transform:translateX(-50%);left:-999px;',
-      'pointer-events:none}',
-      '.ui-visible #t8p-grab-zone{pointer-events:auto}',
-      /* Scrub cursor: church-exact circle with left/right arrows */
-      '#t8p-scrub-cur{position:fixed;width:44px;height:44px;border-radius:50%;',
-      'background:#c9e6fd;display:flex;align-items:center;justify-content:center;',
-      'pointer-events:none;z-index:9093;opacity:0;transform:translate(-50%,-50%);',
-      'left:-999px;top:-999px}',
-      '#t8p-scrub-cur svg{width:22px;height:22px}',
-
-      /* Bottom info bar: always visible */
-      '#t8p-scrub-zone{position:fixed;bottom:0;left:0;right:0;z-index:9100;',
-      'background:#c9e6fd;cursor:default;height:34px}',
+      /* Bottom bar */
+      '#t8p-scrub-zone{position:fixed;bottom:0;left:0;right:0;z-index:9100;cursor:default;',
+      'transition:opacity .5s ease}',
       '.t8p-pp-bar{display:flex;align-items:center;justify-content:space-between;',
-      'padding:10px 20px;height:34px;box-sizing:border-box}',
-      '.t8p-pp-t,.t8p-pp-d,.t8p-pp-r{font-size:13px;letter-spacing:.04em;font-weight:400;',
+      'padding:10px 24px;background:#c9e6fd}',
+      '.t8p-pp-t,.t8p-pp-d,.t8p-pp-r{font-size:9px;letter-spacing:.08em;font-weight:700;',
       'text-transform:uppercase;color:#080808;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.t8p-pp-d{text-align:center;flex:1;padding:0 16px}',
-      '.t8p-pp-r{flex-shrink:0}',
 
-      /* Sleep: everything except bottom bar fades */
-      '.t8p-pp-sleep #t8p-topbar{opacity:0;transition:opacity .5s ease-out}',
-      '.t8p-pp-sleep #t8p-pp-wm{opacity:0;pointer-events:none;transition:opacity .5s ease-out}',
-      '.t8p-pp-sleep #t8p-close-btn{opacity:0;pointer-events:none;transition:opacity .5s ease-out}',
-      '.t8p-pp-sleep #t8p-mute-btn{opacity:0;pointer-events:none;transition:opacity .5s ease-out}',
-      '.t8p-pp-sleep #t8p-dock{opacity:0;transition:opacity .5s ease-out}',
-      '.t8p-pp-sleep #t8p-scrub-head{opacity:0!important}',
-      '.t8p-pp-sleep #t8p-scrub-time{opacity:0!important}',
-      '.t8p-pp-sleep #t8p-scrub-track{opacity:0!important}',
-      '.t8p-pp-sleep #t8p-vidcur{opacity:0!important}',
+      /* Scrub track: thin line at very bottom of bar */
+      '#t8p-scrub-track{height:3px;background:rgba(201,230,253,.25);position:relative;cursor:none}',
+      /* Scrub track: thin line at bottom */
+      '#t8p-scrub-fill{height:100%;background:#c9e6fd;width:0%;transition:width .25s linear;position:relative}',
+      /* The playhead vline -- vertical line at current progress x */
+      '#t8p-scrub-head{position:fixed;top:0;bottom:40px;width:1px;background:#c9e6fd;',
+      'pointer-events:none;z-index:9091;opacity:0;left:-999px;transition:opacity .3s}',
+      '.ui-visible #t8p-scrub-head{opacity:1}',
+      /* Grab zone: wide invisible clickable strip around the playhead */
+      '#t8p-grab-zone{position:fixed;top:0;bottom:0;width:40px;z-index:9093;',
+      'left:-999px;cursor:none;transform:translateX(-50%)}',
+      /* Scrub cursor icon (replaces floating play/pause cursor when on grab zone) */
+      '#t8p-scrub-cur{position:fixed;width:32px;height:32px;border-radius:50%;',
+      'background:#c9e6fd;display:flex;align-items:center;justify-content:center;',
+      'z-index:9094;pointer-events:none;opacity:0;transform:translate(-50%,-50%);',
+      'transition:opacity .15s;left:-999px;top:-999px}',
+      '#t8p-scrub-cur svg{width:16px;height:16px}',
+      /* Timecode: centered on the vline, just above bottom bar */
+      '#t8p-timecode{position:fixed;bottom:52px;font-size:10px;letter-spacing:.12em;',
+      'color:#c9e6fd;pointer-events:none;opacity:0;left:-999px;',
+      'z-index:9092;white-space:nowrap;transform:translateX(-50%);transition:opacity .3s}',
+      '.ui-visible #t8p-timecode{opacity:1}',
 
-      /* Credits section (below bottom bar, hidden until space/scroll) */
-      /* Credits reveal: hero slides UP, credits exposed below bar */
-      '.t8p-pp-hero{transition:transform .4s cubic-bezier(.4,0,.2,1)}',
-      '.credits-open .t8p-pp-hero{transform:translateY(-320px)}',
-      '#t8p-pp-credits{position:fixed;bottom:34px;left:0;right:0;',
-      'max-height:70vh;background:#c9e6fd;z-index:9079;',
-      'transform:translateY(100%);transition:transform .4s cubic-bezier(.4,0,.2,1)}',
-      '.credits-open #t8p-pp-credits{transform:translateY(0)}',
-      '#t8p-credits-inner{padding:20px 32px 28px;overflow-y:auto;max-height:70vh}',
-      '.t8p-cred-title{font-size:10px;letter-spacing:.2em;text-transform:uppercase;',
-      'color:rgba(8,8,8,.45);margin-bottom:12px;padding-bottom:10px;',
-      'border-bottom:1px solid rgba(8,8,8,.15);font-weight:700}',
-      '.t8p-cred-row{display:flex;gap:32px;padding:8px 0;',
-      'border-bottom:1px solid rgba(8,8,8,.1)}',
-      '.t8p-cred-row:last-child{border-bottom:none}',
-      '.t8p-cred-role{font-size:11px;letter-spacing:.06em;color:rgba(8,8,8,.5);',
-      'width:180px;flex-shrink:0;text-transform:uppercase;font-weight:700;padding-top:1px}',
-      '.t8p-cred-name{font-size:13px;letter-spacing:.02em;color:#080808}',
-      '.t8p-cred-name a{color:#080808;text-decoration:underline;',
-      'text-underline-offset:3px;text-decoration-color:rgba(8,8,8,.4)}',
-      '.t8p-cred-name a:hover{text-decoration-color:#080808}',
 
-      /* Dock hover: fan-out on hover, fan-in on leave */
-      '.t8p-dock-stack{transition:transform .25s ease}',
-      '.t8p-dock-stack:hover{transform:scale(1.06)}',
-      /* All cards transition smoothly */
-      '.t8p-dock-stack .t8p-dock-card{transition:transform .3s cubic-bezier(.34,1.56,.64,1)}',
-      /* Resting state rotations (set on each card already) */
-      /* Hover: fan out further */
-      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(1){transform:rotate(0deg) translateY(-2px)}',
-      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(2){transform:rotate(-10deg) translateY(-1px);transform-origin:bottom center}',
-      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(3){transform:rotate(10deg) translateY(-1px);transform-origin:bottom center}',
-      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(4){transform:rotate(-16deg);transform-origin:bottom center}',
-      '.t8p-dock-stack:hover .t8p-dock-card:nth-child(5){transform:rotate(16deg);transform-origin:bottom center}',
+      /* Inverted cursor on bars */
+      '#t8p-pp-cur{position:fixed;width:10px;height:10px;border-radius:50%;background:#fff;',
+      'mix-blend-mode:difference;pointer-events:none;z-index:99999;',
+      'transform:translate(-50%,-50%);left:-100px;top:-100px;opacity:0;transition:opacity .1s}',
+      '#t8p-pp-cur.on-bar{opacity:1}',
 
-      /* Wave animation */
+      /* Sleep: everything hidden except bottom bar */
+      '.pp-sleep #t8p-pp-wm{opacity:0;pointer-events:none}',
+      '.pp-sleep #t8p-btns{opacity:0;pointer-events:none}',
+      '.pp-sleep #t8p-dock{opacity:0;pointer-events:none}',
+
+      /* Wave animation (mute button) */
       '@keyframes t8p-quiet{25%{transform:scaleY(.6)}50%{transform:scaleY(.4)}75%{transform:scaleY(.8)}}',
       '@keyframes t8p-normal{25%{transform:scaleY(1)}50%{transform:scaleY(.4)}75%{transform:scaleY(.6)}}',
       '@keyframes t8p-loud{25%{transform:scaleY(1)}50%{transform:scaleY(.4)}75%{transform:scaleY(1.2)}}',
-      '.t8p-wave-container{display:flex;justify-content:space-between;width:12px}',
-      '.t8p-wave{transform:scaleY(.4);height:9px;width:2px;background:#080808;border-radius:8px;',
+      '.t8p-wave-container{display:flex;align-items:center;gap:2px;width:18px;height:18px}',
+      '.t8p-wave{transform:scaleY(.4);height:13px;width:3px;background:#080808;border-radius:4px;',
       'animation-duration:1.2s;animation-timing-function:ease-in-out;animation-iteration-count:infinite}',
       '.sound-on .t8p-wave1{animation-name:t8p-quiet}',
       '.sound-on .t8p-wave2{animation-name:t8p-normal}',
@@ -364,122 +302,98 @@
       '@media(max-width:767px){.t8p-btn{width:36px;height:36px}}',
 
       /* ── Dock / folder fan ── */
-      '#t8p-dock{position:fixed;left:42px;top:50%;transform:translateY(-50%);transition:opacity .5s ease-out;',
+      '#t8p-dock{position:fixed;left:18px;top:50%;transform:translateY(-50%);',
       'z-index:9150;display:flex;flex-direction:column;gap:0;align-items:center}',
       '@media(max-width:767px){#t8p-dock{bottom:80px;top:auto;transform:none;left:16px}}',
-      '.t8p-dock-stack{position:relative;width:70px;height:70px;cursor:pointer;overflow:visible}',
+      '.t8p-dock-stack{position:relative;width:62px;height:62px;cursor:pointer}',
       '.t8p-dock-stack .t8p-dock-card{position:absolute;width:62px;height:62px;',
-      'border-radius:6px;overflow:hidden;background:#c9e6fd;',
-      'border:1px solid rgba(201,230,253,.5)}',
-      /* Tight alternating fan -- minimal spread, alternating colors */
-      '.t8p-dock-stack .t8p-dock-card{border:1px solid rgba(201,230,253,.4);',
-      'position:absolute;width:62px;height:62px}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(1){',
-      'top:0;left:0;z-index:5;transform:rotate(0deg);background:#c9e6fd}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(2){',
-      'top:2px;left:-2px;z-index:4;',
-      'transform:rotate(-3deg);transform-origin:bottom center;background:#8ab8d8}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(3){',
-      'top:2px;left:2px;z-index:3;',
-      'transform:rotate(3deg);transform-origin:bottom center;background:#c9e6fd}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(4){',
-      'top:4px;left:-4px;z-index:2;',
-      'transform:rotate(-5deg);transform-origin:bottom center;background:#8ab8d8}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(5){',
-      'top:4px;left:4px;z-index:1;',
-      'transform:rotate(5deg);transform-origin:bottom center;background:#c9e6fd}',
-      '.t8p-dock-stack .t8p-dock-card img{width:100%;height:100%;object-fit:cover;opacity:.85}',
-      /* Badge: on bottom-right corner of the top card (62x62 at top:0 left:0) */
-      '.t8p-dock-badge{position:absolute;top:46px;left:46px;background:#080808;color:#c9e6fd;',
-      'font-family:monospace;font-size:9px;font-weight:700;width:18px;height:18px;',
-      'border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:20;',
-      'border:1.5px solid #c9e6fd}',
+      'border-radius:6px;overflow:hidden;background:#111;border:1px solid rgba(255,255,255,.08)}',
+      '.t8p-dock-stack .t8p-dock-card img{width:100%;height:100%;object-fit:cover;opacity:.7}',
+      '.t8p-dock-badge{position:absolute;bottom:-8px;right:-8px;background:#fff;color:#000;',
+      'font-family:monospace;font-size:9px;font-weight:700;width:20px;height:20px;',
+      'border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:10}',
       '@media(max-width:767px){.t8p-dock-stack,.t8p-dock-stack .t8p-dock-card{width:50px;height:50px}}',
 
-      /* ── Finder Panel ── */
-      '#t8p-dock-panel{position:fixed;inset:0;z-index:9900;display:none;flex-direction:column;',
-      'overflow:hidden;background:#1c1c1e;font-family:-apple-system,BlinkMacSystemFont,sans-serif}',
+      /* ── Panel ── */
+      '#t8p-dock-panel{position:fixed;inset:0;background:#080808;z-index:9900;',
+      'display:flex;flex-direction:column;opacity:0;pointer-events:none;',
+      'transition:opacity .35s ease;overflow:hidden}',
+      '#t8p-dock-panel.open{opacity:1;pointer-events:auto}',
 
-      /* Mac window chrome bar */
-      '#t8p-finder-chrome{height:44px;background:#2d2d2f;display:flex;align-items:center;',
-      'padding:0 16px;gap:12px;flex-shrink:0;',
-      'border-bottom:1px solid rgba(255,255,255,.06);-webkit-app-region:drag}',
+      /* top bar: mirrors bottom bar aesthetic */
+      '#t8p-panel-bar{position:absolute;top:0;left:0;right:0;height:44px;',
+      'display:flex;align-items:center;justify-content:space-between;',
+      'padding:0 24px;z-index:2;border-bottom:1px solid rgba(201,230,253,.08);flex-shrink:0}',
+      '#t8p-panel-bar-left{display:flex;flex-direction:column;gap:2px}',
+      '#t8p-panel-bar-title{font-family:monospace;font-size:10px;letter-spacing:.15em;',
+      'color:#c9e6fd;text-transform:uppercase;line-height:1}',
+      '#t8p-panel-bar-meta{font-family:monospace;font-size:9px;letter-spacing:.1em;',
+      'color:rgba(201,230,253,.4);text-transform:uppercase;line-height:1}',
+      '#t8p-panel-close{width:28px;height:28px;border-radius:50%;border:1px solid rgba(201,230,253,.2);',
+      'background:transparent;color:#c9e6fd;font-size:13px;cursor:pointer;',
+      'display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s}',
+      '#t8p-panel-close:hover{border-color:#c9e6fd;background:rgba(201,230,253,.06)}',
 
-      /* Traffic lights */
-      '#t8p-finder-lights{display:flex;gap:8px;align-items:center;flex-shrink:0}',
-      '.t8p-light{width:13px;height:13px;border-radius:50%;cursor:pointer;flex-shrink:0;transition:filter .15s}',
-      '.t8p-light-close{background:#ff5f57}',
-      '.t8p-light-min{background:#febc2e}',
-      '.t8p-light-max{background:#28c840}',
-      '.t8p-light:hover{filter:brightness(1.2)}',
+      /* filmstrip hero area */
+      '#t8p-panel-strip-wrap{flex:1;display:flex;align-items:center;',
+      'padding:44px 0 0;overflow:hidden;position:relative}',
+      '#t8p-panel-strip{display:flex;align-items:flex-end;gap:6px;',
+      'padding:40px 48px 48px;overflow-x:auto;overflow-y:hidden;height:100%;width:100%;',
+      'scrollbar-width:none;-ms-overflow-style:none;box-sizing:border-box}',
+      '#t8p-panel-strip::-webkit-scrollbar{display:none}',
 
-      /* Window title */
-      '#t8p-finder-title{flex:1;text-align:center;font-size:13px;font-weight:500;',
-      'color:rgba(255,255,255,.85);letter-spacing:.01em;display:flex;align-items:center;',
-      'justify-content:center;gap:8px}',
-      '.t8p-finder-icon{font-size:16px}',
+      /* strip cards */
+      '.t8p-strip-card{flex-shrink:0;border-radius:3px;overflow:hidden;',
+      'position:relative;cursor:pointer;background:#111;',
+      'transition:transform .25s ease,opacity .25s ease}',
+      '.t8p-strip-card:hover{transform:translateY(-4px);opacity:1!important}',
+      /* focal (first) card is taller */
+      '.t8p-strip-card.focal{height:clamp(260px,38vh,420px);width:clamp(170px,22vw,280px)}',
+      '.t8p-strip-card.thumb{height:clamp(160px,22vh,260px);width:clamp(130px,15vw,200px);opacity:.75}',
+      '.t8p-strip-card img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}',
 
-      /* Finder body: sidebar + main side by side */
-      '#t8p-finder-body{flex:1;display:flex;overflow:hidden;min-height:0}',
+      /* video card play icon overlay */
+      '.t8p-strip-play{position:absolute;inset:0;display:flex;align-items:center;',
+      'justify-content:center;background:rgba(0,0,0,.35);transition:background .2s}',
+      '.t8p-strip-card:hover .t8p-strip-play{background:rgba(0,0,0,.15)}',
+      '.t8p-strip-play svg{width:32px;height:32px;fill:none;stroke:#c9e6fd;stroke-width:1.5}',
+      /* video label inside card */
+      '.t8p-strip-vid-label{position:absolute;bottom:10px;left:12px;font-family:monospace;',
+      'font-size:8px;letter-spacing:.18em;color:rgba(201,230,253,.7);text-transform:uppercase;',
+      'pointer-events:none}',
 
-      /* Sidebar */
-      '#t8p-finder-sidebar{width:200px;flex-shrink:0;background:#252528;',
-      'border-right:1px solid rgba(255,255,255,.06);',
-      'display:flex;flex-direction:column;overflow:hidden}',
-      '.t8p-sb-label{font-size:10px;letter-spacing:.12em;font-weight:700;',
-      'color:rgba(255,255,255,.25);padding:16px 16px 6px;text-transform:uppercase}',
-      '.t8p-sb-item{display:flex;align-items:center;gap:10px;padding:7px 12px;',
-      'cursor:pointer;border-radius:6px;margin:1px 6px;transition:background .1s;',
-      'font-size:13px;color:rgba(255,255,255,.7)}',
-      '.t8p-sb-item:hover{background:rgba(255,255,255,.06)}',
-      '.t8p-sb-item.active{background:rgba(201,230,253,.15);color:#c9e6fd}',
-      '.t8p-sb-icon{font-size:16px;flex-shrink:0}',
-      '.t8p-sb-name{font-size:13px;letter-spacing:.01em}',
-      '#t8p-finder-sbinfo{margin-top:auto;padding:16px;border-top:1px solid rgba(255,255,255,.06)}',
-      '.t8p-sb-meta{font-size:10px;color:rgba(255,255,255,.25);letter-spacing:.05em;',
-      'text-transform:uppercase;margin-bottom:3px}',
+      /* bottom info bar */
+      '#t8p-panel-info{position:absolute;bottom:0;left:0;right:0;height:44px;',
+      'display:flex;align-items:center;justify-content:space-between;',
+      'padding:0 24px;border-top:1px solid rgba(201,230,253,.08);flex-shrink:0}',
+      '#t8p-panel-body-note{font-family:monospace;font-size:9px;letter-spacing:.1em;',
+      'color:rgba(201,230,253,.35);text-transform:uppercase;white-space:nowrap;',
+      'overflow:hidden;text-overflow:ellipsis;max-width:70%}',
+      '#t8p-panel-count{font-family:monospace;font-size:9px;letter-spacing:.12em;',
+      'color:rgba(201,230,253,.25);text-transform:uppercase;white-space:nowrap}',
 
-      /* Main area */
-      '#t8p-finder-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#1c1c1e}',
-
-      /* Video pane */
-      '#t8p-finder-video{flex:1;display:flex;flex-direction:column;background:#000;overflow:hidden}',
-
-      /* Gallery pane */
-      '#t8p-finder-gallery{flex:1;overflow-y:auto;padding:16px;',
-      'scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent}',
-      '#t8p-finder-grid{columns:3;column-gap:8px}',
-      '@media(max-width:900px){#t8p-finder-grid{columns:2}}',
-      '.t8p-finder-tile{break-inside:avoid;margin-bottom:8px;border-radius:6px;',
-      'overflow:hidden;cursor:pointer;background:#2a2a2c;transition:transform .15s,box-shadow .15s}',
-      '.t8p-finder-tile:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(0,0,0,.5)}',
-      '.t8p-finder-tile img{display:block;width:100%;height:auto;opacity:.92;transition:opacity .15s}',
-      '.t8p-finder-tile:hover img{opacity:1}',
-
-      /* Status bar */
-      '#t8p-finder-status{height:24px;background:#2d2d2f;border-top:1px solid rgba(255,255,255,.06);',
-      'display:flex;align-items:center;justify-content:center;',
-      'font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.04em;flex-shrink:0}',
-
-      /* Lightbox */
-      '#t8p-lb{display:none;flex-direction:column;align-items:center;justify-content:center}',
+      /* ── Lightbox ── */
+      '#t8p-lb{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:10000;',
+      'display:none;flex-direction:column;align-items:center;justify-content:center}',
       '#t8p-lb.open{display:flex}',
-      '#t8p-lb-img{max-width:90vw;max-height:82vh;object-fit:contain;border-radius:4px;user-select:none}',
+      '#t8p-lb-img{max-width:88vw;max-height:80vh;object-fit:contain;border-radius:2px;user-select:none}',
       '@media(max-width:767px){#t8p-lb-img{max-width:96vw;max-height:75vh}}',
-      '#t8p-lb-close{position:fixed;top:20px;right:28px;width:40px;height:40px;',
-      'border-radius:50%;border:1px solid rgba(201,230,253,.3);background:rgba(0,0,0,.6);',
-      'color:#c9e6fd;font-size:18px;cursor:pointer;display:flex;align-items:center;',
-      'justify-content:center;z-index:10001;transition:border-color .2s,background .2s}',
-      '#t8p-lb-close:hover{border-color:#c9e6fd;background:rgba(201,230,253,.12)}',
-      '.t8p-lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:48px;height:48px;',
-      'border-radius:50%;border:1px solid rgba(201,230,253,.2);background:rgba(0,0,0,.6);',
-      'color:#c9e6fd;font-size:20px;cursor:pointer;display:flex;align-items:center;',
+      '#t8p-lb-close{position:fixed;top:24px;right:32px;width:32px;height:32px;',
+      'border-radius:50%;border:1px solid rgba(201,230,253,.25);background:transparent;',
+      'color:#c9e6fd;font-size:14px;cursor:pointer;display:flex;align-items:center;',
+      'justify-content:center;z-index:10001;transition:border-color .2s}',
+      '#t8p-lb-close:hover{border-color:#c9e6fd}',
+      '.t8p-lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:40px;height:40px;',
+      'border-radius:50%;border:1px solid rgba(201,230,253,.2);background:rgba(0,0,0,.4);',
+      'color:#c9e6fd;font-size:16px;cursor:pointer;display:flex;align-items:center;',
       'justify-content:center;z-index:10001;transition:border-color .2s,background .2s;user-select:none}',
-      '.t8p-lb-nav:hover{border-color:#c9e6fd;background:rgba(0,0,0,.85)}',
-      '#t8p-lb-prev{left:20px}#t8p-lb-next{right:20px}',
-      '#t8p-lb-counter{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);',
-      'font-family:monospace;font-size:11px;letter-spacing:.15em;',
-      'color:rgba(201,230,253,.45);z-index:10001}',
+      '.t8p-lb-nav:hover{border-color:#c9e6fd;background:rgba(0,0,0,.7)}',
+      '#t8p-lb-prev{left:24px}#t8p-lb-next{right:24px}',
+      '@media(max-width:767px){#t8p-lb-prev{left:8px}#t8p-lb-next{right:8px}',
+      '.t8p-lb-nav{width:36px;height:36px;font-size:14px}}',
+      '#t8p-lb-counter{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);',
+      'font-family:monospace;font-size:9px;letter-spacing:.15em;',
+      'color:rgba(201,230,253,.35);z-index:10001}',
     ].join('');
     document.head.appendChild(style);
   }
@@ -576,6 +490,13 @@
       '<div id="t8p-dock"></div>',
       '<div id="t8p-pp-ctrls"></div>',
       '<div id="t8p-pp-bar"></div>',
+      '<div id="t8p-dock-panel">',
+        '<div id="t8p-dock-panel-close"><svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></div>',
+        '<div id="t8p-dock-panel-inner">',
+          '<div id="t8p-dock-panel-head"></div>',
+          '<div id="t8p-dock-gallery"></div>',
+        '</div>',
+      '</div>',
     ].join('');
     document.body.appendChild(pp);
     var ppLogoEl = document.getElementById('t8p-pp-logo');
@@ -1195,21 +1116,10 @@
   ────────────────────────────────────────────────────────── */
   function buildProject() {
     document.body.classList.add('is-pp');
-    /* Hide the global homepage cursor on project pages */
-    var _gc = document.getElementById('t8p-cur');
-    if (_gc) { _gc.style.opacity = '0'; _gc.style.visibility = 'hidden'; _gc.style.pointerEvents = 'none'; }
 
     var DATA = window._t8pDATA || {};
     var sl = location.pathname.replace(/[/]/g,'');
     var d = DATA[sl] || {v:[],t:'',d:'',r:'',c:{}};
-    /* inject placeholder credits if none exist */
-    if (!d.c || Object.keys(d.c).length === 0) {
-      d = Object.assign({}, d, {c:{
-        'DIRECTOR': {n:'T8P Studios', ig:'t8pstudios'},
-        'EDITOR': {n:'T8P Studios', ig:'t8pstudios'},
-        'PRODUCTION': {n:'T8P Studios', ig:'t8pstudios'}
-      }});
-    }
     var title   = (d.t || sl).replace(/^"|"$/g,'');
     var desc    = d.d || '';
     var release = d.r || '';
@@ -1224,19 +1134,22 @@
     var ck = document.getElementById('t8p-ck');
     if (ck) ck.style.setProperty('display','none','important');
 
-    /* state */
+    /* ── Vimeo Player SDK ── */
     var vplayer = null;
-    var _playing = true, _muted = true, _firstClick = true;
-    var _duration = 0, _scrubbing = false;
+    var _playing = true;
+    var _muted = true;
+    var _duration = 0;
+    var _firstClick = true;
 
     function loadVimeoSDK(cb) {
       if (window.Vimeo) { cb(); return; }
       var s = document.createElement('script');
       s.src = 'https://player.vimeo.com/api/player.js';
-      s.onload = cb; document.head.appendChild(s);
+      s.onload = cb;
+      document.head.appendChild(s);
     }
 
-    /* ── Inverted cursor: dot on bars ── */
+    /* ── Inverted cursor (bars only) ── */
     var ppCur = document.getElementById('t8p-pp-cur');
     if (!ppCur) {
       ppCur = document.createElement('div');
@@ -1244,19 +1157,16 @@
       document.documentElement.appendChild(ppCur);
     }
 
-    /* ── Frosted milk bar ── */
-    var topbar = document.createElement('div');
-    topbar.id = 't8p-topbar';
-    pp.appendChild(topbar);
-
-    /* ── Logo: centered in topbar ── */
+    /* ── Wordmark topbar ── */
     var wmDiv = document.createElement('div');
     wmDiv.id = 't8p-pp-wm';
     wmDiv.innerHTML = WM_SVG;
     wmDiv.onclick = function(){ cleanup(); location.href='/'; };
     pp.appendChild(wmDiv);
 
-    /* ── Mute button: fixed top:18px right:78px ── */
+    /* ── Mute + Close buttons ── */
+    var btns = document.createElement('div');
+    btns.id = 't8p-btns';
     var mb = document.createElement('div');
     mb.id = 't8p-mute-btn'; mb.className = 't8p-btn';
     mb.innerHTML = '<div class="t8p-btn-shape"></div>'
@@ -1266,28 +1176,26 @@
       +'<div class="t8p-wave t8p-wave3"></div>'
       +'<div class="t8p-wave t8p-wave4"></div>'
       +'</div>';
-    pp.appendChild(mb);
-
-    /* ── Close button: fixed top:18px right:18px ── */
     var cb2 = document.createElement('div');
     cb2.id = 't8p-close-btn'; cb2.className = 't8p-btn';
     cb2.innerHTML = '<div class="t8p-btn-shape"></div><div class="t8p-btn-icon">'+CICO+'</div>';
     cb2.onclick = function(){ cleanup(); location.href='/'; };
-    pp.appendChild(cb2);
+    btns.appendChild(mb); btns.appendChild(cb2);
+    pp.appendChild(btns);
 
     /* ── Hero ── */
     var hero = document.createElement('div');
     hero.className = 't8p-pp-hero';
 
     if (vids.length > 0) {
-      /* poster img */
+      /* Poster */
       var poster = document.createElement('img');
       poster.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1';
-      var LUUID = 'd4325d9d-7519-4511-9a6d-61a47a7b3772';
+      var SKIP_UUID = 'd4325d9d-7519-4511-9a6d-61a47a7b3772';
       fetch(location.pathname).then(function(r){return r.text();}).then(function(html){
         var imgs = (html.match(/images\.squarespace-cdn\.com\/content\/[^"'\s?]+/g)||[]);
         for(var i=0;i<imgs.length;i++){
-          if(imgs[i].indexOf(LUUID)>-1) continue;
+          if(imgs[i].indexOf(SKIP_UUID)>-1) continue;
           if(imgs[i].match(/\.(ico|svg|gif)$/i)) continue;
           poster.src='https://'+imgs[i].split('?')[0]+'?format=2500w'; return;
         }
@@ -1295,6 +1203,7 @@
         poster.onerror=function(){ poster.style.display='none'; };
       }).catch(function(){
         poster.src='https://vumbnail.com/'+vids[0]+'.jpg';
+        poster.onerror=function(){ poster.style.display='none'; };
       });
       hero.appendChild(poster);
 
@@ -1308,23 +1217,37 @@
       hf.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;z-index:2';
       hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=0&dnt=1&transparent=0';
       hero.appendChild(hf);
+
+
+    } else {
+      var heroImg = document.createElement('img');
+      heroImg.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none';
+      var LUUID='d4325d9d-7519-4511-9a6d-61a47a7b3772';
+      fetch(location.pathname).then(function(r){return r.text();}).then(function(html){
+        var m=html.match(/images\.squarespace-cdn\.com\/content\/[^"'\s?]+/g)||[];
+        for(var i=0;i<m.length;i++){
+          if(m[i].indexOf(LUUID)>-1) continue;
+          if(m[i].match(/\.(ico|svg|gif)$/i)) continue;
+          heroImg.src='https://'+m[i].split('?')[0]+'?format=2500w'; return;
+        }
+      }).catch(function(){});
+      hero.appendChild(heroImg);
     }
 
-    /* overlay */
+    /* Overlay */
     var ov = document.createElement('div');
     ov.id = 't8p-ov';
     hero.appendChild(ov);
     pp.appendChild(hero);
 
-    /* ── Floating cursor (IS the cursor over video) ── */
+    /* ── Floating cursor ── */
     var vidCur = document.getElementById('t8p-vidcur');
     if (!vidCur) {
       vidCur = document.createElement('div');
       vidCur.id = 't8p-vidcur';
       document.documentElement.appendChild(vidCur);
     }
-
-    function updatePlayCursor(playing) {
+    function updatePlayBtn(playing) {
       _playing = playing;
       if (playing) {
         vidCur.innerHTML = '<svg viewBox="0 0 24 24"><rect x="5" y="4" width="4" height="16" fill="#080808"/><rect x="15" y="4" width="4" height="16" fill="#080808"/></svg>';
@@ -1332,50 +1255,47 @@
         vidCur.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20" fill="#080808"/></svg>';
       }
     }
-    updatePlayCursor(true);
+    updatePlayBtn(true);
 
-    /* ── Scrub track (thin line above bottom bar) ── */
-    var scrubTrack = document.createElement('div');
-    scrubTrack.id = 't8p-scrub-track';
-    var scrubFill = document.createElement('div');
-    scrubFill.id = 't8p-scrub-fill';
-    scrubTrack.appendChild(scrubFill);
-    pp.appendChild(scrubTrack);
-
-    /* Playhead vline: fixed, tracks video progress */
+    /* ── Playhead vline (tracks video progress) ── */
     var scrubHead = document.createElement('div');
     scrubHead.id = 't8p-scrub-head';
     pp.appendChild(scrubHead);
 
-    /* Timecode riding the vline */
-    var scrubTime = document.createElement('div');
-    scrubTime.id = 't8p-scrub-time';
-    pp.appendChild(scrubTime);
-
-    /* Grab zone: 40px wide strip on the vline */
+    /* Grab zone: invisible strip around the playhead for dragging */
     var grabZone = document.createElement('div');
     grabZone.id = 't8p-grab-zone';
     pp.appendChild(grabZone);
 
-    /* Scrub cursor: church-exact colored circle with arrows */
+    /* Scrub cursor icon (shown instead of play/pause when on grab zone) */
     var scrubCur = document.createElement('div');
     scrubCur.id = 't8p-scrub-cur';
-    /* left-right arrows SVG -- same as church's progress-control */
-    scrubCur.innerHTML = '<svg viewBox="0 0 45 45" fill="none">'
-      +'<path d="M19.5 18.5L15.5 22.5L19.5 26.5" stroke="#080808" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
-      +'<path d="M25.5 18.5L29.5 22.5L25.5 26.5" stroke="#080808" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
-      +'</svg>';
-    document.documentElement.appendChild(scrubCur);
+    /* left-right arrows icon */
+    scrubCur.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5" stroke="#080808" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><line x1="3" y1="12" x2="21" y2="12" stroke="#080808" stroke-width="2" stroke-linecap="round"/></svg>';
+    pp.appendChild(scrubCur);
 
-    /* ── Bottom info bar (always visible) ── */
+    /* Timecode: centered on playhead vline */
+    var timeCode = document.createElement('div');
+    timeCode.id = 't8p-timecode';
+    pp.appendChild(timeCode);
+
+    /* ── Scrub zone (bottom bar + track) ── */
     var scrubZone = document.createElement('div');
     scrubZone.id = 't8p-scrub-zone';
+
     var bar = document.createElement('div');
     bar.className = 't8p-pp-bar';
     bar.innerHTML = '<span class="t8p-pp-t">'+title+'</span>'
       +'<span class="t8p-pp-d">'+desc+'</span>'
       +(release?'<span class="t8p-pp-r">'+release+'</span>':'');
     scrubZone.appendChild(bar);
+
+    var scrubTrack = document.createElement('div');
+    scrubTrack.id = 't8p-scrub-track';
+    var scrubFill = document.createElement('div');
+    scrubFill.id = 't8p-scrub-fill';
+    scrubTrack.appendChild(scrubFill);
+    scrubZone.appendChild(scrubTrack);
     pp.appendChild(scrubZone);
 
     /* ── Credits ── */
@@ -1401,42 +1321,15 @@
       pp.appendChild(credSection);
     }
 
-    /* ── Credits reveal section (space/scroll to open) ── */
-    var creditsPanel = document.createElement('div');
-    creditsPanel.id = 't8p-pp-credits';
-    var creditsInner = document.createElement('div');
-    creditsInner.id = 't8p-credits-inner';
-    if (Object.keys(credits).length > 0) {
-      var ctitle = document.createElement('div');
-      ctitle.className = 't8p-cred-title';
-      ctitle.textContent = 'Credits';
-      creditsInner.appendChild(ctitle);
-      Object.keys(credits).forEach(function(role){
-        var val = credits[role]; if(!val) return;
-        var name = typeof val==='object'?val.n:val;
-        var ig   = typeof val==='object'?val.ig:null;
-        var row = document.createElement('div'); row.className='t8p-cred-row';
-        var roleEl = document.createElement('div'); roleEl.className='t8p-cred-role'; roleEl.textContent=role;
-        var nameEl = document.createElement('div'); nameEl.className='t8p-cred-name';
-        if (ig) { nameEl.innerHTML='<a href="https://instagram.com/'+ig+'" target="_blank" rel="noopener">'+name+'</a>'; }
-        else { nameEl.textContent=name; }
-        row.appendChild(roleEl); row.appendChild(nameEl);
-        creditsInner.appendChild(row);
-      });
-    }
-    creditsPanel.appendChild(creditsInner);
-    pp.appendChild(creditsPanel);
-
     /* ── Dock ── */
-    if (vids.length > 1 || d.g) {
-      buildDockPanel(pp, vids.slice(), hashes, d, title, desc, release, !!d.g);
-    }
+    var hasGallery = !!d.g;
+    var vidsAll = vids.slice();
+    var hasExtras = vidsAll.length > 1 || hasGallery;
+    if (hasExtras) buildDockPanel(pp, vidsAll, hashes, d, title, desc, release, hasGallery);
 
-    /* ═══════════════════════════════════════════
-       CHURCH-EXACT INTERACTION ENGINE
-       Timeouts: hide after 1000ms on load, 2000ms after mousemove
-       Transition: opacity 0.5s ease-out on all .hide-interface elements
-    ═══════════════════════════════════════════ */
+    /* ────────────────────────────────────────
+       INTERACTION ENGINE
+    ──────────────────────────────────────── */
 
     function fmtTime(s) {
       s = Math.max(0, s||0);
@@ -1444,42 +1337,36 @@
       return m+':'+(sec<10?'0':'')+sec;
     }
 
-    /* ── Sleep system (church-exact) ── */
-    /* Elements that sleep: logo, btns, dock, vidcur */
-    var sleepTimer = null;
+    /* ── UI visibility (sleep system) ── */
+    var _sleepTimer = null;
+    var _uiShown = false;
 
-    function hideUI() {
-      pp.classList.add('t8p-pp-sleep');
-    }
     function showUI() {
-      pp.classList.remove('t8p-pp-sleep');
-      clearTimeout(sleepTimer);
-      sleepTimer = setTimeout(hideUI, 2000);
+      if (!_uiShown) { _uiShown = true; pp.classList.add('ui-visible'); }
+      clearTimeout(_sleepTimer);
+      _sleepTimer = setTimeout(function(){
+        _uiShown = false;
+        pp.classList.remove('ui-visible');
+        pp.classList.add('pp-sleep');
+      }, 3000);
+    }
+    function wakeUI() {
+      pp.classList.remove('pp-sleep');
+      showUI();
     }
 
-    /* Initial hide after 1000ms (church exact) */
-    setTimeout(hideUI, 1000);
+    /* ── Playhead position update ── */
+    var _headPct = 0; /* 0-1, tracks video progress */
 
-    /* Wake on any movement/click/scroll */
-    function onActivity() { showUI(); }
-    document.addEventListener('mousemove', onActivity, {passive:true});
-    document.addEventListener('click', onActivity, {passive:true});
-    document.addEventListener('keydown', onActivity, {passive:true});
-
-    /* Scroll on the pp element reveals credits (church behavior) */
-    pp.addEventListener('wheel', function(e) {
-      if (e.deltaY > 20) { pp.classList.add('credits-open'); }
-      else if (e.deltaY < -20) { pp.classList.remove('credits-open'); }
-    }, {passive:true});
-
-    /* ── Add .ui-visible for scrub track after first real play ── */
-    function showScrubTrack() {
-      pp.classList.add('ui-visible');
-      /* initialise head at left edge */
-      var tr = scrubTrack.getBoundingClientRect();
-      scrubHead.style.left = tr.left + 'px';
-      grabZone.style.left = tr.left + 'px';
-      scrubTime.style.left = tr.left + 'px';
+    function updateHeadPos(pct) {
+      _headPct = pct;
+      /* position head at pct of the scrub track width */
+      var trackRect = scrubTrack.getBoundingClientRect();
+      var x = trackRect.left + pct * trackRect.width;
+      scrubFill.style.width = (pct * 100) + '%';
+      scrubHead.style.left = x + 'px';
+      grabZone.style.left = x + 'px';
+      timeCode.style.left = x + 'px';
     }
 
     /* ── Mute UI ── */
@@ -1490,42 +1377,48 @@
     }
     setMuteUI(true);
 
-    /* ── Vimeo SDK ── */
-    if (vids.length > 0) {
-      loadVimeoSDK(function(){
-        vplayer = new window.Vimeo.Player(document.getElementById('t8p-vp-main'));
-        vplayer.getDuration().then(function(dur){ _duration = dur; });
-        vplayer.on('timeupdate', function(data){
-          if (_scrubbing) return;
-          var pct = _duration > 0 ? data.seconds / _duration : 0;
-          scrubFill.style.width = (pct*100)+'%';
-          if (!_firstClick && !_scrubbing) {
-            var tr = scrubTrack.getBoundingClientRect();
-            var vx = tr.left + pct * tr.width;
-            scrubHead.style.left = vx + 'px';
-            grabZone.style.left = vx + 'px';
-            scrubTime.style.left = vx + 'px';
-            scrubTime.textContent = fmtTime(data.seconds) + (_duration?' / '+fmtTime(_duration):'');
-          }
-        });
-        vplayer.on('ended', function(){
-          _muted=true; _firstClick=true; _playing=true;
-          vplayer.setMuted(true); vplayer.setVolume(0);
-          vplayer.setCurrentTime(0); vplayer.play();
-          updatePlayCursor(true); setMuteUI(true);
-          pp.classList.remove('ui-visible');
-        });
+    /* ── Play/pause cursor ── */
+    function updatePlayBtn(playing) {
+      _playing = playing;
+      if (playing) {
+        vidCur.innerHTML = '<svg viewBox="0 0 24 24"><rect x="5" y="4" width="4" height="16" fill="#080808"/><rect x="15" y="4" width="4" height="16" fill="#080808"/></svg>';
+      } else {
+        vidCur.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20" fill="#080808"/></svg>';
+      }
+    }
+    updatePlayBtn(true);
+
+    /* ── Vimeo SDK callbacks ── */
+    function onVimeoSDKReady() {
+      vplayer = new window.Vimeo.Player(document.getElementById('t8p-vp-main'));
+      vplayer.getDuration().then(function(dur){ _duration = dur; });
+      vplayer.on('timeupdate', function(data){
+        if (_scrubbing) return;
+        var pct = _duration > 0 ? data.seconds / _duration : 0;
+        timeCode.textContent = fmtTime(data.seconds) + (_duration ? ' / '+fmtTime(_duration) : '');
+        updateHeadPos(pct);
+        /* show ui when video is playing with sound */
+        if (!_muted && !_firstClick) showUI();
+      });
+      vplayer.on('ended', function(){
+        _muted = true; _firstClick = true; _playing = true;
+        vplayer.setMuted(true); vplayer.setVolume(0);
+        vplayer.setCurrentTime(0); vplayer.play();
+        updatePlayBtn(true); setMuteUI(true);
+        pp.classList.remove('ui-visible');
+        updateHeadPos(0);
       });
     }
+    loadVimeoSDK(onVimeoSDKReady);
 
     /* ── Play toggle ── */
     function togglePlay() {
       if (!vplayer) return;
-      if (_playing) { vplayer.pause(); updatePlayCursor(false); }
-      else { vplayer.play(); updatePlayCursor(true); }
+      if (_playing) { vplayer.pause(); updatePlayBtn(false); }
+      else { vplayer.play(); updatePlayBtn(true); }
     }
 
-    /* ── First click: restart unmuted ── */
+    /* First click: restart from 0 unmuted, show UI */
     function handleVideoClick() {
       if (!vplayer) return;
       if (_firstClick) {
@@ -1535,35 +1428,35 @@
         vplayer.setMuted(false);
         vplayer.play();
         _playing = true; _muted = false;
-        updatePlayCursor(true); setMuteUI(false);
-        showScrubTrack();
+        updatePlayBtn(true); setMuteUI(false);
+        wakeUI();
       } else {
         togglePlay();
+        wakeUI();
       }
-      showUI();
     }
 
-    /* ── Click/Space ── */
-    ov.addEventListener('click', function(e){
-      /* check if click is on the dock stack -- if so, don't intercept */
-      var dockEl = document.getElementById('t8p-dock');
-      if (dockEl && dockEl.contains(e.target)) return;
-      handleVideoClick();
-    });
-    vidCur.addEventListener('click', function(e){
-      var dockEl = document.getElementById('t8p-dock');
-      if (dockEl && dockEl.contains(e.target)) return;
-      handleVideoClick();
-    });
+    /* ── Click handlers ── */
+    ov.addEventListener('click', function(){ handleVideoClick(); });
+    vidCur.addEventListener('click', function(){ handleVideoClick(); });
 
+    /* ── Keyboard ── */
     document.addEventListener('keydown', function onKey(e){
-      if (!document.getElementById('t8p-pp')) { document.removeEventListener('keydown',onKey); return; }
-      if (e.code==='Space' && !e.target.matches('input,textarea')) {
-        e.preventDefault();
-        pp.classList.toggle('credits-open');
+      if (!document.getElementById('t8p-pp')) { document.removeEventListener('keydown', onKey); return; }
+      if (e.code === 'Space' && !e.target.matches('input,textarea')) {
+        e.preventDefault(); handleVideoClick();
       }
-      if (e.code==='KeyM' && !e.target.matches('input,textarea')) {
-        mb.click(); /* delegate to mute button handler */
+      if (e.code === 'KeyM' && !e.target.matches('input,textarea')) {
+        if (!vplayer) return;
+        _muted = !_muted;
+        vplayer.setMuted(_muted); vplayer.setVolume(_muted ? 0 : 1);
+        setMuteUI(_muted);
+        if (!_muted && _firstClick) {
+          _firstClick = false;
+          vplayer.setCurrentTime(0); vplayer.play();
+          _playing = true; updatePlayBtn(true);
+        }
+        wakeUI(); /* M key wakes the UI */
       }
     });
 
@@ -1571,273 +1464,241 @@
     mb.addEventListener('click', function(){
       if (!vplayer) return;
       _muted = !_muted;
-      vplayer.setMuted(_muted); vplayer.setVolume(_muted?0:1);
+      vplayer.setMuted(_muted); vplayer.setVolume(_muted ? 0 : 1);
       setMuteUI(_muted);
       if (!_muted && _firstClick) {
-        _firstClick=false;
+        _firstClick = false;
         vplayer.setCurrentTime(0); vplayer.play();
-        _playing=true; updatePlayCursor(true); showScrubTrack();
+        _playing = true; updatePlayBtn(true);
       }
+      wakeUI();
     });
 
-    /* ── Scrub: grab zone centered on the vline ── */
-    var _wasPlaying = false;
+    /* ── Scrub drag on grab zone ── */
+    var _scrubbing = false;
+
     function getScrubPct(clientX) {
       var rect = scrubTrack.getBoundingClientRect();
       return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     }
-    /* Grab zone hover: show scrub cursor, hide play/pause cursor */
-    grabZone.addEventListener('mousemove', function(e){
-      scrubCur.style.left = e.clientX+'px';
-      scrubCur.style.top = e.clientY+'px';
-    });
+
+    var _onGrab = false;
     grabZone.addEventListener('mouseenter', function(){
+      _onGrab = true;
+      vidCur.classList.remove('visible'); /* hide play/pause cursor */
       scrubCur.style.opacity = '1';
-      vidCur.classList.remove('visible');
     });
     grabZone.addEventListener('mouseleave', function(){
-      if (!_scrubbing) scrubCur.style.opacity = '0';
+      if (!_scrubbing) {
+        _onGrab = false;
+        scrubCur.style.opacity = '0';
+      }
     });
-
-    function startScrub(e) {
-      if (!pp.classList.contains('ui-visible')) return;
+    grabZone.addEventListener('mousemove', function(e){
+      scrubCur.style.left = e.clientX + 'px';
+      scrubCur.style.top = e.clientY + 'px';
+    });
+    grabZone.addEventListener('mousedown', function(e){
       e.preventDefault();
       _scrubbing = true;
-      pp.classList.add('scrubbing');
-      _wasPlaying = _playing;
+      scrubCur.style.opacity = '1';
+      var wasPaused = !_playing;
+
+      /* pause during scrub for cleaner seeking */
       if (vplayer && _playing) vplayer.pause();
+
       function onMove(e2){
-        var p2 = getScrubPct(e2.clientX);
-        scrubFill.style.width = (p2*100)+'%';
-        var tr2 = scrubTrack.getBoundingClientRect();
-        var vx2 = tr2.left + p2 * tr2.width;
-        scrubHead.style.left = vx2+'px';
-        grabZone.style.left = vx2+'px';
-        scrubTime.style.left = vx2+'px';
-        scrubCur.style.left = e2.clientX+'px';
-        scrubCur.style.top = e2.clientY+'px';
-        if (_duration) scrubTime.textContent = fmtTime(p2*_duration)+' / '+fmtTime(_duration);
-        if (vplayer&&_duration) vplayer.setCurrentTime(p2*_duration);
+        var pct = getScrubPct(e2.clientX);
+        updateHeadPos(pct);
+        scrubCur.style.left = e2.clientX + 'px';
+        scrubCur.style.top = e2.clientY + 'px';
+        if (_duration) timeCode.textContent = fmtTime(pct*_duration)+' / '+fmtTime(_duration);
+        if (vplayer && _duration) vplayer.setCurrentTime(pct * _duration);
+        wakeUI();
       }
       function onUp(){
-        _scrubbing=false;
-        pp.classList.remove('scrubbing');
-        scrubCur.style.opacity = '0';
-        document.removeEventListener('mousemove',onMove);
-        document.removeEventListener('mouseup',onUp);
-        if (_wasPlaying && vplayer) vplayer.play();
-        showUI();
+        _scrubbing = false;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        if (!_onGrab) scrubCur.style.opacity = '0';
+        /* resume if was playing */
+        if (!wasPaused && vplayer) { vplayer.play(); }
+        wakeUI();
       }
-      document.addEventListener('mousemove',onMove);
-      document.addEventListener('mouseup',onUp);
-    }
-    grabZone.addEventListener('mousedown', startScrub);
-    scrubTrack.addEventListener('mousedown', startScrub);
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
 
-    /* ── Main mousemove: floating cursor + inverted dot ── */
+    /* ── Main mousemove ── */
     if (!IS_MOBILE) {
       document.addEventListener('mousemove', function onMM(e){
-        if (!document.getElementById('t8p-pp')) { document.removeEventListener('mousemove',onMM); return; }
+        if (!document.getElementById('t8p-pp')) { document.removeEventListener('mousemove', onMM); return; }
+
+        /* inverted cursor position */
+        ppCur.style.left = e.clientX+'px'; ppCur.style.top = e.clientY+'px';
         var elAt = document.elementFromPoint(e.clientX, e.clientY);
         if (!elAt) return;
+
         var onTopBar = !!(elAt.closest('#t8p-pp-wm') || elAt.closest('#t8p-btns'));
         var onBotBar = !!(elAt.closest('#t8p-scrub-zone'));
-        var onOv = elAt.id==='t8p-ov' || elAt.id==='t8p-vp-main';
-        var onScrubTrack = !!(elAt.closest('#t8p-scrub-track'));
+        var onOv = elAt.id === 't8p-ov' || elAt.id === 't8p-vp-main';
+        var onGrab = elAt.id === 't8p-grab-zone' || elAt.closest('#t8p-grab-zone');
 
-        /* inverted dot: bars only */
-        var onDock = !!(elAt.closest && elAt.closest('#t8p-dock'));
-        var onCredits = !!(elAt.closest && elAt.closest('#t8p-pp-credits'));
-        var showDot = onTopBar || onBotBar || onDock || onCredits;
-        ppCur.classList.toggle('on-bar', showDot);
-        if (showDot) {
-          ppCur.style.left = e.clientX+'px'; ppCur.style.top = e.clientY+'px';
-        } else {
-          ppCur.style.left = '-9999px'; ppCur.style.top = '-9999px';
-        }
+        /* Inverted cursor: bars only */
+        ppCur.classList.toggle('on-bar', onTopBar || onBotBar);
 
-        /* floating cursor: video only */
-        if (onOv && !onScrubTrack) {
+        /* Floating play/pause cursor: video zone only, not when on grab zone */
+        if (onOv && !onGrab && !_scrubbing) {
           vidCur.classList.add('visible');
           vidCur.style.left = e.clientX+'px';
           vidCur.style.top = e.clientY+'px';
-        } else {
+        } else if (!onGrab && !_scrubbing) {
           vidCur.classList.remove('visible');
+        }
+
+        /* Wake on any cursor movement over video */
+        if (onOv || onGrab) wakeUI();
+
+        /* Scrub cursor pos when scrubbing */
+        if (_scrubbing) {
+          scrubCur.style.left = e.clientX+'px';
+          scrubCur.style.top = e.clientY+'px';
         }
       });
     }
 
     /* ── Cleanup ── */
     function cleanup() {
-      clearTimeout(sleepTimer);
-      document.removeEventListener('mousemove', onActivity);
-      document.removeEventListener('scroll', onActivity);
-      document.removeEventListener('click', onActivity);
-      document.removeEventListener('keydown', onActivity);
+      clearTimeout(_sleepTimer);
       if (vidCur) vidCur.remove();
+      if (scrubCur) scrubCur.remove();
       if (grabZone) grabZone.remove();
       if (scrubHead) scrubHead.remove();
-      if (scrubTime) scrubTime.remove();
-      if (scrubCur) scrubCur.remove();
+      if (timeCode) timeCode.remove();
       if (ppCur) { ppCur.style.opacity='0'; ppCur.classList.remove('on-bar'); }
-      pp.classList.remove('credits-open');
     }
   }
 
   function buildDockPanel(pp, vidsAll, hashes, d, title, desc, release, hasGallery) {
+    var bodyText  = d.body || '';
+    var disclaimer = d.disclaimer || '';
 
-    /* ── Dock stack ─────────────────────────────────────────── */
+    /* dock */
     var dock = el('div',{id:'t8p-dock'});
     var stack = el('div',{className:'t8p-dock-stack'});
-    for (var pi=0; pi<5; pi++) {
+    var previewCount = Math.min(vidsAll.length, 3);
+    for (var pi=0;pi<previewCount;pi++) {
       (function(i){
         var card = el('div',{className:'t8p-dock-card'});
-        if (i === 0 && vidsAll.length > 0) {
-          var th = el('img');
-          th.style.cssText = 'width:100%;height:100%;object-fit:cover;opacity:.85';
-          var _vid = vidsAll[0];
-          var _hash = hashes ? hashes[String(_vid)] : null;
-          if (_hash) {
-            fetch(location.pathname).then(function(r){return r.text();}).then(function(html){
-              var imgs=(html.match(/images\.squarespace-cdn\.com\/content\/[^"'\s?]+/g)||[]);
-              var UUID='d4325d9d-7519-4511-9a6d-61a47a7b3772';
-              for(var ii=0;ii<imgs.length;ii++){
-                if(imgs[ii].indexOf(UUID)>-1) continue;
-                if(imgs[ii].match(/\.(ico|svg|gif)$/i)) continue;
-                th.src='https://'+imgs[ii].split('?')[0]+'?format=300w'; return;
-              }
-              th.src='https://vumbnail.com/'+_vid+'.jpg';
-            }).catch(function(){ th.src='https://vumbnail.com/'+_vid+'.jpg'; });
-          } else {
-            th.src='https://vumbnail.com/'+_vid+'.jpg';
-          }
-          card.appendChild(th);
-        }
+        card.style.zIndex = previewCount-i;
+        card.style.transform = 'translateY('+(i*4)+'px) scale('+(1-i*.04)+')';
+        var th = el('img');
+        th.src = 'https://vumbnail.com/'+vidsAll[i]+'.jpg';
+        th.style.cssText = 'width:100%;height:100%;object-fit:cover;opacity:.75';
+        card.appendChild(th);
         stack.appendChild(card);
       })(pi);
     }
-    var totalCount = vidsAll.length + (hasGallery ? 1 : 0);
-    var badge=el('div',{className:'t8p-dock-badge'}); badge.textContent=totalCount > 9 ? '9+' : totalCount;
+    var badge=el('div',{className:'t8p-dock-badge'}); badge.textContent=vidsAll.length;
     stack.appendChild(badge); dock.appendChild(stack);
     document.body.appendChild(dock);
 
-    /* ── Finder-style panel ──────────────────────────────────── */
+    /* panel */
     var panel = el('div',{id:'t8p-dock-panel'});
+
+    /* top bar */
+    var pbar=el('div',{id:'t8p-panel-bar'});
+    var pbarL=el('div',{id:'t8p-panel-bar-left'});
+    var pbarTitle=el('div',{id:'t8p-panel-bar-title'}); pbarTitle.textContent=title||''; pbarL.appendChild(pbarTitle);
+    var pbarMeta=el('div',{id:'t8p-panel-bar-meta'});
+    var metaParts=[];
+    if(release)metaParts.push(release);
+    if(desc)metaParts.push(desc);
+    pbarMeta.textContent=metaParts.join('  /  ');
+    pbarL.appendChild(pbarMeta); pbar.appendChild(pbarL);
+    var closeBtn=el('button',{id:'t8p-panel-close'}); closeBtn.innerHTML='&#x2715;'; pbar.appendChild(closeBtn);
+    panel.appendChild(pbar);
+
+    /* filmstrip */
+    var stripWrap=el('div',{id:'t8p-panel-strip-wrap'});
+    var strip=el('div',{id:'t8p-panel-strip'});
+    var vidLabels=['COMMERCIAL','DIRECTOR CUT','VIDEO 3','VIDEO 4'];
+    var galStillsFetched=false;
+
+    /* video cards: first is focal */
+    vidsAll.forEach(function(vid,vi){
+      var card=el('div',{className:'t8p-strip-card '+(vi===0?'focal':'thumb')});
+      var isYT=String(vid).indexOf('yt:')===0;
+      var th=el('img');
+      th.src=isYT?'https://img.youtube.com/vi/'+String(vid).slice(3)+'/mqdefault.jpg':'https://vumbnail.com/'+vid+'.jpg';
+      th.style.cssText='width:100%;height:100%;object-fit:cover;display:block';
+      card.appendChild(th);
+      var ov=el('div',{className:'t8p-strip-play'});
+      ov.innerHTML='<svg viewBox="0 0 24 24" width="28" height="28"><polygon points="7,4 21,12 7,20" fill="#c9e6fd"/></svg>';
+      card.appendChild(ov);
+      var lbl=el('div',{className:'t8p-strip-vid-label'}); lbl.textContent=vidLabels[vi]||('VID '+(vi+1)); card.appendChild(lbl);
+      (function(v,iyt){
+        card.addEventListener('click',function(e){
+          e.stopPropagation();
+          var hash=hashes[String(v)]?'?h='+hashes[String(v)]:'';
+          var src=iyt
+            ?'https://www.youtube-nocookie.com/embed/'+String(v).slice(3)+'?autoplay=1&rel=0&modestbranding=1'
+            :'https://player.vimeo.com/video/'+v+hash+'&background=0&autoplay=1&loop=0&title=0&byline=0&portrait=0';
+          lbVideo(src);
+        });
+      })(vid,isYT);
+      strip.appendChild(card);
+    });
+
+    stripWrap.appendChild(strip);
+    panel.appendChild(stripWrap);
+
+    /* bottom info bar */
+    var pinfo=el('div',{id:'t8p-panel-info'});
+    var noteEl=el('div',{id:'t8p-panel-body-note'}); noteEl.textContent=bodyText||''; pinfo.appendChild(noteEl);
+    var countEl=el('div',{id:'t8p-panel-count'}); pinfo.appendChild(countEl);
+    panel.appendChild(pinfo);
     document.body.appendChild(panel);
 
-    /* Mac window chrome */
-    var chrome = el('div',{id:'t8p-finder-chrome'});
-    /* traffic lights */
-    var lights = el('div',{id:'t8p-finder-lights'});
-    var btnClose = el('div',{className:'t8p-light t8p-light-close'});
-    var btnMin   = el('div',{className:'t8p-light t8p-light-min'});
-    var btnMax   = el('div',{className:'t8p-light t8p-light-max'});
-    lights.appendChild(btnClose); lights.appendChild(btnMin); lights.appendChild(btnMax);
-    /* window title */
-    var winTitle = el('div',{id:'t8p-finder-title'});
-    winTitle.innerHTML = '<span class="t8p-finder-icon">&#128193;</span> '+title;
-    chrome.appendChild(lights); chrome.appendChild(winTitle);
-    panel.appendChild(chrome);
-
-    /* Finder body: sidebar + main */
-    var finderBody = el('div',{id:'t8p-finder-body'});
-
-    /* Sidebar */
-    var sidebar = el('div',{id:'t8p-finder-sidebar'});
-    var sbLabel = el('div',{className:'t8p-sb-label'}); sbLabel.textContent='PROJECT'; sidebar.appendChild(sbLabel);
-
-    /* Folder items */
-    var activeView = 'video'; /* default */
-
-    function setActive(view) {
-      activeView = view;
-      Array.from(sidebar.querySelectorAll('.t8p-sb-item')).forEach(function(it){
-        it.classList.toggle('active', it.dataset.view === view);
-      });
-      videoPane.style.display = view === 'video' ? 'flex' : 'none';
-      galleryPane.style.display = view === 'gallery' ? 'flex' : 'none';
-    }
-
-    if (vidsAll.length > 0) {
-      var vidItem = el('div',{className:'t8p-sb-item active'});
-      vidItem.dataset.view = 'video';
-      vidItem.innerHTML = '<span class="t8p-sb-icon">&#127916;</span><span class="t8p-sb-name">Video</span>';
-      vidItem.addEventListener('click', function(){ setActive('video'); });
-      sidebar.appendChild(vidItem);
-    }
-    if (hasGallery) {
-      var galItem = el('div',{className:'t8p-sb-item'});
-      galItem.dataset.view = 'gallery';
-      galItem.innerHTML = '<span class="t8p-sb-icon">&#128247;</span><span class="t8p-sb-name">Gallery</span>';
-      galItem.addEventListener('click', function(){
-        setActive('gallery');
-        if (!galleryLoaded) loadGallery();
-      });
-      sidebar.appendChild(galItem);
-      if (!vidsAll.length) { galItem.classList.add('active'); activeView='gallery'; }
-    }
-
-    /* Info row at bottom of sidebar */
-    var sbInfo = el('div',{id:'t8p-finder-sbinfo'});
-    sbInfo.innerHTML = '<div class="t8p-sb-meta">'+(release||'')+'</div><div class="t8p-sb-meta">'+(desc||'')+'</div>';
-    sidebar.appendChild(sbInfo);
-    finderBody.appendChild(sidebar);
-
-    /* Main content area */
-    var main = el('div',{id:'t8p-finder-main'});
-
-    /* ── Video pane ── */
-    var videoPane = el('div',{id:'t8p-finder-video'});
-    if (vidsAll.length > 0) {
-      var vid = vidsAll[0];
-      var hash = hashes && hashes[String(vid)] ? '?h='+hashes[String(vid)] : '';
-      var ifr = document.createElement('iframe');
-      ifr.src = 'https://player.vimeo.com/video/'+vid+hash+'&background=0&autoplay=0&loop=0&title=1&byline=0&portrait=0&color=c9e6fd';
-      ifr.setAttribute('frameborder','0');
-      ifr.setAttribute('allow','autoplay;fullscreen;encrypted-media');
-      ifr.allowFullscreen = true;
-      ifr.style.cssText = 'width:100%;height:100%;border:none;display:block';
-      videoPane.appendChild(ifr);
-    } else {
-      videoPane.innerHTML = '<div style="color:rgba(201,230,253,.3);font-size:12px;letter-spacing:.1em;text-align:center;padding-top:40%">NO VIDEO</div>';
-    }
-    main.appendChild(videoPane);
-
-    /* ── Gallery pane ── */
-    var galleryPane = el('div',{id:'t8p-finder-gallery'});
-    galleryPane.style.display = 'none';
-    var galGrid = el('div',{id:'t8p-finder-grid'});
-    galleryPane.appendChild(galGrid);
-    main.appendChild(galleryPane);
-
-    finderBody.appendChild(main);
-    panel.appendChild(finderBody);
-
-    /* Status bar */
-    var statusBar = el('div',{id:'t8p-finder-status'});
-    statusBar.textContent = totalCount + ' item' + (totalCount===1?'':'s');
-    panel.appendChild(statusBar);
-
-    /* ── Lightbox ── */
-    var lb = el('div',{id:'t8p-lb'});
-    var lbImg = el('img',{id:'t8p-lb-img'}); lbImg.draggable=false; lb.appendChild(lbImg);
-    var lbClose2 = el('button',{id:'t8p-lb-close'}); lbClose2.innerHTML='&#x2715;'; lb.appendChild(lbClose2);
-    var lbPrev = el('button',{id:'t8p-lb-prev',className:'t8p-lb-nav'}); lbPrev.innerHTML='&#8592;'; lb.appendChild(lbPrev);
-    var lbNext = el('button',{id:'t8p-lb-next',className:'t8p-lb-nav'}); lbNext.innerHTML='&#8594;'; lb.appendChild(lbNext);
-    var lbCounter = el('div',{id:'t8p-lb-counter'}); lb.appendChild(lbCounter);
-    document.documentElement.appendChild(lb);
+    /* lightbox image mode */
+    var lb=el('div',{id:'t8p-lb'});
+    var lbImg=el('img',{id:'t8p-lb-img'}); lbImg.draggable=false; lb.appendChild(lbImg);
+    var lbClose=el('button',{id:'t8p-lb-close'}); lbClose.innerHTML='&#x2715;'; lbClose.setAttribute('aria-label','Close'); lb.appendChild(lbClose);
+    var lbPrev=el('button',{id:'t8p-lb-prev',className:'t8p-lb-nav'}); lbPrev.innerHTML='&#8592;'; lbPrev.setAttribute('aria-label','Previous'); lb.appendChild(lbPrev);
+    var lbNext=el('button',{id:'t8p-lb-next',className:'t8p-lb-nav'}); lbNext.innerHTML='&#8594;'; lbNext.setAttribute('aria-label','Next'); lb.appendChild(lbNext);
+    var lbCounter=el('div',{id:'t8p-lb-counter'}); lb.appendChild(lbCounter);
+    document.body.appendChild(lb);
     lb._srcs=[]; lb._idx=0;
 
-    function lbOpen(idx) {
-      if(!lb._srcs.length) return;
+    /* lightbox video mode */
+    var lbVidWrap=null;
+    function lbVideo(src){
+      if(lbVidWrap){lbVidWrap.innerHTML='';}else{
+        lbVidWrap=el('div');
+        lbVidWrap.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:10002;background:rgba(0,0,0,.97)';
+        var lbvClose=el('button'); lbvClose.innerHTML='&#x2715;';
+        lbvClose.style.cssText='position:absolute;top:24px;right:32px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(201,230,253,.25);background:transparent;color:#c9e6fd;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10003';
+        lbvClose.addEventListener('click',function(){lbVidWrap.style.display='none';lbVidWrap.innerHTML='';lbVidWrap.appendChild(lbvClose);document.body.style.overflow='hidden';});
+        lbVidWrap.appendChild(lbvClose);
+        document.body.appendChild(lbVidWrap);
+      }
+      lbVidWrap.style.display='flex';
+      var ifr=document.createElement('iframe');
+      ifr.src=src; ifr.allow='autoplay;fullscreen;encrypted-media'; ifr.allowFullscreen=true;
+      ifr.style.cssText='width:min(88vw,1120px);height:min(80vh,630px);border:none;border-radius:4px;';
+      lbVidWrap.insertBefore(ifr,lbVidWrap.firstChild);
+      document.body.style.overflow='hidden';
+    }
+
+    function lbOpen(idx){
+      if(!lb._srcs.length)return;
       lb._idx=((idx%lb._srcs.length)+lb._srcs.length)%lb._srcs.length;
       lbImg.src=lb._srcs[lb._idx];
       lbCounter.textContent=(lb._idx+1)+' / '+lb._srcs.length;
-      document.documentElement.appendChild(lb);
-      lb.setAttribute('style','position:fixed!important;inset:0!important;background:rgba(0,0,0,.97)!important;z-index:10000!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;');
+      lb.classList.add('open'); document.body.style.overflow='hidden';
     }
-    function lbClose_fn() { lb.setAttribute('style','display:none!important;'); }
-    lbClose2.addEventListener('click',function(e){e.stopPropagation();lbClose_fn();});
+    function lbClose_fn(){lb.classList.remove('open');document.body.style.overflow='hidden';}
+    lbClose.addEventListener('click',function(e){e.stopPropagation();lbClose_fn();});
     lbPrev.addEventListener('click',function(e){e.stopPropagation();lbOpen(lb._idx-1);});
     lbNext.addEventListener('click',function(e){e.stopPropagation();lbOpen(lb._idx+1);});
     lb.addEventListener('click',lbClose_fn);
@@ -1849,72 +1710,68 @@
       if(Math.abs(dx)>40){if(dx<0)lbOpen(lb._idx+1);else lbOpen(lb._idx-1);}
     },{passive:true});
 
-    /* ── Gallery loader ── */
-    var galleryLoaded = false;
-    var LUUID = 'd4325d9d-7519-4511-9a6d-61a47a7b3772';
-    function loadGallery() {
-      galleryLoaded = true;
-      statusBar.textContent = 'Loading...';
-      fetch(location.pathname)
-        .then(function(r){ return r.text(); })
-        .then(function(html){
-          var matches = html.match(/images\.squarespace-cdn\.com\/content\/[^"'\s?]+/g)||[];
-          var seen={}, srcs=[];
-          matches.forEach(function(u){
-            if(u.indexOf(LUUID)>-1) return;
-            if(u.match(/\.(ico|svg|gif)$/i)) return;
-            var base=u.split('?')[0];
-            if(!seen[base]){seen[base]=true; srcs.push('https://'+base);}
-          });
-          lb._srcs = srcs;
-          srcs.forEach(function(src,si){
-            var tile=el('div',{className:'t8p-finder-tile'});
-            var timg=el('img');
-            timg.src=src+'?format=500w';
-            timg.loading='lazy';
-            timg.draggable=false;
-            tile.appendChild(timg);
-            tile.addEventListener('click',function(e){e.stopPropagation();lbOpen(si);});
-            galGrid.appendChild(tile);
-          });
-          statusBar.textContent = srcs.length + ' photo' + (srcs.length===1?'':'s');
-        })
-        .catch(function(){
-          statusBar.textContent = 'Could not load gallery';
-        });
+    var LOGO_UUID='d4325d9d-7519-4511-9a6d-61a47a7b3772';
+
+    function addStillCards(srcs){
+      lb._srcs=srcs;
+      countEl.textContent=vidsAll.length+' VID  +  '+srcs.length+' STILLS';
+      srcs.forEach(function(src,si){
+        var card=el('div',{className:'t8p-strip-card thumb'});
+        var img=el('img'); img.src=src+'?format=500w'; img.loading='lazy';
+        img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';
+        card.appendChild(img);
+        (function(i){card.addEventListener('click',function(e){e.stopPropagation();lbOpen(i);});})(si);
+        strip.appendChild(card);
+      });
     }
 
-    /* If no video, auto-load gallery */
-    if (hasGallery && !vidsAll.length) loadGallery();
-
-    /* ── Open/close ── */
-    var isPanelOpen = false;
-    function openPanel() {
-      isPanelOpen = true;
-      document.documentElement.appendChild(panel);
-      panel.setAttribute('style','position:fixed!important;inset:0!important;background:#1c1c1e!important;z-index:9900!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;');
+    var isPanelOpen=false;
+    function openPanel(){
+      if(isPanelOpen)return; isPanelOpen=true;
+      countEl.textContent=vidsAll.length+(hasGallery?'+ ITEMS':' VIDEOS');
+      if(hasGallery&&!galStillsFetched){
+        galStillsFetched=true;
+        fetch(location.pathname+'?format=json-pretty')
+          .then(function(r){return r.json();})
+          .catch(function(){return null;})
+          .then(function(json){
+            var srcs=[];
+            if(json&&json.items){json.items.forEach(function(item){if(item.assetUrl)srcs.push(item.assetUrl);});}
+            if(!srcs.length){
+              return fetch(location.pathname)
+                .then(function(r){return r.text();})
+                .then(function(html){
+                  var matches=html.match(/squarespace-cdn\.com\/content\/[^"'\s]+/g)||[];
+                  var seen={};
+                  matches.forEach(function(u){
+                    if(u.indexOf(LOGO_UUID)>-1)return;
+                    if(u.indexOf('placeholder')>-1)return;
+                    var base=u.split('?')[0];
+                    if(!seen[base]){seen[base]=true;srcs.push('https://'+base);}
+                  });
+                  return srcs;
+                });
+            }
+            return srcs;
+          })
+          .then(function(srcs){if(srcs&&srcs.length)addStillCards(srcs);});
+      }else if(!hasGallery){
+        countEl.textContent=vidsAll.length+' VIDEOS';
+      }
+      panel.classList.add('open'); document.body.style.overflow='hidden';
     }
-    function closePanel() {
-      isPanelOpen = false;
-      lbClose_fn();
-      panel.setAttribute('style','display:none!important;');
-    }
+    function closePanel(){panel.classList.remove('open');isPanelOpen=false;document.body.style.overflow='';}
+    stack.addEventListener('click',openPanel);
+    closeBtn.addEventListener('click',closePanel);
 
-    btnClose.addEventListener('click',closePanel);
-    /* Dock: click anywhere on the stack or its children opens panel */
-    dock.addEventListener('click', function(e) {
-      e.stopPropagation();
-      e.preventDefault();
-      openPanel();
-    });
-
+    /* keyboard nav */
     document.addEventListener('keydown',function(e){
       if(e.key==='Escape'){
-        if(lb.getAttribute('style') && lb.getAttribute('style').indexOf('flex')>-1) lbClose_fn();
-        else if(isPanelOpen) closePanel();
-      } else if(lb.getAttribute('style') && lb.getAttribute('style').indexOf('flex')>-1){
-        if(e.key==='ArrowLeft') lbOpen(lb._idx-1);
-        else if(e.key==='ArrowRight') lbOpen(lb._idx+1);
+        if(lb.classList.contains('open'))lbClose_fn();
+        else closePanel();
+      } else if(lb.classList.contains('open')){
+        if(e.key==='ArrowLeft')lbOpen(lb._idx-1);
+        else if(e.key==='ArrowRight')lbOpen(lb._idx+1);
       }
     });
   }
