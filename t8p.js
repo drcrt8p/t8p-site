@@ -1813,7 +1813,6 @@
     var LOGO_UUID = 'd4325d9d-7519-4511-9a6d-61a47a7b3772';
     function openPanel() {
       if(isPanelOpen)return; isPanelOpen=true;
-      wakeUI();
       panel.style.display='flex';
       panel.style.opacity='1';
       panel.style.pointerEvents='auto';
