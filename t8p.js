@@ -232,34 +232,42 @@
       '#t8p-vidcur.visible{opacity:1}',
 
       /* Inverted cursor: dot on bars */
+      /* Inverted cursor: only on bars/credits/dock, z below play cursor */
       '#t8p-pp-cur{position:fixed;width:10px;height:10px;border-radius:50%;background:#fff;',
-      'mix-blend-mode:difference;pointer-events:none;z-index:99999;',
+      'mix-blend-mode:difference;pointer-events:none;z-index:9049;',
       'transform:translate(-50%,-50%);left:-100px;top:-100px;opacity:0;transition:opacity .1s}',
       '#t8p-pp-cur.on-bar{opacity:1}',
 
       /* Scrub track: thin bar at bottom, fills as video plays */
-      '#t8p-scrub-track{position:fixed;bottom:42px;left:0;right:0;height:2px;',
-      'background:rgba(201,230,253,.15);pointer-events:none;z-index:9089;',
+      /* Scrub track hidden under bottom bar (z-index below bar) */
+      '#t8p-scrub-track{position:fixed;bottom:0;left:0;right:0;height:2px;',
+      'background:rgba(201,230,253,.15);pointer-events:none;z-index:9079;',
       'opacity:0;transition:opacity .3s}',
       '.ui-visible #t8p-scrub-track{opacity:1}',
       '#t8p-scrub-fill{height:100%;width:0%;background:rgba(201,230,253,.7);',
       'transition:width .25s linear;position:relative}',
       '.scrubbing #t8p-scrub-fill{transition:none}',
-      /* Vertical playhead line: full viewport height, church-exact */
-      '#t8p-scrub-head{position:fixed;top:0;bottom:42px;width:0;',
+      /* Vertical playhead line: from top to above bar */
+      '#t8p-scrub-head{position:fixed;top:0;bottom:44px;width:0;',
       'border-left:0.5px solid #c9e6fd;pointer-events:none;z-index:9090;',
       'opacity:0;left:-999px;transition:opacity .3s}',
       '.ui-visible #t8p-scrub-head{opacity:1}',
-      /* Timecode label rides the vline */
-      '#t8p-scrub-time{position:fixed;top:88px;font-size:11px;letter-spacing:.08em;',
+      /* Timecode: bottom of vline, above the dock (bottom:140px so it clears dock) */
+      '#t8p-scrub-time{position:fixed;bottom:140px;font-size:11px;letter-spacing:.08em;',
       'color:#c9e6fd;pointer-events:none;z-index:9091;left:-999px;',
       'padding-left:6px;white-space:nowrap;opacity:0;transition:opacity .3s}',
       '.ui-visible #t8p-scrub-time{opacity:1}',
       /* Grab zone: 40px wide strip centered on vline */
       '#t8p-grab-zone{position:fixed;top:0;bottom:0;width:40px;',
-      'z-index:9092;cursor:col-resize;transform:translateX(-50%);left:-999px;',
+      'z-index:9092;cursor:none;transform:translateX(-50%);left:-999px;',
       'pointer-events:none}',
       '.ui-visible #t8p-grab-zone{pointer-events:auto}',
+      /* Scrub cursor: church-exact circle with left/right arrows */
+      '#t8p-scrub-cur{position:fixed;width:44px;height:44px;border-radius:50%;',
+      'background:#c9e6fd;display:flex;align-items:center;justify-content:center;',
+      'pointer-events:none;z-index:9093;opacity:0;transform:translate(-50%,-50%);',
+      'left:-999px;top:-999px}',
+      '#t8p-scrub-cur svg{width:18px;height:18px}',
 
       /* Bottom info bar: always visible */
       '#t8p-scrub-zone{position:fixed;bottom:0;left:0;right:0;z-index:9100;',
@@ -280,11 +288,12 @@
       '.t8p-pp-sleep #t8p-vidcur{opacity:0!important}',
 
       /* Credits section (below bottom bar, hidden until space/scroll) */
-      '#t8p-pp-credits{position:fixed;bottom:0;left:0;right:0;',
+      /* Credits: slides up from behind bottom bar */
+      '#t8p-pp-credits{position:fixed;bottom:34px;left:0;right:0;',
       'background:#c9e6fd;z-index:9080;overflow:hidden;',
       'max-height:0;transition:max-height .4s ease}',
       '#t8p-pp-credits.open{max-height:60vh}',
-      '#t8p-credits-inner{padding:20px 24px;overflow-y:auto;max-height:60vh}',
+      '#t8p-credits-inner{padding:16px 24px 20px;overflow-y:auto;max-height:60vh}',
       '.t8p-cred-title{font-size:9px;letter-spacing:.2em;text-transform:uppercase;',
       'color:rgba(8,8,8,.4);margin-bottom:12px;padding-bottom:10px;',
       'border-bottom:1px solid rgba(8,8,8,.12);font-weight:700}',
@@ -337,11 +346,13 @@
       '@media(max-width:767px){#t8p-dock{bottom:80px;top:auto;transform:none;left:16px}}',
       '.t8p-dock-stack{position:relative;width:62px;height:62px;cursor:pointer}',
       '.t8p-dock-stack .t8p-dock-card{position:absolute;width:62px;height:62px;',
-      'border-radius:6px;overflow:hidden;background:#111;border:1px solid rgba(255,255,255,.08)}',
-      '.t8p-dock-stack .t8p-dock-card img{width:100%;height:100%;object-fit:cover;opacity:.7}',
-      '.t8p-dock-badge{position:absolute;bottom:-8px;right:-8px;background:#fff;color:#000;',
+      'border-radius:6px;overflow:hidden;background:#c9e6fd;',
+      'border:1px solid rgba(201,230,253,.8);outline:none}',
+      '.t8p-dock-stack .t8p-dock-card img{width:100%;height:100%;object-fit:cover;opacity:.85}',
+      '.t8p-dock-badge{position:absolute;bottom:-8px;right:-8px;background:#c9e6fd;color:#080808;',
       'font-family:monospace;font-size:9px;font-weight:700;width:20px;height:20px;',
-      'border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:10}',
+      'border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:10;',
+      'border:1px solid rgba(8,8,8,.15)}',
       '@media(max-width:767px){.t8p-dock-stack,.t8p-dock-stack .t8p-dock-card{width:50px;height:50px}}',
 
       /* ── Panel ── */
@@ -1148,6 +1159,14 @@
     var DATA = window._t8pDATA || {};
     var sl = location.pathname.replace(/[/]/g,'');
     var d = DATA[sl] || {v:[],t:'',d:'',r:'',c:{}};
+    /* inject placeholder credits if none exist */
+    if (!d.c || Object.keys(d.c).length === 0) {
+      d = Object.assign({}, d, {c:{
+        'DIRECTOR': {n:'T8P Studios', ig:'t8pstudios'},
+        'EDITOR': {n:'T8P Studios', ig:'t8pstudios'},
+        'PRODUCTION': {n:'T8P Studios', ig:'t8pstudios'}
+      }});
+    }
     var title   = (d.t || sl).replace(/^"|"$/g,'');
     var desc    = d.d || '';
     var release = d.r || '';
@@ -1294,6 +1313,16 @@
     var grabZone = document.createElement('div');
     grabZone.id = 't8p-grab-zone';
     pp.appendChild(grabZone);
+
+    /* Scrub cursor: church-exact colored circle with arrows */
+    var scrubCur = document.createElement('div');
+    scrubCur.id = 't8p-scrub-cur';
+    /* left-right arrows SVG -- same as church's progress-control */
+    scrubCur.innerHTML = '<svg viewBox="0 0 45 45" fill="none">'
+      +'<path d="M19.5 18.5L15.5 22.5L19.5 26.5" stroke="#080808" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+      +'<path d="M25.5 18.5L29.5 22.5L25.5 26.5" stroke="#080808" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+      +'</svg>';
+    document.documentElement.appendChild(scrubCur);
 
     /* ── Bottom info bar (always visible) ── */
     var scrubZone = document.createElement('div');
@@ -1509,6 +1538,19 @@
       var rect = scrubTrack.getBoundingClientRect();
       return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     }
+    /* Grab zone hover: show scrub cursor, hide play/pause cursor */
+    grabZone.addEventListener('mousemove', function(e){
+      scrubCur.style.left = e.clientX+'px';
+      scrubCur.style.top = e.clientY+'px';
+    });
+    grabZone.addEventListener('mouseenter', function(){
+      scrubCur.style.opacity = '1';
+      vidCur.classList.remove('visible');
+    });
+    grabZone.addEventListener('mouseleave', function(){
+      if (!_scrubbing) scrubCur.style.opacity = '0';
+    });
+
     function startScrub(e) {
       if (!pp.classList.contains('ui-visible')) return;
       e.preventDefault();
@@ -1524,12 +1566,15 @@
         scrubHead.style.left = vx2+'px';
         grabZone.style.left = vx2+'px';
         scrubTime.style.left = vx2+'px';
+        scrubCur.style.left = e2.clientX+'px';
+        scrubCur.style.top = e2.clientY+'px';
         if (_duration) scrubTime.textContent = fmtTime(p2*_duration)+' / '+fmtTime(_duration);
         if (vplayer&&_duration) vplayer.setCurrentTime(p2*_duration);
       }
       function onUp(){
         _scrubbing=false;
         pp.classList.remove('scrubbing');
+        scrubCur.style.opacity = '0';
         document.removeEventListener('mousemove',onMove);
         document.removeEventListener('mouseup',onUp);
         if (_wasPlaying && vplayer) vplayer.play();
@@ -1554,7 +1599,9 @@
         var onScrubTrack = !!(elAt.closest('#t8p-scrub-track'));
 
         /* inverted dot: bars only */
-        ppCur.classList.toggle('on-bar', onTopBar || onBotBar);
+        var onDock = !!(elAt.closest && elAt.closest('#t8p-dock'));
+        var onCredits = !!(elAt.closest && elAt.closest('#t8p-pp-credits'));
+        ppCur.classList.toggle('on-bar', onTopBar || onBotBar || onDock || onCredits);
 
         /* floating cursor: video only */
         if (onOv && !onScrubTrack) {
@@ -1578,6 +1625,7 @@
       if (grabZone) grabZone.remove();
       if (scrubHead) scrubHead.remove();
       if (scrubTime) scrubTime.remove();
+      if (scrubCur) scrubCur.remove();
       if (ppCur) { ppCur.style.opacity='0'; ppCur.classList.remove('on-bar'); }
     }
   }
@@ -1618,7 +1666,8 @@
         stack.appendChild(card);
       })(pi);
     }
-    var badge=el('div',{className:'t8p-dock-badge'}); badge.textContent=vidsAll.length;
+    var totalCount = vidsAll.length + (hasGallery ? 1 : 0);
+    var badge=el('div',{className:'t8p-dock-badge'}); badge.textContent=totalCount;
     stack.appendChild(badge); dock.appendChild(stack);
     document.body.appendChild(dock);
 
