@@ -279,12 +279,15 @@
       '.t8p-pp-d{text-align:center;flex:1;padding:0 16px}',
       '.t8p-pp-r{flex-shrink:0}',
 
-      /* Sleep */
-      '.t8p-pp-sleep #t8p-topbar{opacity:0}',
-      '.t8p-pp-sleep #t8p-pp-wm{opacity:0;pointer-events:none}',
-      '.t8p-pp-sleep #t8p-close-btn{opacity:0;pointer-events:none}',
-      '.t8p-pp-sleep #t8p-mute-btn{opacity:0;pointer-events:none}',
-      '.t8p-pp-sleep #t8p-dock{opacity:0;pointer-events:none}',
+      /* Sleep: everything except bottom bar fades */
+      '.t8p-pp-sleep #t8p-topbar{opacity:0;transition:opacity .5s ease-out}',
+      '.t8p-pp-sleep #t8p-pp-wm{opacity:0;pointer-events:none;transition:opacity .5s ease-out}',
+      '.t8p-pp-sleep #t8p-close-btn{opacity:0;pointer-events:none;transition:opacity .5s ease-out}',
+      '.t8p-pp-sleep #t8p-mute-btn{opacity:0;pointer-events:none;transition:opacity .5s ease-out}',
+      '.t8p-pp-sleep #t8p-dock{opacity:0;pointer-events:none;transition:opacity .5s ease-out}',
+      '.t8p-pp-sleep #t8p-scrub-head{opacity:0!important}',
+      '.t8p-pp-sleep #t8p-scrub-time{opacity:0!important}',
+      '.t8p-pp-sleep #t8p-scrub-track{opacity:0!important}',
       '.t8p-pp-sleep #t8p-vidcur{opacity:0!important}',
 
       /* Credits section (below bottom bar, hidden until space/scroll) */
@@ -346,7 +349,7 @@
       '@media(max-width:767px){.t8p-btn{width:36px;height:36px}}',
 
       /* ── Dock / folder fan ── */
-      '#t8p-dock{position:fixed;left:18px;top:50%;transform:translateY(-50%);',
+      '#t8p-dock{position:fixed;left:18px;top:50%;transform:translateY(-50%);transition:opacity .5s ease-out;',
       'z-index:9150;display:flex;flex-direction:column;gap:0;align-items:center}',
       '@media(max-width:767px){#t8p-dock{bottom:80px;top:auto;transform:none;left:16px}}',
       '.t8p-dock-stack{position:relative;width:82px;height:82px;cursor:pointer}',
