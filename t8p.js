@@ -193,11 +193,12 @@
       'background:rgba(201,230,253,0.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);',
       'transition:opacity .5s ease-out;pointer-events:none}',
 
-      /* Logo: centered in topbar */
-      '#t8p-pp-wm{position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:9100;',
+      /* Logo: centered in topbar, full width so flex centering works */
+      '#t8p-pp-wm{position:fixed;top:0;left:0;right:0;z-index:9100;',
       'height:80px;display:flex;align-items:center;justify-content:center;',
-      'cursor:pointer;transition:opacity .5s ease-out}',
-      '#t8p-pp-wm svg{height:36px!important;width:auto!important;max-height:36px;display:block}',
+      'pointer-events:none;cursor:pointer;transition:opacity .5s ease-out}',
+      '#t8p-pp-wm svg{height:36px!important;width:auto!important;max-height:36px;',
+      'display:block;pointer-events:auto}',
       '#t8p-pp-wm svg *{fill:#c9e6fd!important}',
 
       /* Close button: position:fixed top:18px right:18px (church: 1.2rem) */
