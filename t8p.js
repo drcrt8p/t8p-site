@@ -1813,9 +1813,7 @@
     var LOGO_UUID = 'd4325d9d-7519-4511-9a6d-61a47a7b3772';
     function openPanel() {
       if(isPanelOpen)return; isPanelOpen=true;
-      panel.style.display='flex';
-      panel.style.opacity='1';
-      panel.style.pointerEvents='auto';
+      panel.style.cssText='position:fixed;inset:0;background:#c9e6fd;z-index:9900;display:flex;flex-direction:column;overflow:hidden;opacity:1;pointer-events:auto;';
       if(hasGallery&&galGrid&&!galGrid.children.length){
         /* fetch raw HTML of the Squarespace project page and parse figure imgs */
         fetch(location.pathname+'?format=json-pretty')
@@ -1864,7 +1862,7 @@
       panel.classList.add('open');
       document.body.style.overflow='hidden';
     }
-    function closePanel() { panel.classList.remove('open'); panel.style.display='none'; panel.style.opacity='0'; panel.style.pointerEvents='none'; isPanelOpen=false; document.body.style.overflow=''; }
+    function closePanel() { panel.classList.remove('open'); panel.style.cssText='position:fixed;inset:0;background:#c9e6fd;z-index:9900;display:none;flex-direction:column;overflow:hidden;opacity:0;pointer-events:none;'; isPanelOpen=false; document.body.style.overflow=''; }
     stack.addEventListener('click',openPanel);
     closeBtn.addEventListener('click',closePanel);
 
