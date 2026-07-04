@@ -1901,11 +1901,12 @@
     }
 
     btnClose.addEventListener('click',closePanel);
-    /* Use document-level capture to guarantee dock click fires before ov */
-    document.addEventListener('click', function _dockClick(e) {
-      if (!document.getElementById('t8p-dock')) { document.removeEventListener('click',_dockClick,true); return; }
-      if (stack.contains(e.target)) { e.stopPropagation(); openPanel(); }
-    }, true);
+    /* Dock: click anywhere on the stack or its children opens panel */
+    dock.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      openPanel();
+    });
 
     document.addEventListener('keydown',function(e){
       if(e.key==='Escape'){
