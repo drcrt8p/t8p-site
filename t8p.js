@@ -253,7 +253,7 @@
       'opacity:0;left:-999px;transition:opacity .3s}',
       '.ui-visible #t8p-scrub-head{opacity:1}',
       /* Timecode: bottom of vline, above the dock (bottom:140px so it clears dock) */
-      '#t8p-scrub-time{position:fixed;bottom:140px;font-size:11px;letter-spacing:.08em;',
+      '#t8p-scrub-time{position:fixed;bottom:120px;font-size:11px;letter-spacing:.08em;',
       'color:#c9e6fd;pointer-events:none;z-index:9091;left:-999px;',
       'padding-left:6px;white-space:nowrap;opacity:0;transition:opacity .3s}',
       '.ui-visible #t8p-scrub-time{opacity:1}',
@@ -349,15 +349,19 @@
       '#t8p-dock{position:fixed;left:18px;top:50%;transform:translateY(-50%);',
       'z-index:9150;display:flex;flex-direction:column;gap:0;align-items:center}',
       '@media(max-width:767px){#t8p-dock{bottom:80px;top:auto;transform:none;left:16px}}',
-      '.t8p-dock-stack{position:relative;width:62px;height:76px;cursor:pointer}',
+      '.t8p-dock-stack{position:relative;width:62px;height:82px;cursor:pointer}',
       '.t8p-dock-stack .t8p-dock-card{position:absolute;width:62px;height:62px;',
       'border-radius:6px;overflow:hidden;background:#c9e6fd;',
       'border:1px solid rgba(201,230,253,.5)}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(1){top:0;left:0;z-index:3}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(2){top:5px;left:4px;z-index:2;',
-      'width:58px;height:58px}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(3){top:10px;left:8px;z-index:1;',
-      'width:54px;height:54px}',
+      '.t8p-dock-stack .t8p-dock-card:nth-child(1){top:0;left:0;z-index:5}',
+      '.t8p-dock-stack .t8p-dock-card:nth-child(2){top:5px;left:4px;z-index:4;',
+      'width:59px;height:59px}',
+      '.t8p-dock-stack .t8p-dock-card:nth-child(3){top:10px;left:8px;z-index:3;',
+      'width:56px;height:56px}',
+      '.t8p-dock-stack .t8p-dock-card:nth-child(4){top:14px;left:11px;z-index:2;',
+      'width:53px;height:53px}',
+      '.t8p-dock-stack .t8p-dock-card:nth-child(5){top:18px;left:14px;z-index:1;',
+      'width:50px;height:50px}',
       '.t8p-dock-stack .t8p-dock-card img{width:100%;height:100%;object-fit:cover;opacity:.85}',
       '.t8p-dock-badge{position:absolute;bottom:-8px;right:-8px;background:#c9e6fd;color:#080808;',
       'font-family:monospace;font-size:9px;font-weight:700;width:20px;height:20px;',
@@ -1644,12 +1648,11 @@
     /* dock */
     var dock = el('div',{id:'t8p-dock'});
     var stack = el('div',{className:'t8p-dock-stack'});
-    /* Always show 3 stacked cards -- top card has thumbnail, others are empty placeholders */
-    for (var pi=0; pi<3; pi++) {
+    /* Always 5 stacked cards -- top card has thumbnail, rest are #c9e6fd placeholders */
+    for (var pi=0; pi<5; pi++) {
       (function(i){
         var card = el('div',{className:'t8p-dock-card'});
         if (i === 0 && vidsAll.length > 0) {
-          /* top card: real thumbnail */
           var th = el('img');
           th.style.cssText = 'width:100%;height:100%;object-fit:cover;opacity:.85';
           var _vid = vidsAll[0];
@@ -1666,7 +1669,7 @@
               th.src='https://vumbnail.com/'+_vid+'.jpg';
             }).catch(function(){ th.src='https://vumbnail.com/'+_vid+'.jpg'; });
           } else {
-            th.src = 'https://vumbnail.com/'+_vid+'.jpg';
+            th.src='https://vumbnail.com/'+_vid+'.jpg';
           }
           card.appendChild(th);
         }
