@@ -232,10 +232,10 @@
       '#t8p-vidcur.visible{opacity:1}',
 
       /* Inverted cursor: dot on bars */
-      /* Inverted cursor: only on bars/credits/dock, z below play cursor */
+      /* Inverted cursor: bars/credits/dock only, strictly hidden otherwise */
       '#t8p-pp-cur{position:fixed;width:10px;height:10px;border-radius:50%;background:#fff;',
-      'mix-blend-mode:difference;pointer-events:none;z-index:9049;',
-      'transform:translate(-50%,-50%);left:-100px;top:-100px;opacity:0;transition:opacity .1s}',
+      'mix-blend-mode:difference;pointer-events:none;z-index:9045;',
+      'transform:translate(-50%,-50%);left:-9999px;top:-9999px;opacity:0;transition:opacity .1s}',
       '#t8p-pp-cur.on-bar{opacity:1}',
 
       /* Scrub track: thin bar at bottom, fills as video plays */
@@ -349,19 +349,25 @@
       '#t8p-dock{position:fixed;left:18px;top:50%;transform:translateY(-50%);',
       'z-index:9150;display:flex;flex-direction:column;gap:0;align-items:center}',
       '@media(max-width:767px){#t8p-dock{bottom:80px;top:auto;transform:none;left:16px}}',
-      '.t8p-dock-stack{position:relative;width:62px;height:82px;cursor:pointer}',
+      '.t8p-dock-stack{position:relative;width:82px;height:82px;cursor:pointer}',
       '.t8p-dock-stack .t8p-dock-card{position:absolute;width:62px;height:62px;',
       'border-radius:6px;overflow:hidden;background:#c9e6fd;',
       'border:1px solid rgba(201,230,253,.5)}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(1){top:0;left:0;z-index:5}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(2){top:5px;left:4px;z-index:4;',
-      'width:59px;height:59px}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(3){top:10px;left:8px;z-index:3;',
-      'width:56px;height:56px}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(4){top:14px;left:11px;z-index:2;',
-      'width:53px;height:53px}',
-      '.t8p-dock-stack .t8p-dock-card:nth-child(5){top:18px;left:14px;z-index:1;',
-      'width:50px;height:50px}',
+      /* Mac Finder drag fan: each card rotates & offsets like a fanned deck */
+      '.t8p-dock-stack .t8p-dock-card:nth-child(1){',
+      'top:0;left:0;z-index:5;transform:rotate(0deg);transform-origin:bottom center}',
+      '.t8p-dock-stack .t8p-dock-card:nth-child(2){',
+      'top:4px;left:-4px;z-index:4;width:60px;height:60px;',
+      'transform:rotate(-6deg);transform-origin:bottom center}',
+      '.t8p-dock-stack .t8p-dock-card:nth-child(3){',
+      'top:3px;left:6px;z-index:3;width:60px;height:60px;',
+      'transform:rotate(8deg);transform-origin:bottom center}',
+      '.t8p-dock-stack .t8p-dock-card:nth-child(4){',
+      'top:8px;left:-9px;z-index:2;width:58px;height:58px;',
+      'transform:rotate(-13deg);transform-origin:bottom center}',
+      '.t8p-dock-stack .t8p-dock-card:nth-child(5){',
+      'top:7px;left:12px;z-index:1;width:58px;height:58px;',
+      'transform:rotate(16deg);transform-origin:bottom center}',
       '.t8p-dock-stack .t8p-dock-card img{width:100%;height:100%;object-fit:cover;opacity:.85}',
       '.t8p-dock-badge{position:absolute;bottom:-8px;right:-8px;background:#c9e6fd;color:#080808;',
       'font-family:monospace;font-size:9px;font-weight:700;width:20px;height:20px;',
@@ -1600,7 +1606,6 @@
     if (!IS_MOBILE) {
       document.addEventListener('mousemove', function onMM(e){
         if (!document.getElementById('t8p-pp')) { document.removeEventListener('mousemove',onMM); return; }
-        ppCur.style.left = e.clientX+'px'; ppCur.style.top = e.clientY+'px';
         var elAt = document.elementFromPoint(e.clientX, e.clientY);
         if (!elAt) return;
         var onTopBar = !!(elAt.closest('#t8p-pp-wm') || elAt.closest('#t8p-btns'));
@@ -1611,7 +1616,13 @@
         /* inverted dot: bars only */
         var onDock = !!(elAt.closest && elAt.closest('#t8p-dock'));
         var onCredits = !!(elAt.closest && elAt.closest('#t8p-pp-credits'));
-        ppCur.classList.toggle('on-bar', onTopBar || onBotBar || onDock || onCredits);
+        var showDot = onTopBar || onBotBar || onDock || onCredits;
+        ppCur.classList.toggle('on-bar', showDot);
+        if (showDot) {
+          ppCur.style.left = e.clientX+'px'; ppCur.style.top = e.clientY+'px';
+        } else {
+          ppCur.style.left = '-9999px'; ppCur.style.top = '-9999px';
+        }
 
         /* floating cursor: video only */
         if (onOv && !onScrubTrack) {
