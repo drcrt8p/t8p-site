@@ -1544,8 +1544,17 @@
     }
 
     /* ── Click/Space ── */
-    ov.addEventListener('click', handleVideoClick);
-    vidCur.addEventListener('click', handleVideoClick);
+    ov.addEventListener('click', function(e){
+      /* check if click is on the dock stack -- if so, don't intercept */
+      var dockEl = document.getElementById('t8p-dock');
+      if (dockEl && dockEl.contains(e.target)) return;
+      handleVideoClick();
+    });
+    vidCur.addEventListener('click', function(e){
+      var dockEl = document.getElementById('t8p-dock');
+      if (dockEl && dockEl.contains(e.target)) return;
+      handleVideoClick();
+    });
 
     document.addEventListener('keydown', function onKey(e){
       if (!document.getElementById('t8p-pp')) { document.removeEventListener('keydown',onKey); return; }
@@ -1892,7 +1901,11 @@
     }
 
     btnClose.addEventListener('click',closePanel);
-    stack.addEventListener('click',openPanel);
+    /* Use document-level capture to guarantee dock click fires before ov */
+    document.addEventListener('click', function _dockClick(e) {
+      if (!document.getElementById('t8p-dock')) { document.removeEventListener('click',_dockClick,true); return; }
+      if (stack.contains(e.target)) { e.stopPropagation(); openPanel(); }
+    }, true);
 
     document.addEventListener('keydown',function(e){
       if(e.key==='Escape'){
