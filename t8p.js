@@ -291,7 +291,7 @@
       '.t8p-credit-name[href]:hover{opacity:.5}',
       '@media(max-width:767px){#t8p-credits-inner{padding:24px 24px 20px}.t8p-credit-row{gap:16px}.t8p-credit-role{width:140px}}',
       '#t8p-pp-hero{position:absolute;inset:0}',
-      '#t8p-pp{transition:transform .45s cubic-bezier(.4,0,.2,1)}',
+      '#t8p-pp{transition:bottom .45s cubic-bezier(.4,0,.2,1)}',
 
       /* ── Controls ── */
       '#t8p-btns{position:fixed;top:0;right:20px;height:80px;z-index:9200;display:flex;gap:10px;align-items:center;pointer-events:none}',
@@ -1323,13 +1323,13 @@
       credPanel.classList.add('open');
       requestAnimationFrame(function(){
         var h = credPanel.getBoundingClientRect().height;
-        pp.style.transform = 'translateY(-' + h + 'px)';
+        pp.style.bottom = (34 + h) + 'px';
       });
     }
     function closeCredits() {
       credOpen = false;
       if (credPanel) credPanel.classList.remove('open');
-      pp.style.transform = '';
+      pp.style.bottom = '';
     }
     function toggleCredits(){ if(credOpen)closeCredits(); else openCredits(); }
 
