@@ -278,19 +278,21 @@
       '.sound-on .t8p-wave3{animation-name:t8p-loud}',
       '.sound-on .t8p-wave4{animation-name:t8p-quiet}',
 
-      /* ── Credits ── */
-      '.t8p-credits-section{padding:48px 48px 0;max-width:800px;margin:0 auto}',
-      '.t8p-credits-title{font-size:9px;letter-spacing:.2em;color:var(--dim);',
-      'text-transform:uppercase;margin-bottom:20px;padding-bottom:12px;',
-      'border-bottom:1px solid var(--line)}',
-      '.t8p-credit-row{display:flex;gap:24px;padding:8px 0;border-bottom:1px solid var(--line)}',
-      '.t8p-credit-role{font-size:9px;letter-spacing:.12em;color:var(--dim);',
-      'width:180px;flex-shrink:0;text-transform:uppercase}',
-      '.t8p-credit-name{font-size:9px;letter-spacing:.08em;color:var(--fg)}',
-      '.t8p-credit-name[href]{text-decoration:none;transition:opacity .2s}',
-      '.t8p-credit-name[href]:hover{opacity:.6}',
-      '@media(max-width:767px){.t8p-credits-section{padding:32px 20px 0}',
-      '.t8p-credit-row{gap:12px}.t8p-credit-role{width:120px}}',
+      /* ── Credits panel: slides up from behind bottom bar ── */
+      '#t8p-pp-credits{position:fixed;bottom:34px;left:0;right:0;height:280px;background:#c9e6fd;z-index:9079;transform:translateY(100%);transition:transform .45s cubic-bezier(.4,0,.2,1)}',
+      '#t8p-pp-credits.open{transform:translateY(0)}',
+      '#t8p-credits-inner{height:100%;overflow-y:auto;padding:24px 40px;box-sizing:border-box}',
+      '.t8p-credits-title{font-size:9px;letter-spacing:.2em;color:rgba(8,8,8,.4);text-transform:uppercase;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(8,8,8,.12);font-weight:700}',
+      '.t8p-credit-row{display:flex;gap:24px;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.1)}',
+      '.t8p-credit-row:last-child{border-bottom:none}',
+      '.t8p-credit-role{font-size:10px;letter-spacing:.1em;color:rgba(8,8,8,.5);width:180px;flex-shrink:0;text-transform:uppercase}',
+      '.t8p-credit-name{font-size:10px;letter-spacing:.06em;color:#080808}',
+      '.t8p-credit-name[href]{color:#080808;text-decoration:none;transition:opacity .2s}',
+      '.t8p-credit-name[href]:hover{opacity:.5}',
+      '@media(max-width:767px){#t8p-credits-inner{padding:20px}.t8p-credit-row{gap:12px}.t8p-credit-role{width:120px}}',
+      /* hero slides up when credits open */
+      '#t8p-pp-hero{position:absolute;inset:0;transition:transform .45s cubic-bezier(.4,0,.2,1)}',
+      '#t8p-pp.credits-open #t8p-pp-hero{transform:translateY(-280px)}',
 
       /* ── Controls ── */
       '#t8p-btns{position:fixed;top:0;right:20px;height:80px;z-index:9200;display:flex;gap:10px;align-items:center;pointer-events:none}',
@@ -1224,7 +1226,11 @@
     var ov = document.createElement('div');
     ov.id = 't8p-ov';
     hero.appendChild(ov);
-    pp.appendChild(hero);
+    var ppHero = document.createElement('div');
+    ppHero.id = 't8p-pp-hero';
+    ppHero.style.cssText = 'position:absolute;inset:0;';
+    ppHero.appendChild(hero);
+    pp.appendChild(ppHero);
 
     /* ── Floating cursor ── */
     var vidCur = document.getElementById('t8p-vidcur');
@@ -1284,14 +1290,19 @@
     scrubZone.appendChild(scrubTrack);
     pp.appendChild(scrubZone);
 
-    /* ── Credits ── */
-    if (Object.keys(credits).length > 0) {
-      var credSection = document.createElement('div');
-      credSection.className = 't8p-credits-section';
+    /* ── Credits panel (slides up from behind bottom bar) ── */
+    var hasCredits = Object.keys(credits).length > 0;
+    var credOpen = false;
+    var credPanel = null;
+    if (hasCredits) {
+      credPanel = document.createElement('div');
+      credPanel.id = 't8p-pp-credits';
+      var credInner = document.createElement('div');
+      credInner.id = 't8p-credits-inner';
       var credTitle = document.createElement('div');
       credTitle.className = 't8p-credits-title';
       credTitle.textContent = 'Credits';
-      credSection.appendChild(credTitle);
+      credInner.appendChild(credTitle);
       Object.keys(credits).forEach(function(role){
         var val = credits[role]; if(!val) return;
         var name = typeof val==='object'?val.n:val;
@@ -1302,10 +1313,14 @@
         nameEl.className='t8p-credit-name';
         if(ig){nameEl.href='https://instagram.com/'+ig;nameEl.target='_blank';nameEl.rel='noopener noreferrer';}
         nameEl.textContent=name;
-        row.appendChild(roleEl); row.appendChild(nameEl); credSection.appendChild(row);
+        row.appendChild(roleEl); row.appendChild(nameEl); credInner.appendChild(row);
       });
-      pp.appendChild(credSection);
+      credPanel.appendChild(credInner);
+      document.body.appendChild(credPanel);
     }
+    function openCredits()  { if(!hasCredits)return; credOpen=true;  credPanel.classList.add('open');    pp.classList.add('credits-open'); }
+    function closeCredits() { credOpen=false; if(credPanel)credPanel.classList.remove('open'); pp.classList.remove('credits-open'); }
+    function toggleCredits(){ if(credOpen)closeCredits(); else openCredits(); }
 
     /* ── Dock ── */
     var hasGallery = !!d.g;
@@ -1430,7 +1445,9 @@
     document.addEventListener('keydown', function onKey(e){
       if (!document.getElementById('t8p-pp')) { document.removeEventListener('keydown', onKey); return; }
       if (e.code === 'Space' && !e.target.matches('input,textarea')) {
-        e.preventDefault(); handleVideoClick();
+        e.preventDefault();
+        if (hasCredits) { toggleCredits(); }
+        else { handleVideoClick(); }
       }
       if (e.code === 'KeyM' && !e.target.matches('input,textarea')) {
         if (!vplayer) return;
@@ -1459,6 +1476,13 @@
       }
       wakeUI();
     });
+
+    /* ── Scroll to reveal/hide credits ── */
+    pp.addEventListener('wheel', function(e) {
+      if (!hasCredits) return;
+      if (e.deltaY > 0 && !credOpen) { e.preventDefault(); openCredits(); }
+      else if (e.deltaY < 0 && credOpen) { e.preventDefault(); closeCredits(); }
+    }, { passive: false });
 
     /* ── Scrub drag on grab zone ── */
     var _scrubbing = false;
