@@ -350,13 +350,12 @@
       '.t8p-panel-vlab{font-family:monospace;font-size:9px;letter-spacing:.15em;color:rgba(255,255,255,.25);text-transform:uppercase;margin-bottom:6px;flex-shrink:0}',
       '.t8p-panel-vframe{flex:1;position:relative;min-height:0;border-radius:4px;overflow:hidden;background:#111}',
       '.t8p-panel-vframe iframe{position:absolute;inset:0;width:100%;height:100%;border:none}',
-      '.t8p-panel-grid{flex:1;display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:1fr;gap:4px;min-height:0;overflow:hidden;align-content:start}',
-      '@media(max-width:1100px){.t8p-panel-grid{grid-template-columns:repeat(5,1fr)}}',
-      '@media(max-width:900px){#t8p-panel-body{grid-template-columns:1fr}#t8p-panel-left{border-right:none;border-bottom:1px solid rgba(255,255,255,.06);max-height:40vh}.t8p-panel-grid{grid-template-columns:repeat(4,1fr)}}',
+      '.t8p-panel-grid{flex:1;display:grid;grid-template-columns:repeat(var(--t8p-cols,6),1fr);gap:4px;min-height:0;overflow:hidden}',
+      '@media(max-width:1100px){.t8p-panel-grid{--t8p-cols:5}}',
+      '@media(max-width:900px){#t8p-panel-body{grid-template-columns:1fr}#t8p-panel-left{border-right:none;border-bottom:1px solid rgba(255,255,255,.06);max-height:40vh}.t8p-panel-grid{--t8p-cols:4}}',
       '.t8p-panel-tile{position:relative;overflow:hidden;cursor:pointer;background:#111;transition:opacity .2s}',
-      '.t8p-panel-tile::before{content:"";display:block;padding-bottom:100%}',
       '.t8p-panel-tile:hover{opacity:.75}',
-      '.t8p-panel-tile img{display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0}',
+      '.t8p-panel-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}',
       /* ── Lightbox ── */
       '#t8p-lb{position:fixed;inset:0;background:#080808;z-index:10000;',
       'display:none;align-items:center;justify-content:center}',
@@ -1714,6 +1713,14 @@
               tile.appendChild(timg);
               tile.addEventListener('click',function(e){e.stopPropagation();lbOpen(si);});
               galGrid.appendChild(tile);
+            });
+            /* fit all rows into available height */
+            requestAnimationFrame(function(){
+              var gh = galGrid.getBoundingClientRect().height;
+              var cols = parseInt(getComputedStyle(galGrid).getPropertyValue('--t8p-cols'))||6;
+              var rows = Math.ceil(srcs.length / cols);
+              var rowH = Math.floor((gh - (rows-1)*4) / rows);
+              galGrid.style.gridTemplateRows = 'repeat('+rows+','+rowH+'px)';
             });
           });
       }
