@@ -290,7 +290,8 @@
       '.t8p-credit-name[href]{color:#080808;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(8,8,8,.4);transition:opacity .2s}',
       '.t8p-credit-name[href]:hover{opacity:.5}',
       '@media(max-width:767px){#t8p-credits-inner{padding:24px 24px 20px}.t8p-credit-row{gap:16px}.t8p-credit-role{width:140px}}',
-      '#t8p-pp-hero{position:absolute;inset:0;transition:transform .45s cubic-bezier(.4,0,.2,1)}',
+      '#t8p-pp-hero{position:absolute;inset:0}',
+      '#t8p-pp{transition:transform .45s cubic-bezier(.4,0,.2,1)}',
 
       /* ── Controls ── */
       '#t8p-btns{position:fixed;top:0;right:20px;height:80px;z-index:9200;display:flex;gap:10px;align-items:center;pointer-events:none}',
@@ -1322,13 +1323,13 @@
       credPanel.classList.add('open');
       requestAnimationFrame(function(){
         var h = credPanel.getBoundingClientRect().height;
-        ppHero.style.transform = 'translateY(-' + h + 'px)';
+        pp.style.transform = 'translateY(-' + h + 'px)';
       });
     }
     function closeCredits() {
       credOpen = false;
       if (credPanel) credPanel.classList.remove('open');
-      ppHero.style.transform = '';
+      pp.style.transform = '';
     }
     function toggleCredits(){ if(credOpen)closeCredits(); else openCredits(); }
 
