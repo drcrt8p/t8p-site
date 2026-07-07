@@ -215,13 +215,12 @@
       '#t8p-vp-main{position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;z-index:2}',
       '#t8p-ov{position:absolute;inset:0;z-index:3;cursor:none}',
 
-      /* Floating cursor (play/pause circle that follows mouse) */
-      '#t8p-vidcur{position:fixed;width:56px;height:56px;border-radius:50%;background:#c9e6fd;',
-      'display:flex;align-items:center;justify-content:center;z-index:100001;pointer-events:none;',
-      'opacity:0;transition:opacity .2s ease;transform:translate(-50%,-50%);',
-      'will-change:left,top}',
-      '#t8p-vidcur svg{width:20px;height:20px;flex-shrink:0}',
-      '#t8p-vidcur.visible{opacity:1}',
+      /* Single cursor for all project pages */
+      '#t8p-pp{cursor:none}',
+      '#t8p-vidcur{position:fixed;width:12px;height:12px;border-radius:50%;background:#fff;mix-blend-mode:difference;display:flex;align-items:center;justify-content:center;z-index:100001;pointer-events:none;opacity:1;transform:translate(-50%,-50%);will-change:left,top;transition:width .15s ease,height .15s ease,background .15s ease,mix-blend-mode .15s ease}',
+      '#t8p-vidcur.on-vid{width:56px;height:56px;background:#c9e6fd;mix-blend-mode:normal}',
+      '#t8p-vidcur svg{width:20px;height:20px;flex-shrink:0;opacity:0;transition:opacity .15s}',
+      '#t8p-vidcur.on-vid svg{opacity:1}',
 
       /* Bottom bar */
       '#t8p-scrub-zone{position:fixed;bottom:0;left:0;right:0;z-index:9100;cursor:default;',
@@ -256,12 +255,7 @@
       '.ui-visible #t8p-timecode{opacity:1}',
 
 
-      /* Inverted cursor on bars */
-      '#t8p-pp-cur{position:fixed;width:10px;height:10px;border-radius:50%;background:#fff;',
-      'mix-blend-mode:difference;pointer-events:none;z-index:99999;',
-      'transform:translate(-50%,-50%);left:-100px;top:-100px;opacity:0;transition:opacity .1s}',
-      '#t8p-pp-cur.on-bar{opacity:1}',
-      '#t8p-vidcur.visible ~ #t8p-pp-cur,#t8p-pp-cur.hide-for-vid{opacity:0!important}',
+      /* ppCur removed: vidcur handles all cursor states */
 
       /* Sleep: everything hidden except bottom bar */
       '.pp-sleep #t8p-pp-wm{opacity:0;pointer-events:none}',
@@ -1137,12 +1131,6 @@
     }
 
     /* ── Inverted cursor (bars only) ── */
-    var ppCur = document.getElementById('t8p-pp-cur');
-    if (!ppCur) {
-      ppCur = document.createElement('div');
-      ppCur.id = 't8p-pp-cur';
-      document.documentElement.appendChild(ppCur);
-    }
 
     /* ── Wordmark topbar ── */
     var wmDiv = document.createElement('div');
@@ -1506,7 +1494,7 @@
     var _onGrab = false;
     grabZone.addEventListener('mouseenter', function(){
       _onGrab = true;
-      vidCur.classList.remove('visible'); /* hide play/pause cursor */
+      vidCur.classList.remove('on-vid');
       scrubCur.style.opacity = '1';
     });
     grabZone.addEventListener('mouseleave', function(){
@@ -1555,28 +1543,21 @@
       document.addEventListener('mousemove', function onMM(e){
         if (!document.getElementById('t8p-pp')) { document.removeEventListener('mousemove', onMM); return; }
 
-        /* inverted cursor position */
-        ppCur.style.left = e.clientX+'px'; ppCur.style.top = e.clientY+'px';
+        /* Single cursor tracks mouse everywhere on project page */
+        vidCur.style.left = e.clientX+'px';
+        vidCur.style.top = e.clientY+'px';
         var elAt = document.elementFromPoint(e.clientX, e.clientY);
         if (!elAt) return;
 
-        var onTopBar = !!(elAt.closest('#t8p-pp-wm') || elAt.closest('#t8p-btns'));
-        var onBotBar = !!(elAt.closest('#t8p-scrub-zone'));
+        /* Detect zones */
         var onOv = elAt.id === 't8p-ov' || elAt.id === 't8p-vp-main';
-        var onGrab = elAt.id === 't8p-grab-zone' || elAt.closest('#t8p-grab-zone');
+        var onGrab = elAt.id === 't8p-grab-zone' || !!elAt.closest('#t8p-grab-zone');
 
-        /* Inverted cursor: bars only */
-        ppCur.classList.toggle('on-bar', onTopBar || onBotBar);
-
-        /* Floating play/pause cursor: video zone only, not when on grab zone */
+        /* Video zone: big blue circle with play/pause icon */
         if (onOv && !onGrab && !_scrubbing) {
-          vidCur.classList.add('visible');
-          vidCur.style.left = e.clientX+'px';
-          vidCur.style.top = e.clientY+'px';
-          ppCur.classList.add('hide-for-vid');
-        } else if (!onGrab && !_scrubbing) {
-          vidCur.classList.remove('visible');
-          ppCur.classList.remove('hide-for-vid');
+          vidCur.classList.add('on-vid');
+        } else {
+          vidCur.classList.remove('on-vid');
         }
 
         /* Wake on any cursor movement over video */
@@ -1598,7 +1579,6 @@
       if (grabZone) grabZone.remove();
       if (scrubHead) scrubHead.remove();
       if (timeCode) timeCode.remove();
-      if (ppCur) { ppCur.style.opacity='0'; ppCur.classList.remove('on-bar'); }
     }
   }
 
