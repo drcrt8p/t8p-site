@@ -249,7 +249,7 @@
       'transition:opacity .15s;left:-999px;top:-999px}',
       '#t8p-scrub-cur svg{width:16px;height:16px}',
       /* Timecode: centered on the vline, just above bottom bar */
-      '#t8p-timecode{position:fixed;bottom:52px;font-size:10px;letter-spacing:.12em;',
+      '#t8p-timecode{position:fixed;top:calc(50% + 42px);font-size:10px;letter-spacing:.12em;',
       'color:#c9e6fd;pointer-events:none;opacity:0;left:-999px;',
       'z-index:9092;white-space:nowrap;transform:translateX(-50%);transition:opacity .3s}',
       '.ui-visible #t8p-timecode{opacity:1}',
