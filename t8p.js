@@ -302,8 +302,7 @@
       '@media(max-width:767px){.t8p-btn{width:36px;height:36px}}',
 
       /* ── Dock / folder fan ── */
-      '#t8p-dock{position:fixed;left:18px;top:50%;transform:translateY(-50%);',
-      'z-index:9150;display:flex;flex-direction:column;gap:0;align-items:center}',
+      '#t8p-dock{position:fixed;left:18px;top:50%;transform:translateY(-50%);z-index:9150;display:flex;flex-direction:column;gap:0;align-items:center;transition:opacity .4s ease}',
       '@media(max-width:767px){#t8p-dock{bottom:80px;top:auto;transform:none;left:16px}}',
       '.t8p-dock-stack{position:relative;width:62px;height:62px;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}',
       '.t8p-dock-stack:hover{transform:scale(1.06)}',
