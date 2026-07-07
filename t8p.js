@@ -187,7 +187,7 @@
       '#t8p-pp{display:none;position:fixed;inset:0;z-index:8000;background:#000;overflow:hidden}',
       'body.is-pp #t8p-pp{display:block}',
       'body.is-pp #siteWrapper{display:none!important}',
-      'body.is-pp #t8p-cur{opacity:0!important;visibility:hidden!important}',
+      'html.is-pp #t8p-cur{opacity:0!important;visibility:hidden!important;pointer-events:none!important}',
 
       /* Topbar */
       '#t8p-pp-wm{position:fixed;top:0;left:0;right:0;z-index:9100;',
@@ -1097,6 +1097,7 @@
   ────────────────────────────────────────────────────────── */
   function buildProject() {
     document.body.classList.add('is-pp');
+    document.documentElement.classList.add('is-pp');
 
     var DATA = window._t8pDATA || {};
     var sl = location.pathname.replace(/[/]/g,'');
