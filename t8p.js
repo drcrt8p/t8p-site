@@ -187,6 +187,7 @@
       '#t8p-pp{display:none;position:fixed;inset:0;z-index:8000;background:#000;overflow:hidden}',
       'body.is-pp #t8p-pp{display:block}',
       'body.is-pp #siteWrapper{display:none!important}',
+      'body.is-pp #t8p-cur{opacity:0!important;visibility:hidden!important}',
 
       /* Topbar */
       '#t8p-pp-wm{position:fixed;top:0;left:0;right:0;z-index:9100;',
@@ -216,7 +217,7 @@
 
       /* Floating cursor (play/pause circle that follows mouse) */
       '#t8p-vidcur{position:fixed;width:56px;height:56px;border-radius:50%;background:#c9e6fd;',
-      'display:flex;align-items:center;justify-content:center;z-index:9050;pointer-events:none;',
+      'display:flex;align-items:center;justify-content:center;z-index:100001;pointer-events:none;',
       'opacity:0;transition:opacity .2s ease;transform:translate(-50%,-50%);',
       'will-change:left,top}',
       '#t8p-vidcur svg{width:20px;height:20px;flex-shrink:0}',
@@ -260,6 +261,7 @@
       'mix-blend-mode:difference;pointer-events:none;z-index:99999;',
       'transform:translate(-50%,-50%);left:-100px;top:-100px;opacity:0;transition:opacity .1s}',
       '#t8p-pp-cur.on-bar{opacity:1}',
+      '#t8p-vidcur.visible ~ #t8p-pp-cur,#t8p-pp-cur.hide-for-vid{opacity:0!important}',
 
       /* Sleep: everything hidden except bottom bar */
       '.pp-sleep #t8p-pp-wm{opacity:0;pointer-events:none}',
@@ -1571,8 +1573,10 @@
           vidCur.classList.add('visible');
           vidCur.style.left = e.clientX+'px';
           vidCur.style.top = e.clientY+'px';
+          ppCur.classList.add('hide-for-vid');
         } else if (!onGrab && !_scrubbing) {
           vidCur.classList.remove('visible');
+          ppCur.classList.remove('hide-for-vid');
         }
 
         /* Wake on any cursor movement over video */
