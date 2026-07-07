@@ -260,7 +260,7 @@
       /* Sleep: everything hidden except bottom bar */
       '.pp-sleep #t8p-pp-wm{opacity:0;pointer-events:none}',
       '.pp-sleep #t8p-btns{opacity:0;pointer-events:none}',
-      'body.pp-sleep #t8p-dock{opacity:0!important;pointer-events:none!important}',
+      'body.pp-sleep .t8p-dock-stack{opacity:0;pointer-events:none}',
 
       /* Wave animation (mute button) */
       '@keyframes t8p-quiet{25%{transform:scaleY(.6)}50%{transform:scaleY(.4)}75%{transform:scaleY(.8)}}',
@@ -300,7 +300,7 @@
       /* ── Dock / folder fan ── */
       '#t8p-dock{position:fixed;left:18px;top:50%;transform:translateY(-50%);z-index:9150;display:flex;flex-direction:column;gap:0;align-items:center;transition:opacity .4s ease}',
       '@media(max-width:767px){#t8p-dock{bottom:80px;top:auto;transform:none;left:16px}}',
-      '.t8p-dock-stack{position:relative;width:62px;height:62px;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}',
+      '.t8p-dock-stack{position:relative;width:62px;height:62px;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .4s ease}',
       '.t8p-dock-stack:hover{transform:scale(1.06)}',
       '.t8p-dock-stack .t8p-dock-card{position:absolute;width:62px;height:62px;border-radius:6px;overflow:hidden;border:1px solid rgba(201,230,253,.4);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}',
       '.t8p-dock-stack .t8p-dock-card:nth-child(1){top:0;left:0;z-index:5;transform:rotate(0deg);background:#c9e6fd}',
@@ -1351,14 +1351,16 @@
         pp.classList.add('pp-sleep');
         document.body.classList.add('pp-sleep');
         var _dk = document.getElementById('t8p-dock');
-        if (_dk) { _dk.style.opacity='0'; _dk.style.pointerEvents='none'; }
+        var _dks = _dk ? _dk.querySelector('.t8p-dock-stack') : null;
+        if (_dks) { _dks.style.opacity='0'; _dks.style.pointerEvents='none'; }
       }, 3000);
     }
     function wakeUI() {
       pp.classList.remove('pp-sleep');
       document.body.classList.remove('pp-sleep');
       var _dk = document.getElementById('t8p-dock');
-      if (_dk) { _dk.style.opacity=''; _dk.style.pointerEvents=''; }
+      var _dks = _dk ? _dk.querySelector('.t8p-dock-stack') : null;
+      if (_dks) { _dks.style.opacity=''; _dks.style.pointerEvents=''; }
       showUI();
     }
 
