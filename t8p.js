@@ -1350,11 +1350,15 @@
         pp.classList.remove('ui-visible');
         pp.classList.add('pp-sleep');
         document.body.classList.add('pp-sleep');
+        var _dk = document.getElementById('t8p-dock');
+        if (_dk) { _dk.style.opacity='0'; _dk.style.pointerEvents='none'; }
       }, 3000);
     }
     function wakeUI() {
       pp.classList.remove('pp-sleep');
       document.body.classList.remove('pp-sleep');
+      var _dk = document.getElementById('t8p-dock');
+      if (_dk) { _dk.style.opacity=''; _dk.style.pointerEvents=''; }
       showUI();
     }
 
