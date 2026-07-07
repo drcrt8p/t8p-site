@@ -1319,11 +1319,16 @@
     function openCredits() {
       if (!hasCredits) return;
       credOpen = true;
+      credPanel.classList.remove('open');
+      void credPanel.offsetHeight;
       credPanel.classList.add('open');
     }
     function closeCredits() {
       credOpen = false;
-      if (credPanel) credPanel.classList.remove('open');
+      if (credPanel) {
+        credPanel.classList.remove('open');
+        void credPanel.offsetHeight;
+      }
     }
     function toggleCredits(){ if(credOpen)closeCredits(); else openCredits(); }
 
