@@ -260,7 +260,7 @@
       /* Sleep: everything hidden except bottom bar */
       '.pp-sleep #t8p-pp-wm{opacity:0;pointer-events:none}',
       '.pp-sleep #t8p-btns{opacity:0;pointer-events:none}',
-      'body.pp-sleep #t8p-dock{opacity:0;pointer-events:none}',
+      'body.pp-sleep #t8p-dock{opacity:0!important;pointer-events:none!important}',
 
       /* Wave animation (mute button) */
       '@keyframes t8p-quiet{25%{transform:scaleY(.6)}50%{transform:scaleY(.4)}75%{transform:scaleY(.8)}}',
