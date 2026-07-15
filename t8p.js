@@ -232,7 +232,7 @@
       '.t8p-pp-d{text-align:center;flex:1;padding:0 16px}',
 
       /* Scrub track: thin line at very bottom of bar */
-      '#t8p-scrub-track{height:3px;background:rgba(201,230,253,.25);position:relative;cursor:none}',
+      '#t8p-scrub-track{display:none}',
       /* Scrub track: thin line at bottom */
       '#t8p-scrub-fill{height:100%;background:#c9e6fd;width:0%;transition:width .25s linear;position:relative}',
       /* The playhead vline -- vertical line at current progress x */
