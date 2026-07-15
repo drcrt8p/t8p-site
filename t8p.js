@@ -1395,6 +1395,8 @@
     /* ── Vimeo SDK callbacks ── */
     function onVimeoSDKReady() {
       vplayer = new window.Vimeo.Player(document.getElementById('t8p-vp-main'));
+      /* Force muted autoplay on direct page load */
+      vplayer.setMuted(true).then(function(){ vplayer.play().catch(function(){}); });
       vplayer.getDuration().then(function(dur){ _duration = dur; });
       vplayer.on('timeupdate', function(data){
         if (_scrubbing) return;
