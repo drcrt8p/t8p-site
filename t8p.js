@@ -1124,10 +1124,17 @@
     var _firstClick = true;
 
     function loadVimeoSDK(cb) {
-      if (window.Vimeo) { cb(); return; }
+      function runWhenReady() {
+        /* Wait for iframe to exist in DOM before initializing player */
+        if (!document.getElementById('t8p-vp-main')) {
+          setTimeout(runWhenReady, 50); return;
+        }
+        cb();
+      }
+      if (window.Vimeo) { runWhenReady(); return; }
       var s = document.createElement('script');
       s.src = 'https://player.vimeo.com/api/player.js';
-      s.onload = cb;
+      s.onload = runWhenReady;
       document.head.appendChild(s);
     }
 
