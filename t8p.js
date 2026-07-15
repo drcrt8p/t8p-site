@@ -187,6 +187,7 @@
       '#t8p-pp{display:none;position:fixed;inset:0;z-index:8000;background:#000;overflow:hidden}',
       'body.is-pp #t8p-pp{display:block}',
       'body.is-pp #siteWrapper{display:none!important}',
+      'body.is-pp iframe:not(#t8p-pp iframe){display:none!important}',
       'html.is-pp #t8p-cur{opacity:0!important;visibility:hidden!important;pointer-events:none!important}',
 
       /* Topbar */
