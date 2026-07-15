@@ -218,9 +218,9 @@
       /* Single cursor for all project pages */
       '#t8p-pp{cursor:none}',
       '#t8p-vidcur{position:fixed;width:12px;height:12px;border-radius:50%;background:#fff;mix-blend-mode:difference;display:flex;align-items:center;justify-content:center;z-index:100001;pointer-events:none;opacity:1;transform:translate(-50%,-50%);will-change:left,top;transition:width .15s ease,height .15s ease,background .15s ease,mix-blend-mode .15s ease,opacity .4s ease}',
-      '#t8p-vidcur.on-vid{width:56px;height:56px;background:#c9e6fd;mix-blend-mode:normal}',
+      '#t8p-vidcur.on-vid,#t8p-vidcur.on-scrub{width:56px;height:56px;background:#c9e6fd;mix-blend-mode:normal}',
       '#t8p-vidcur svg{width:20px;height:20px;flex-shrink:0;opacity:0;transition:opacity .15s}',
-      '#t8p-vidcur.on-vid svg{opacity:1}',
+      '#t8p-vidcur.on-vid svg,#t8p-vidcur.on-scrub svg{opacity:1}',
 
       /* Bottom bar */
       '#t8p-scrub-zone{position:fixed;bottom:0;left:0;right:0;z-index:9100;cursor:default;',
@@ -242,12 +242,6 @@
       /* Grab zone: wide invisible clickable strip around the playhead */
       '#t8p-grab-zone{position:fixed;top:0;bottom:0;width:40px;z-index:9093;',
       'left:-999px;cursor:none;transform:translateX(-50%)}',
-      /* Scrub cursor icon (replaces floating play/pause cursor when on grab zone) */
-      '#t8p-scrub-cur{position:fixed;width:32px;height:32px;border-radius:50%;',
-      'background:#c9e6fd;display:flex;align-items:center;justify-content:center;',
-      'z-index:9094;pointer-events:none;opacity:0;transform:translate(-50%,-50%);',
-      'transition:opacity .15s;left:-999px;top:-999px}',
-      '#t8p-scrub-cur svg{width:16px;height:16px}',
       /* Timecode: centered on the vline, just above bottom bar */
       '#t8p-timecode{position:fixed;top:calc(50% + 42px);font-size:10px;letter-spacing:.12em;',
       'color:#c9e6fd;pointer-events:none;opacity:0;left:-999px;',
@@ -1248,11 +1242,6 @@
     pp.appendChild(grabZone);
 
     /* Scrub cursor icon (shown instead of play/pause when on grab zone) */
-    var scrubCur = document.createElement('div');
-    scrubCur.id = 't8p-scrub-cur';
-    /* left-right arrows icon */
-    scrubCur.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5" stroke="#080808" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><line x1="3" y1="12" x2="21" y2="12" stroke="#080808" stroke-width="2" stroke-linecap="round"/></svg>';
-    pp.appendChild(scrubCur);
 
     /* Timecode: centered on playhead vline */
     var timeCode = document.createElement('div');
@@ -1506,22 +1495,20 @@
     grabZone.addEventListener('mouseenter', function(){
       _onGrab = true;
       vidCur.classList.remove('on-vid');
-      scrubCur.style.opacity = '1';
+      vidCur.classList.add('on-scrub'); vidCur.innerHTML = '<svg viewBox=\"0 0 24 24\"><path d=\"M8 7l-5 5 5 5M16 7l5 5-5 5\" stroke=\"#080808\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" fill=\"none\"/><line x1=\"3\" y1=\"12\" x2=\"21\" y2=\"12\" stroke=\"#080808\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>';
     });
     grabZone.addEventListener('mouseleave', function(){
       if (!_scrubbing) {
         _onGrab = false;
-        scrubCur.style.opacity = '0';
+        vidCur.classList.remove('on-scrub');
       }
     });
     grabZone.addEventListener('mousemove', function(e){
-      scrubCur.style.left = e.clientX + 'px';
-      scrubCur.style.top = e.clientY + 'px';
     });
     grabZone.addEventListener('mousedown', function(e){
       e.preventDefault();
       _scrubbing = true;
-      scrubCur.style.opacity = '1';
+      vidCur.classList.add('on-scrub'); vidCur.innerHTML = '<svg viewBox=\"0 0 24 24\"><path d=\"M8 7l-5 5 5 5M16 7l5 5-5 5\" stroke=\"#080808\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" fill=\"none\"/><line x1=\"3\" y1=\"12\" x2=\"21\" y2=\"12\" stroke=\"#080808\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>';
       var wasPaused = !_playing;
 
       /* pause during scrub for cleaner seeking */
@@ -1530,8 +1517,6 @@
       function onMove(e2){
         var pct = getScrubPct(e2.clientX);
         updateHeadPos(pct);
-        scrubCur.style.left = e2.clientX + 'px';
-        scrubCur.style.top = e2.clientY + 'px';
         if (_duration) timeCode.textContent = fmtTime(pct*_duration)+' / '+fmtTime(_duration);
         if (vplayer && _duration) vplayer.setCurrentTime(pct * _duration);
         wakeUI();
@@ -1540,7 +1525,7 @@
         _scrubbing = false;
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
-        if (!_onGrab) scrubCur.style.opacity = '0';
+        if (!_onGrab) vidCur.classList.remove('on-scrub');
         /* resume if was playing */
         if (!wasPaused && vplayer) { vplayer.play(); }
         wakeUI();
@@ -1567,6 +1552,9 @@
         /* Video zone: big blue circle with play/pause icon */
         if (onOv && !onGrab && !_scrubbing) {
           vidCur.classList.add('on-vid');
+          vidCur.classList.remove('on-scrub');
+        } else if (onGrab || _scrubbing) {
+          vidCur.classList.remove('on-vid');
         } else {
           vidCur.classList.remove('on-vid');
         }
@@ -1576,8 +1564,6 @@
 
         /* Scrub cursor pos when scrubbing */
         if (_scrubbing) {
-          scrubCur.style.left = e.clientX+'px';
-          scrubCur.style.top = e.clientY+'px';
         }
       });
     }
@@ -1586,7 +1572,6 @@
     function cleanup() {
       clearTimeout(_sleepTimer);
       if (vidCur) vidCur.remove();
-      if (scrubCur) scrubCur.remove();
       if (grabZone) grabZone.remove();
       if (scrubHead) scrubHead.remove();
       if (timeCode) timeCode.remove();
