@@ -1124,19 +1124,18 @@
     var _firstClick = true;
 
     function loadVimeoSDK(cb) {
-      /* Always load fresh SDK to avoid conflict with SQ pre-loaded Vimeo */
+      function waitForIframe() {
+        if (!document.getElementById('t8p-vp-main')) { setTimeout(waitForIframe, 50); return; }
+        cb();
+      }
+      /* If SDK already loaded just wait for iframe */
+      if (window.Vimeo && window.Vimeo.Player) { setTimeout(waitForIframe, 100); return; }
+      /* Remove any existing Vimeo SDK scripts first to avoid duplicates */
+      Array.from(document.querySelectorAll('script[src*="player.vimeo.com"]')).forEach(function(s){ s.remove(); });
+      delete window.Vimeo;
       var s = document.createElement('script');
       s.src = 'https://player.vimeo.com/api/player.js';
-      s.onload = function() {
-        /* Wait for our iframe to exist before init */
-        function waitForIframe() {
-          if (!document.getElementById('t8p-vp-main')) {
-            setTimeout(waitForIframe, 50); return;
-          }
-          cb();
-        }
-        waitForIframe();
-      };
+      s.onload = waitForIframe;
       document.head.appendChild(s);
     }
 
