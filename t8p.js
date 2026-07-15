@@ -187,7 +187,6 @@
       '#t8p-pp{display:none;position:fixed;inset:0;z-index:8000;background:#000;overflow:hidden}',
       'body.is-pp #t8p-pp{display:block}',
       'body.is-pp #siteWrapper{display:none!important}',
-      'body.is-pp iframe:not(#t8p-pp iframe){display:none!important}',
       'html.is-pp #t8p-cur{opacity:0!important;visibility:hidden!important;pointer-events:none!important}',
 
       /* Topbar */
@@ -1093,6 +1092,12 @@
   function buildProject() {
     document.body.classList.add('is-pp');
     document.documentElement.classList.add('is-pp');
+    /* Kill any Squarespace iframes that escaped siteWrapper */
+    requestAnimationFrame(function(){
+      Array.from(document.querySelectorAll('iframe')).forEach(function(f){
+        if (!f.closest('#t8p-pp')) { f.style.setProperty('display','none','important'); }
+      });
+    });
 
     var DATA = window._t8pDATA || {};
     var sl = location.pathname.replace(/[/]/g,'');
