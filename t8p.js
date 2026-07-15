@@ -1092,12 +1092,12 @@
   function buildProject() {
     document.body.classList.add('is-pp');
     document.documentElement.classList.add('is-pp');
-    /* Kill any Squarespace iframes that escaped siteWrapper */
-    requestAnimationFrame(function(){
+    /* Remove any Squarespace iframes that escaped siteWrapper */
+    setTimeout(function(){
       Array.from(document.querySelectorAll('iframe')).forEach(function(f){
-        if (!f.closest('#t8p-pp')) { f.style.setProperty('display','none','important'); }
+        if (!f.closest('#t8p-pp') && !f.closest('#t8p-dock-panel')) { f.remove(); }
       });
-    });
+    }, 500);
 
     var DATA = window._t8pDATA || {};
     var sl = location.pathname.replace(/[/]/g,'');
