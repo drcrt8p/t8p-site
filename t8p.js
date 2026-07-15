@@ -1360,10 +1360,8 @@
 
     function updateHeadPos(pct) {
       _headPct = pct;
-      /* position head at pct of the scrub track width */
-      var trackRect = scrubTrack.getBoundingClientRect();
-      var x = trackRect.left + pct * trackRect.width;
-      scrubFill.style.width = (pct * 100) + '%';
+      /* scrubTrack is hidden so use full viewport width */
+      var x = pct * window.innerWidth;
       scrubHead.style.left = x + 'px';
       grabZone.style.left = x + 'px';
       timeCode.style.left = x + 'px';
@@ -1487,8 +1485,8 @@
     var _scrubbing = false;
 
     function getScrubPct(clientX) {
-      var rect = scrubTrack.getBoundingClientRect();
-      return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      /* scrubTrack hidden, use full viewport width */
+      return Math.max(0, Math.min(1, clientX / window.innerWidth));
     }
 
     var _onGrab = false;
