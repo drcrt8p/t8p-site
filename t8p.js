@@ -1128,11 +1128,7 @@
         if (!document.getElementById('t8p-vp-main')) { setTimeout(waitForIframe, 50); return; }
         cb();
       }
-      /* If SDK already loaded just wait for iframe */
       if (window.Vimeo && window.Vimeo.Player) { setTimeout(waitForIframe, 100); return; }
-      /* Remove any existing Vimeo SDK scripts first to avoid duplicates */
-      Array.from(document.querySelectorAll('script[src*="player.vimeo.com"]')).forEach(function(s){ s.remove(); });
-      delete window.Vimeo;
       var s = document.createElement('script');
       s.src = 'https://player.vimeo.com/api/player.js';
       s.onload = waitForIframe;
@@ -1199,7 +1195,7 @@
       hf.setAttribute('allow','autoplay; fullscreen; picture-in-picture; encrypted-media');
       hf.setAttribute('allowfullscreen','');
       hf.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;z-index:2';
-      hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=0&dnt=1&transparent=0';
+      hf.src = 'https://player.vimeo.com/video/'+vids[0]+heroHash+'autoplay=1&loop=1&muted=1&controls=0&autopause=0&background=1&dnt=1&transparent=0';
       hero.appendChild(hf);
 
 
