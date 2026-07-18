@@ -275,7 +275,6 @@
       '.t8p-credits-title{font-size:8px;letter-spacing:.22em;color:rgba(8,8,8,.4);text-transform:uppercase;margin-bottom:0;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.12);font-weight:400}',
       '.t8p-credit-row{display:flex;align-items:center;gap:0;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.08)}',
       '.t8p-credit-row:last-child{border-bottom:none}',
-      '.t8p-credit-cont{border-top:none;margin-top:-6px;padding-top:0}',
       '.t8p-credit-role{font-size:10px;letter-spacing:.08em;color:rgba(8,8,8,.45);width:200px;flex-shrink:0;font-weight:400;text-transform:uppercase}',
       '.t8p-credit-name{font-size:10px;letter-spacing:.02em;color:#080808;font-weight:400}',
       '.t8p-credit-name[href]{color:#080808;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:rgba(8,8,8,.4);transition:opacity .15s}',
