@@ -275,6 +275,7 @@
       '.t8p-credits-title{font-size:8px;letter-spacing:.22em;color:rgba(8,8,8,.4);text-transform:uppercase;margin-bottom:0;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.12);font-weight:400}',
       '.t8p-credit-row{display:flex;align-items:center;gap:0;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.08)}',
       '.t8p-credit-row:last-child{border-bottom:none}',
+      '.t8p-credit-cont{border-top:none;margin-top:-6px;padding-top:0}',
       '.t8p-credit-role{font-size:10px;letter-spacing:.08em;color:rgba(8,8,8,.45);width:200px;flex-shrink:0;font-weight:400;text-transform:uppercase}',
       '.t8p-credit-name{font-size:10px;letter-spacing:.02em;color:#080808;font-weight:400}',
       '.t8p-credit-name[href]{color:#080808;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:rgba(8,8,8,.4);transition:opacity .15s}',
@@ -1287,12 +1288,19 @@
       credTitle.className = 't8p-credits-title';
       credTitle.textContent = 'Credits';
       credInner.appendChild(credTitle);
+      var _prevRole = null;
       Object.keys(credits).forEach(function(role){
         var val = credits[role]; if(!val) return;
         var name = typeof val==='object'?val.n:val;
         var ig   = typeof val==='object'?val.ig:null;
+        /* Continuation rows (same label + trailing spaces) show a blank label,
+           so a multi-person role prints its title only once. (David, Jul 2026) */
+        var roleKey = role.replace(/\s+$/,'');
+        var isCont = (_prevRole !== null && roleKey === _prevRole);
+        _prevRole = roleKey;
         var row = document.createElement('div'); row.className='t8p-credit-row';
-        var roleEl = document.createElement('div'); roleEl.className='t8p-credit-role'; roleEl.textContent=role;
+        if (isCont) row.className += ' t8p-credit-cont';
+        var roleEl = document.createElement('div'); roleEl.className='t8p-credit-role'; roleEl.textContent = isCont ? '' : roleKey;
         var nameEl = ig ? document.createElement('a') : document.createElement('div');
         nameEl.className='t8p-credit-name';
         if(ig){nameEl.href='https://instagram.com/'+ig;nameEl.target='_blank';nameEl.rel='noopener noreferrer';}
