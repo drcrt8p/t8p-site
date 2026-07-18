@@ -13,6 +13,25 @@
 (function () {
   'use strict';
 
+  /* Purge any SQ Vimeo embeds/SDK before they conflict with ours */
+  (function() {
+    function purge() {
+      Array.from(document.querySelectorAll('script[src*="player.vimeo.com"]')).forEach(function(s){ if (!s._t8p) s.remove(); });
+      Array.from(document.querySelectorAll('iframe[src*="vimeo.com"]')).forEach(function(f){ if (f.id !== 't8p-vp-main') f.remove(); });
+    }
+    purge();
+    var obs = new MutationObserver(function(muts) {
+      muts.forEach(function(m) {
+        m.addedNodes.forEach(function(n) {
+          if (!n.tagName) return;
+          if (n.tagName === 'SCRIPT' && n.src && n.src.indexOf('player.vimeo.com') > -1 && !n._t8p) { n.remove(); }
+          if (n.tagName === 'IFRAME' && n.src && n.src.indexOf('vimeo.com') > -1 && n.id !== 't8p-vp-main') { n.remove(); }
+        });
+      });
+    });
+    obs.observe(document.documentElement, { childList: true, subtree: true });
+  })();
+
   /* ──────────────────────────────────────────────────────────
      CONSTANTS & CONFIG
   ────────────────────────────────────────────────────────── */
@@ -1131,6 +1150,7 @@
       if (window.Vimeo && window.Vimeo.Player) { setTimeout(waitForIframe, 100); return; }
       var s = document.createElement('script');
       s.src = 'https://player.vimeo.com/api/player.js';
+      s._t8p = true;
       s.onload = waitForIframe;
       document.head.appendChild(s);
     }
