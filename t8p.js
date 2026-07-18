@@ -1054,7 +1054,7 @@
          cursor position acts as a fingertip pushing forward through the sphere.
          Each card gets an extra +Z bump based on how close it is to that point.
          Peak +40 at the finger, gaussian falloff over ~FIN_SIG px. */
-      var FIN_PEAK = 40, FIN_SIG = 400, FIN_SIG_SQ = FIN_SIG*FIN_SIG;
+      var FIN_PEAK = 80, FIN_SIG = 400, FIN_SIG_SQ = FIN_SIG*FIN_SIG;
       /* convert normalized cursor (from tgtY/tgtX -> mx/my) to layout-space coords */
       var fingerX = W*0.5 + (tgtY / MAX_ROT_Y) * (W * 0.5);
       var fingerY = H*0.5 - (tgtX / MAX_ROT_X) * (H * 0.5);
