@@ -1010,7 +1010,7 @@
     /* Pan only as far as needed to bring the outermost panel fully on-screen,
        leaving a black margin (MARGIN). No floor, so a grid that already fits the
        viewport needs ~0 pan and shows every panel at rest. (David, Jul 2026) */
-    var EDGE_MARGIN = 130;
+    var EDGE_MARGIN = 60;   /* tighter corners, less black at max pan */
     var PAN_X = Math.max(0, (gridW - W)/2 + EDGE_MARGIN);
     var PAN_Y = Math.max(0, (gridH - H)/2 + EDGE_MARGIN);
 
@@ -1049,6 +1049,16 @@
          This was approved by David on 2025-06-30. Do not change these values. */
       var deltaX = (tgtY - curRY) * 0.08; /* church uses displacementScale=0.08 */
       var deltaY = (tgtX - curRX) * 0.08;
+
+      /* Convex "finger-in-fabric" response (David, Jul 2026):
+         cursor position acts as a fingertip pushing forward through the sphere.
+         Each card gets an extra +Z bump based on how close it is to that point.
+         Peak +40 at the finger, gaussian falloff over ~FIN_SIG px. */
+      var FIN_PEAK = 40, FIN_SIG = 400, FIN_SIG_SQ = FIN_SIG*FIN_SIG;
+      /* convert normalized cursor (from tgtY/tgtX -> mx/my) to layout-space coords */
+      var fingerX = W*0.5 + (tgtY / MAX_ROT_Y) * (W * 0.5);
+      var fingerY = H*0.5 - (tgtX / MAX_ROT_X) * (H * 0.5);
+
       cells.forEach(function(c) {
         /* accumulate drift on the card's stored offset */
         if (!c._ox) c._ox = 0;
@@ -1060,7 +1070,12 @@
         c._oy *= 0.88;
         var bx = c._px - c._baseW/2 + c._ox;
         var by = c._py - c._h/2    + c._oy;
-        c.style.transform = 'translate3d('+bx+'px,'+by+'px,'+c._z+'px) rotateX('+c._rx+'deg) rotateY('+c._ry+'deg) rotateZ('+c._rz+'deg)';
+        /* convex Z bump: gaussian falloff from finger point in layout space */
+        var fdx = c._px - fingerX, fdy = c._py - fingerY;
+        var fdistSq = fdx*fdx + fdy*fdy;
+        var zBump = FIN_PEAK * Math.exp(-fdistSq / FIN_SIG_SQ);
+        var effZ = c._z + zBump;
+        c.style.transform = 'translate3d('+bx+'px,'+by+'px,'+effZ+'px) rotateX('+c._rx+'deg) rotateY('+c._ry+'deg) rotateZ('+c._rz+'deg)';
       });
 
       if (center) {
