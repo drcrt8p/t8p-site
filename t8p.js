@@ -275,6 +275,8 @@
       '.t8p-credits-title{font-size:8px;letter-spacing:.22em;color:rgba(8,8,8,.4);text-transform:uppercase;margin-bottom:0;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.12);font-weight:400}',
       '.t8p-credit-row{display:flex;align-items:center;gap:0;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.08)}',
       '.t8p-credit-row:last-child{border-bottom:none}',
+      '.t8p-credit-header{margin-top:22px}',
+      '.t8p-credit-header .t8p-credit-role{font-weight:700;color:#080808;letter-spacing:.1em}',
       '.t8p-credit-role{font-size:10px;letter-spacing:.08em;color:rgba(8,8,8,.45);width:200px;flex-shrink:0;font-weight:400;text-transform:uppercase}',
       '.t8p-credit-name{font-size:10px;letter-spacing:.02em;color:#080808;font-weight:400}',
       '.t8p-credit-name[href]{color:#080808;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:rgba(8,8,8,.4);transition:opacity .15s}',
@@ -1290,11 +1292,20 @@
       var _prevRole = null;
       Object.keys(credits).forEach(function(role){
         var val = credits[role]; if(!val) return;
+        var roleKey = role.replace(/\s+$/,'');
+        /* Section header row: bold label, no name, spacer above. Marked in data
+           with {header:true}. (David, Jul 2026) */
+        if (typeof val==='object' && val.header){
+          var hrow = document.createElement('div'); hrow.className='t8p-credit-row t8p-credit-header';
+          var hrole = document.createElement('div'); hrole.className='t8p-credit-role'; hrole.textContent = roleKey;
+          var hname = document.createElement('div'); hname.className='t8p-credit-name';
+          hrow.appendChild(hrole); hrow.appendChild(hname); credInner.appendChild(hrow);
+          _prevRole = null; return;
+        }
         var name = typeof val==='object'?val.n:val;
         var ig   = typeof val==='object'?val.ig:null;
         /* Continuation rows (same label + trailing spaces) show a blank label,
            so a multi-person role prints its title only once. (David, Jul 2026) */
-        var roleKey = role.replace(/\s+$/,'');
         var isCont = (_prevRole !== null && roleKey === _prevRole);
         _prevRole = roleKey;
         var row = document.createElement('div'); row.className='t8p-credit-row';
