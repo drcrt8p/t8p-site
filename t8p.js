@@ -1369,6 +1369,9 @@
       }, 3000);
     }
     function wakeUI() {
+      /* Fast path: if already awake, just bump the sleep timer.
+         Avoids DOM writes on every mousemove tick. (David, Jul 2026) */
+      if (_uiShown) { showUI(); return; }
       pp.classList.remove('pp-sleep');
       document.body.classList.remove('pp-sleep');
       var _dk = document.getElementById('t8p-dock');
