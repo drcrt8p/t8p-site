@@ -801,8 +801,8 @@
     /* Church-style layout: loose grid with per-cell jitter, Z varies by distance from center */
     var COLS = 5, ROWS = 4;
     /* Every card fits a CARD_BOX square, so a uniform cell = even margins everywhere. */
-    var CARD_BOX = 432;   /* 90% of 480 (David, Jul 2026) */
-    var GAP_X = 72, GAP_Y = 64;   /* true edge-to-edge margins */
+    var CARD_BOX = 360;   /* 75% of original 480 (David, Jul 2026) */
+    var GAP_X = 60, GAP_Y = 54;   /* true edge-to-edge margins */
     var cellW = CARD_BOX, cellH = CARD_BOX;
     /* Grid still wider than viewport so outer panels sit offscreen at rest,
        revealed as cursor moves to edges via sphere pan + per-card drift */
@@ -1021,8 +1021,12 @@
     var LERP_C = 0.03;               /* church exact lerp */
     /* Pan far enough to actually reveal the outermost column/row at any
        viewport or card size: overhang + margin. (David, Jul 2026) */
-    var PAN_X = Math.max(420, (gridW - W)/2 + 90);
-    var PAN_Y = Math.max(252, (gridH - H)/2 + 90);
+    /* Pan only as far as needed to bring the outermost panel fully on-screen,
+       leaving a black margin (MARGIN). No floor, so a grid that already fits the
+       viewport needs ~0 pan and shows every panel at rest. (David, Jul 2026) */
+    var EDGE_MARGIN = 130;
+    var PAN_X = Math.max(0, (gridW - W)/2 + EDGE_MARGIN);
+    var PAN_Y = Math.max(0, (gridH - H)/2 + EDGE_MARGIN);
 
     var tgtX = 0, tgtY = 0;   /* set directly from mouse, no easing */
     var curRX = 0, curRY = 0; /* camera lerps toward target */
