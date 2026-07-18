@@ -858,12 +858,13 @@
       var dist = Math.sqrt(dx*dx + dy*dy); /* 0=center, ~1.4=corner */
       var depthZ = (-40 + dist * 40) + jz;
 
-      /* church-style lookAt: card tilts to face center of scene
-         angle = atan2(offset, depth) -- deeper Z = stronger tilt */
+      /* Gentle lookAt: 25% of church strength so edge cards don't get stretched
+         by rotation. Subtle 3D cue only. (David, Jul 2026) */
       var FOCAL = 1400; /* matches perspective CSS */
-      var rotY = -Math.atan2(px - cx, FOCAL - Math.abs(depthZ)) * (180/Math.PI);
-      var rotX =  Math.atan2(py - cy, FOCAL - Math.abs(depthZ)) * (180/Math.PI);
-      var rotZ = (Math.random()-0.5) * 2.5; /* slight random roll */
+      var LOOKAT = 0.25;
+      var rotY = -Math.atan2(px - cx, FOCAL - Math.abs(depthZ)) * (180/Math.PI) * LOOKAT;
+      var rotX =  Math.atan2(py - cy, FOCAL - Math.abs(depthZ)) * (180/Math.PI) * LOOKAT;
+      var rotZ = (Math.random()-0.5) * 1.2; /* barely-there roll */
 
       /* native aspect ratio -- default 16:9 for video, known 4:3 overrides */
       /* 4:3 projects */ var RATIO_43  = {woxerpolaroid:1,pbpm:1,rubirose:1,skechers:1,nike:1};
