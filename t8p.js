@@ -800,13 +800,14 @@
 
     /* Church-style layout: loose grid with per-cell jitter, Z varies by distance from center */
     var COLS = 5, ROWS = 4;
-    /* Gap: generous breathing room between panels */
-    var GAP_X = W * 0.028, GAP_Y = H * 0.030;
-    /* Grid wider than viewport so outer panels are ~90% hidden at rest,
+    /* Every card fits a CARD_BOX square, so a uniform cell = even margins everywhere. */
+    var CARD_BOX = 480;
+    var GAP_X = 72, GAP_Y = 64;   /* true edge-to-edge margins */
+    var cellW = CARD_BOX, cellH = CARD_BOX;
+    /* Grid still wider than viewport so outer panels sit offscreen at rest,
        revealed as cursor moves to edges via sphere pan + per-card drift */
-    var gridW = W * 1.55, gridH = H * 1.45;
-    var cellW = (gridW - (COLS-1)*GAP_X) / COLS;
-    var cellH = (gridH - (ROWS-1)*GAP_Y) / ROWS;
+    var gridW = COLS*cellW + (COLS-1)*GAP_X;
+    var gridH = ROWS*cellH + (ROWS-1)*GAP_Y;
     var gridLeft = (W - gridW) / 2, gridTop = (H - gridH) / 2;
 
     /* Priority order — center-first, David's swaps applied */
@@ -858,8 +859,10 @@
 
       /* random jitter within cell — church uses 30% of cell size */
       /* per-card random offset for organic floating feel */
-      var jx = (Math.random()-0.5) * cellW * 0.32;
-      var jy = (Math.random()-0.5) * cellH * 0.28;
+      /* jitter scaled to the GAP (not the cell) so panels can never collide:
+         worst-case closure = 2 * 0.28 * GAP < GAP */
+      var jx = (Math.random()-0.5) * GAP_X * 0.56;
+      var jy = (Math.random()-0.5) * GAP_Y * 0.56;
       /* also add tiny random Z wobble per card */
       var jz = (Math.random()-0.5) * 60;
       var px = baseCX + jx;
@@ -889,13 +892,9 @@
       /* card width fits in cell */
       /* card width: sized so ~12 panels visible at rest (3 cols x 4 rows) */
       var isVertical = defR > 1.0;
-      var is43 = Math.abs(defR - 0.75) < 0.02; /* 4:3 -> uniform 480 (David, Jul 2026) */
-      /* horizontal: fit ~3 across viewport with gaps */
-      var baseW = isVertical ? Math.min(cellW * 0.800, 248)
-                : is43       ? 480
-                :              Math.min(cellW * 0.828, 356);
-      /* per-card size overrides */
-      if (it.slug === 'doritos')     baseW = 426;
+      /* ONE RULE (David, Jul 2026): every card fits a CARD_BOX square.
+         horizontal -> full width; vertical -> full height. No per-slug overrides. */
+      var baseW = isVertical ? Math.round(CARD_BOX / defR) : CARD_BOX;
 
       var cell = el('a', {className:'t8p-cell', href:it.href});
       cell.style.width  = baseW + 'px';
