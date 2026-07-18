@@ -1084,6 +1084,9 @@
 
       requestAnimationFrame(frame);
     })();
+    /* Force initial render so sphere is visible even if tab starts hidden */
+    sphere.style.transform = 'rotateY(0deg) rotateX(0deg) translateX(0px) translateY(0px)';
+    cells.forEach(function(c) { c.style.opacity = '1'; });
   }
 
   /* ──────────────────────────────────────────────────────────
