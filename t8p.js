@@ -800,62 +800,48 @@
     var W = window.innerWidth, H = window.innerHeight;
     var cx = W/2, cy = H/2;
 
-    /* Church-style layout: loose grid with per-cell jitter, Z varies by distance from center */
-    var COLS = 5, ROWS = 4;
-    /* Every card fits a CARD_BOX square, so a uniform cell = even margins everywhere. */
-    var CARD_BOX = 360;   /* 75% of original 480 (David, Jul 2026) */
-    var GAP_X = 60, GAP_Y = 54;   /* true edge-to-edge margins */
+    /* 19-tile staggered diamond (3/4/5/4/3), David Jul 2026. Loose jitter kept. */
+    var COLS = 5, ROWS = 5;
+    var CARD_BOX = 360;   /* 75% of original 480 */
+    var GAP_X = 60, GAP_Y = 54;
     var cellW = CARD_BOX, cellH = CARD_BOX;
-    /* Grid still wider than viewport so outer panels sit offscreen at rest,
-       revealed as cursor moves to edges via sphere pan + per-card drift */
+    /* virtual grid spans 5 cols x 5 rows; diamond uses a subset of positions */
     var gridW = COLS*cellW + (COLS-1)*GAP_X;
     var gridH = ROWS*cellH + (ROWS-1)*GAP_Y;
     var gridLeft = (W - gridW) / 2, gridTop = (H - gridH) / 2;
 
-    /* Priority order — center-first, David's swaps applied */
+    /* Priority = David's ranked 19, center-outward */
     var PRIORITY = [
-      /* CENTER 7 -- always visible at rest */
-      'calvinklein','skechers','brooklinen','woxer','t8pcommercial','statefarm','hers',
-      /* MIDDLE 9 -- complete on slight cursor move */
-      'micasaestucasa','doritos','nike','787coffee',
-      'laboca','classy101','woxerpolaroid','mauryricky','pbpm',
-      /* OUTER -- revealed at edges */
-      'arena','reglamento','ekka','woxer','microsoft','enladisco',
-      '14bystayleave','purgatory','doing-a-lot','banco-virao','casualidad',
-      'shaz','2r1n','horoscopo','natalia','mezcal','mensajedevoz',
-      'sadvalentin','monster','paolaguanche','txtrano','reglamento-1'
-    ]
-    items.sort(function(a,b){
-      var ai=PRIORITY.indexOf(a.slug), bi=PRIORITY.indexOf(b.slug);
-      return (ai<0?999:ai)-(bi<0?999:bi);
-    });
+      'calvinklein','nike','doritos','woxerpolaroid','microsoft',
+      'micasaestucasa','arena','statefarm','brooklinen',
+      'mauyricky','hers','787coffee','ddlp',
+      'classy101','laboca','rulay',
+      'woxer','reglamento','txtrano'
+    ];
+    /* keep only the ranked 19, in rank order */
+    items = items.filter(function(it){ return PRIORITY.indexOf(it.slug) >= 0; });
+    items.sort(function(a,b){ return PRIORITY.indexOf(a.slug) - PRIORITY.indexOf(b.slug); });
 
-    /* Assign grid cells — spiral from center outward so priority = center */
-    var cellOrder = [];
-    var cr = Math.floor(ROWS/2), cc = Math.floor(COLS/2);
-    /* Build spiral order */
-    var visited = []; for(var i=0;i<ROWS;i++){visited[i]=[];for(var j=0;j<COLS;j++)visited[i][j]=false;}
-    var dirs=[[0,1],[1,0],[0,-1],[-1,0]]; var di=0; var r=cr,c=cc; var steps=1,stepCount=0,turns=0;
-    for(var n=0;n<ROWS*COLS;n++){
-      cellOrder.push([r,c]); visited[r][c]=true;
-      var nr=r+dirs[di][0], nc=c+dirs[di][1];
-      stepCount++;
-      if(stepCount===steps){stepCount=0;di=(di+1)%4;turns++;if(turns%2===0)steps++;}
-      r+=dirs[di][0]; c+=dirs[di][1];
-      if(r<0||r>=ROWS||c<0||c>=COLS){break;}
-    }
-    /* fill any missed cells */
-    for(var ri2=0;ri2<ROWS;ri2++)for(var ci2=0;ci2<COLS;ci2++)if(!visited[ri2][ci2])cellOrder.push([ri2,ci2]);
+    /* Diamond rows as [rowIndex, colFloat] using fractional cols for the offset
+       stagger. Fill order is center row first, then the 4-rings, then the 3-edges,
+       so rank 1..19 flows from centre outward. */
+    var DIAMOND = [
+      /* row2 centre, 5 */ [2,0],[2,1],[2,2],[2,3],[2,4],
+      /* row1 ring, 4 */   [1,0.5],[1,1.5],[1,2.5],[1,3.5],
+      /* row3 ring, 4 */   [3,0.5],[3,1.5],[3,2.5],[3,3.5],
+      /* row0 edge, 3 */   [0,0],[0,2],[0,4],
+      /* row4 edge, 3 */   [4,0],[4,2],[4,4]
+    ];
 
     var cells = [];
-    var maxCards = Math.min(items.length, cellOrder.length);
+    var maxCards = Math.min(items.length, DIAMOND.length);
 
     for (var idx = 0; idx < maxCards; idx++) {
       var it = items[idx];
-      var gridCell = cellOrder[idx] || [Math.floor(idx/COLS), idx%COLS];
+      var gridCell = DIAMOND[idx];
       var row = gridCell[0], col = gridCell[1];
 
-      /* cell center */
+      /* cell center (col may be fractional for the staggered rows) */
       var baseCX = gridLeft + col * (cellW + GAP_X) + cellW/2;
       var baseCY = gridTop  + row * (cellH + GAP_Y) + cellH/2;
 
