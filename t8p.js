@@ -889,11 +889,12 @@
       /* card width fits in cell */
       /* card width: sized so ~12 panels visible at rest (3 cols x 4 rows) */
       var isVertical = defR > 1.0;
+      var is43 = Math.abs(defR - 0.75) < 0.02; /* 4:3 -> uniform 480 (David, Jul 2026) */
       /* horizontal: fit ~3 across viewport with gaps */
-      var baseW = isVertical ? Math.min(cellW * 0.800, 248) : Math.min(cellW * 0.828, 356);
+      var baseW = isVertical ? Math.min(cellW * 0.800, 248)
+                : is43       ? 480
+                :              Math.min(cellW * 0.828, 356);
       /* per-card size overrides */
-      if (it.slug === 'calvinklein') baseW = 480;
-      if (it.slug === 'nike')        baseW = 480;
       if (it.slug === 'doritos')     baseW = 426;
 
       var cell = el('a', {className:'t8p-cell', href:it.href});
@@ -1084,9 +1085,6 @@
 
       requestAnimationFrame(frame);
     })();
-    /* Force initial render so sphere is visible even if tab starts hidden */
-    sphere.style.transform = 'rotateY(0deg) rotateX(0deg) translateX(0px) translateY(0px)';
-    cells.forEach(function(c) { c.style.opacity = '1'; });
   }
 
   /* ──────────────────────────────────────────────────────────
@@ -1095,12 +1093,6 @@
   function buildProject() {
     document.body.classList.add('is-pp');
     document.documentElement.classList.add('is-pp');
-    /* Remove any Squarespace iframes that escaped siteWrapper */
-    setTimeout(function(){
-      Array.from(document.querySelectorAll('iframe')).forEach(function(f){
-        if (!f.closest('#t8p-pp') && !f.closest('#t8p-dock-panel')) { f.remove(); }
-      });
-    }, 500);
 
     var DATA = window._t8pDATA || {};
     var sl = location.pathname.replace(/[/]/g,'');
@@ -1127,15 +1119,10 @@
     var _firstClick = true;
 
     function loadVimeoSDK(cb) {
-      function waitForIframe() {
-        if (!document.getElementById('t8p-vp-main')) { setTimeout(waitForIframe, 50); return; }
-        cb();
-      }
-      if (window.Vimeo && window.Vimeo.Player) { setTimeout(waitForIframe, 100); return; }
+      if (window.Vimeo) { cb(); return; }
       var s = document.createElement('script');
       s.src = 'https://player.vimeo.com/api/player.js';
-      s._t8p = true;
-      s.onload = waitForIframe;
+      s.onload = cb;
       document.head.appendChild(s);
     }
 
@@ -1403,8 +1390,6 @@
     /* ── Vimeo SDK callbacks ── */
     function onVimeoSDKReady() {
       vplayer = new window.Vimeo.Player(document.getElementById('t8p-vp-main'));
-      /* Force muted autoplay on direct page load */
-      vplayer.setMuted(true).then(function(){ vplayer.play().catch(function(){}); });
       vplayer.getDuration().then(function(dur){ _duration = dur; });
       vplayer.on('timeupdate', function(data){
         if (_scrubbing) return;
