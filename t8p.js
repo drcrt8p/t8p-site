@@ -211,7 +211,7 @@
       '@media(max-width:767px){.t8p-btn{width:36px;height:36px}}',
 
       /* Hero */
-      '.t8p-pp-hero{position:fixed;inset:0;width:100%;height:100%}',
+      '.t8p-pp-hero{position:fixed;top:0;left:0;right:0;bottom:34px;width:100%}',
       '#t8p-vp-main{position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;z-index:2}',
       '#t8p-ov{position:absolute;inset:0;z-index:3;cursor:none}',
 
@@ -226,7 +226,7 @@
       '#t8p-scrub-zone{position:fixed;bottom:0;left:0;right:0;z-index:9100;cursor:default;',
       'transition:opacity .5s ease}',
       '.t8p-pp-bar{display:flex;align-items:center;justify-content:space-between;',
-      'padding:10px 24px;background:#c9e6fd}',
+      'height:34px;box-sizing:border-box;padding:0 24px;background:#c9e6fd}',
       '.t8p-pp-t,.t8p-pp-d,.t8p-pp-r{font-size:9px;letter-spacing:.08em;font-weight:400;',
       'text-transform:uppercase;color:#080808;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
       '.t8p-pp-d{text-align:center;flex:1;padding:0 16px}',
@@ -269,9 +269,9 @@
       '.sound-on .t8p-wave4{animation-name:t8p-quiet}',
 
       /* ── Credits panel: slides up from behind bottom bar ── */
-      '#t8p-pp-credits{position:fixed;left:0;right:0;bottom:0;background:#c9e6fd;z-index:9079;transform:translateY(110%);transition:transform .45s cubic-bezier(.4,0,.2,1)}',
+      '#t8p-pp-credits{position:fixed;left:0;right:0;bottom:34px;background:#c9e6fd;z-index:9079;transform:translateY(110%);transition:transform .45s cubic-bezier(.4,0,.2,1)}',
       '#t8p-pp-credits.open{transform:translateY(0)}',
-      '#t8p-credits-inner{padding:14px 48px 48px;box-sizing:border-box}',
+      '#t8p-credits-inner{padding:14px 48px 14px;box-sizing:border-box}',
       '.t8p-credits-title{font-size:8px;letter-spacing:.22em;color:rgba(8,8,8,.4);text-transform:uppercase;margin-bottom:0;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.12);font-weight:400}',
       '.t8p-credit-row{display:flex;align-items:center;gap:0;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.08)}',
       '.t8p-credit-row:last-child{border-bottom:none}',
