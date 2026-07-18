@@ -192,8 +192,7 @@
       /* Topbar */
       '#t8p-pp-wm{position:fixed;top:0;left:0;right:0;z-index:9100;',
       'height:80px;display:flex;align-items:center;justify-content:center;overflow:hidden;',
-      'background:rgba(240,237,230,0.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);',
-      'border-bottom:1px solid rgba(240,237,230,0.08);cursor:pointer;',
+      'background:transparent;cursor:pointer;',
       'transition:opacity .5s ease}',
       '#t8p-pp-wm svg{height:50px!important;width:auto!important;max-height:50px;',
       'flex-shrink:0;display:block;align-self:center}',
