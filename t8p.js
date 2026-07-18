@@ -845,21 +845,18 @@
       var baseCX = gridLeft + col * (cellW + GAP_X) + cellW/2;
       var baseCY = gridTop  + row * (cellH + GAP_Y) + cellH/2;
 
-      /* random jitter within cell — church uses 30% of cell size */
-      /* per-card random offset for organic floating feel */
-      /* jitter scaled to the GAP (not the cell) so panels can never collide:
-         worst-case closure = 2 * 0.28 * GAP < GAP */
-      var jx = (Math.random()-0.5) * GAP_X * 0.56;
-      var jy = (Math.random()-0.5) * GAP_Y * 0.56;
-      /* also add tiny random Z wobble per card */
-      var jz = (Math.random()-0.5) * 60;
+      /* Minimized jitter: barely-visible drift so the diamond reads uniform. */
+      var jx = (Math.random()-0.5) * GAP_X * 0.15;
+      var jy = (Math.random()-0.5) * GAP_Y * 0.15;
+      var jz = (Math.random()-0.5) * 16;
       var px = baseCX + jx;
       var py = baseCY + jy;
 
-      /* Z based on distance from center — center=deepest (concave bowl) */
+      /* Gently-3D Z: subtle depth cue only, so cards read as the same size.
+         Range roughly -40..+40 instead of -500..+500. (David, Jul 2026) */
       var dx = (px - cx) / (W/2), dy = (py - cy) / (H/2);
       var dist = Math.sqrt(dx*dx + dy*dy); /* 0=center, ~1.4=corner */
-      var depthZ = (-500 + dist * 500) + jz; /* center=-500, edges~+200 + per-card wobble */
+      var depthZ = (-40 + dist * 40) + jz;
 
       /* church-style lookAt: card tilts to face center of scene
          angle = atan2(offset, depth) -- deeper Z = stronger tilt */
