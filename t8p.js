@@ -801,7 +801,7 @@
     /* Church-style layout: loose grid with per-cell jitter, Z varies by distance from center */
     var COLS = 5, ROWS = 4;
     /* Every card fits a CARD_BOX square, so a uniform cell = even margins everywhere. */
-    var CARD_BOX = 480;
+    var CARD_BOX = 432;   /* 90% of 480 (David, Jul 2026) */
     var GAP_X = 72, GAP_Y = 64;   /* true edge-to-edge margins */
     var cellW = CARD_BOX, cellH = CARD_BOX;
     /* Grid still wider than viewport so outer panels sit offscreen at rest,
@@ -1019,7 +1019,10 @@
     var MAX_ROT_Y = Math.PI * 0.13;  /* church: 23.4deg horizontal */
     var MAX_ROT_X = Math.PI * 0.08;  /* church: 14.4deg vertical */
     var LERP_C = 0.03;               /* church exact lerp */
-    var PAN = 420;
+    /* Pan far enough to actually reveal the outermost column/row at any
+       viewport or card size: overhang + margin. (David, Jul 2026) */
+    var PAN_X = Math.max(420, (gridW - W)/2 + 90);
+    var PAN_Y = Math.max(252, (gridH - H)/2 + 90);
 
     var tgtX = 0, tgtY = 0;   /* set directly from mouse, no easing */
     var curRX = 0, curRY = 0; /* camera lerps toward target */
@@ -1041,8 +1044,8 @@
 
       var degY = curRY * (180/Math.PI);
       var degX = curRX * (180/Math.PI);
-      var panX = (curRY / MAX_ROT_Y) * PAN;
-      var panY = (curRX / MAX_ROT_X) * (PAN * 0.6);
+      var panX = (curRY / MAX_ROT_Y) * PAN_X;
+      var panY = (curRX / MAX_ROT_X) * PAN_Y;
 
       sphere.style.transform =
         'rotateY('+degY+'deg)' +
