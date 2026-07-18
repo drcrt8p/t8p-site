@@ -269,9 +269,9 @@
       '.sound-on .t8p-wave4{animation-name:t8p-quiet}',
 
       /* ── Credits panel: slides up from behind bottom bar ── */
-      '#t8p-pp-credits{position:fixed;left:0;right:0;bottom:34px;background:#c9e6fd;z-index:9079;transform:translateY(110%);transition:transform .45s cubic-bezier(.4,0,.2,1)}',
+      '#t8p-pp-credits{position:fixed;left:0;right:0;bottom:0;background:#c9e6fd;z-index:9079;transform:translateY(110%);transition:transform .45s cubic-bezier(.4,0,.2,1)}',
       '#t8p-pp-credits.open{transform:translateY(0)}',
-      '#t8p-credits-inner{padding:14px 48px 14px;box-sizing:border-box}',
+      '#t8p-credits-inner{padding:14px 48px 48px;box-sizing:border-box}',
       '.t8p-credits-title{font-size:8px;letter-spacing:.22em;color:rgba(8,8,8,.4);text-transform:uppercase;margin-bottom:0;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.12);font-weight:400}',
       '.t8p-credit-row{display:flex;align-items:center;gap:0;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.08)}',
       '.t8p-credit-row:last-child{border-bottom:none}',
