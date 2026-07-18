@@ -1374,7 +1374,7 @@
       var _dk = document.getElementById('t8p-dock');
       var _dks = _dk ? _dk.querySelector('.t8p-dock-stack') : null;
       if (_dks) { _dks.style.opacity=''; _dks.style.pointerEvents=''; }
-      if (vidCur && !credOpen) { vidCur.style.opacity=''; vidCur.style.pointerEvents=''; }
+      if (vidCur) { vidCur.style.opacity=''; vidCur.style.pointerEvents=''; }
       showUI();
     }
 
@@ -1580,8 +1580,8 @@
           vidCur.classList.remove('on-vid');
         }
 
-        /* Wake on any cursor movement over video */
-        if (onOv || onGrab) wakeUI();
+        /* Wake on ANY mousemove — cursor must stay visible over credits too. */
+        wakeUI();
 
         /* Scrub cursor pos when scrubbing */
         if (_scrubbing) {
