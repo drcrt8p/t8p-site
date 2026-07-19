@@ -1669,10 +1669,15 @@
       var dcard = el('div',{className:'t8p-dock-card'});
       if (pi===0) {
         var dth = el('img');
-        var isYT0 = String(vidsAll[0]).indexOf('yt:')===0;
-        dth.src = isYT0
-          ? 'https://img.youtube.com/vi/'+String(vidsAll[0]).slice(3)+'/mqdefault.jpg'
-          : 'https://vumbnail.com/'+vidsAll[0]+'.jpg';
+        /* Use first gallery image as thumbnail if gimgs is set (David, Jul 2026) */
+        if (gimgs.length) {
+          dth.src = gimgs[0];
+        } else {
+          var isYT0 = String(vidsAll[0]).indexOf('yt:')===0;
+          dth.src = isYT0
+            ? 'https://img.youtube.com/vi/'+String(vidsAll[0]).slice(3)+'/mqdefault.jpg'
+            : 'https://vumbnail.com/'+vidsAll[0]+'.jpg';
+        }
         dth.style.cssText = 'width:100%;height:100%;object-fit:cover;opacity:.85';
         dcard.appendChild(dth);
       }
@@ -1695,12 +1700,11 @@
     var gal = el('div',{id:'t8p-panel-gallery'});
     var hdr = el('div',{id:'t8p-panel-gallery-hdr'});
     var titleEl = el('div',{className:'t8p-galhdr-title'}); titleEl.textContent = title; hdr.appendChild(titleEl);
-    var metaBits = [];
-    if (release) metaBits.push(release);
-    if (desc) metaBits.push(desc);
-    if (metaBits.length) {
+    /* Meta line for woxerpolaroid: just "RELEASED <year>" — d.d intentionally
+       skipped so the description doesn't duplicate the body prose. (David, Jul 2026) */
+    if (release) {
       var metaEl = el('div',{className:'t8p-galhdr-meta'});
-      metaBits.forEach(function(m){ var s=el('span'); s.textContent=m; metaEl.appendChild(s); });
+      var s = el('span'); s.textContent = 'RELEASED ' + release; metaEl.appendChild(s);
       hdr.appendChild(metaEl);
     }
     if (bodyText) {
