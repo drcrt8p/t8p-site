@@ -1819,6 +1819,13 @@
     var _pg = document.getElementById('page');
     var _fl = document.getElementById('t8p-flash');
     if (_fl) _fl.remove(); /* remove the header flash-fix style entirely */
+    /* Also remove the unnamed flash-fix style tag that hides #siteWrapper. */
+    Array.from(document.querySelectorAll('style')).forEach(function(s){
+      var t = s.textContent||'';
+      if (t.indexOf('#siteWrapper') > -1 && t.indexOf('display:none') > -1 && !s.id) {
+        s.remove();
+      }
+    });
 
     /* Only overlay pages that are real video projects in _t8pDATA. Other
        Squarespace pages (nottum, pbpm, contact, drcr, clients, polaroid, bands,
