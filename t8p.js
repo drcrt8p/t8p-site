@@ -369,16 +369,17 @@
       'display:none;align-items:center;justify-content:center}',
       '#t8p-lb.open{display:flex}',
       '#t8p-lb-img{max-width:56vw;max-height:72vh;object-fit:contain;user-select:none;',
-      'display:block}',
+      'display:block;transition:opacity .25s ease}',
+      '#t8p-lb-img.fading{opacity:0}',
       '@media(max-width:900px){#t8p-lb-img{max-width:80vw;max-height:65vh}}',
       '@media(max-width:767px){#t8p-lb-img{max-width:92vw;max-height:60vh}}',
       '#t8p-lb-bar{position:fixed;top:0;left:0;right:0;height:44px;',
       'display:flex;align-items:center;justify-content:space-between;padding:0 24px;',
       'z-index:10001}',
-      '#t8p-lb-close{width:40px;height:40px;border-radius:50%;border:1px solid rgba(201,230,253,.5);',
-      'background:rgba(8,8,8,.6);color:#c9e6fd;font-size:15px;cursor:pointer;',
-      'display:flex;align-items:center;justify-content:center;transition:all .2s}',
-      '#t8p-lb-close:hover{border-color:#c9e6fd;background:rgba(201,230,253,.12)}',
+      '#t8p-lb-close{width:36px;height:36px;border-radius:50%;border:1px solid rgba(201,230,253,.25);',
+      'background:transparent;color:#c9e6fd;font-size:16px;cursor:pointer;',
+      'display:flex;align-items:center;justify-content:center;transition:border-color .2s}',
+      '#t8p-lb-close:hover{border-color:#c9e6fd;background:rgba(201,230,253,.06)}',
       '#t8p-lb-counter{font-family:monospace;font-size:11px;letter-spacing:.15em;',
       'color:rgba(201,230,253,.7)}',
       '.t8p-lb-nav{position:fixed;top:50%;transform:translateY(-50%);',
@@ -1744,10 +1745,33 @@
 
     function lbOpen(idx){
       if (!lb._srcs.length) return;
-      lb._idx = ((idx % lb._srcs.length) + lb._srcs.length) % lb._srcs.length;
-      lbImg.src = lb._srcs[lb._idx];
+      var newIdx = ((idx % lb._srcs.length) + lb._srcs.length) % lb._srcs.length;
+      var isFirst = !lb.classList.contains('open');
+      lb._idx = newIdx;
+      var newSrc = lb._srcs[lb._idx];
       lbCounter.textContent = (lb._idx+1)+' / '+lb._srcs.length;
-      lb.classList.add('open');
+      if (isFirst) {
+        /* Opening from a tile — no fade on the first show */
+        lbImg.classList.remove('fading');
+        lbImg.src = newSrc;
+        lb.classList.add('open');
+      } else {
+        /* Navigating between images — fade out, swap, fade in. */
+        lbImg.classList.add('fading');
+        setTimeout(function(){
+          if (lb._idx !== newIdx) return; /* stale — user clicked again */
+          lbImg.src = newSrc;
+          /* wait for the new image to load before fading back in */
+          if (lbImg.complete && lbImg.naturalWidth > 0) {
+            lbImg.classList.remove('fading');
+          } else {
+            lbImg.addEventListener('load', function onLoad(){
+              lbImg.removeEventListener('load', onLoad);
+              lbImg.classList.remove('fading');
+            }, { once: true });
+          }
+        }, 250);
+      }
     }
     function lbClose_fn(){ lb.classList.remove('open'); }
     lbClose.addEventListener('click', function(e){ e.stopPropagation(); lbClose_fn(); });
