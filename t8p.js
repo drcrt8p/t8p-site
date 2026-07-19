@@ -346,6 +346,20 @@
       '.t8p-panel-tile{position:relative;overflow:hidden;cursor:pointer;background:#111;transition:opacity .2s}',
       '.t8p-panel-tile:hover{opacity:.75}',
       '.t8p-panel-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}',
+      /* ── Woxerpolaroid gallery-style panel (David, Jul 2026) ── */
+      '#t8p-panel-gallery{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 0 60px 0}',
+      '#t8p-panel-gallery-hdr{padding:36px 40px 32px 40px;max-width:900px}',
+      '@media(max-width:767px){#t8p-panel-gallery-hdr{padding:24px 20px 20px 20px}}',
+      '.t8p-galhdr-title{font-size:clamp(22px,2.6vw,36px);font-weight:700;color:#fff;letter-spacing:-.015em;line-height:1.05;margin-bottom:16px}',
+      '.t8p-galhdr-meta{display:flex;gap:20px;flex-wrap:wrap;font-family:monospace;font-size:10px;letter-spacing:.14em;color:rgba(201,230,253,.55);text-transform:uppercase;margin-bottom:16px}',
+      '.t8p-galhdr-body{font-size:14px;line-height:1.65;color:rgba(240,237,230,.7);max-width:640px}',
+      '.t8p-galhdr-body p{margin:0 0 12px 0}',
+      '.t8p-gal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 40px}',
+      '@media(max-width:767px){.t8p-gal-grid{grid-template-columns:1fr;padding:0 20px;gap:8px}}',
+      '.t8p-gal-tile{position:relative;overflow:hidden;cursor:pointer;background:#111;aspect-ratio:1/1;transition:opacity .2s}',
+      '.t8p-gal-tile:hover{opacity:.82}',
+      '.t8p-gal-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}',
+      '.t8p-gal-tile-num{position:absolute;top:12px;left:14px;font-family:monospace;font-size:10px;letter-spacing:.15em;color:#c9e6fd;background:rgba(8,8,8,.7);padding:3px 8px;border-radius:2px;pointer-events:none;z-index:2}',
       /* ── Lightbox ── */
       '#t8p-lb{position:fixed;inset:0;background:#080808;z-index:10000;',
       'display:none;align-items:center;justify-content:center}',
@@ -1366,7 +1380,7 @@
     var hasGallery = !!d.g;
     var vidsAll = vids.slice();
     var hasExtras = vidsAll.length > 1 || hasGallery;
-    if (hasExtras) buildDockPanel(pp, vidsAll, hashes, d, title, desc, release, hasGallery);
+    if (hasExtras) buildDockPanel(pp, vidsAll, hashes, d, title, desc, release, hasGallery, sl);
 
     /* ────────────────────────────────────────
        INTERACTION ENGINE
@@ -1630,9 +1644,146 @@
     }
   }
 
-  function buildDockPanel(pp, vidsAll, hashes, d, title, desc, release, hasGallery) {
+  /* ─────────────────────────────────────────────────────────────
+     WOXERPOLAROID CUSTOM DOCK PANEL (David, Jul 2026)
+     Header (title + meta + body) at top, 2-col full-bleed image grid
+     below. Click tile -> lightbox with prev/next/close.
+     Reuses #t8p-dock, .t8p-dock-stack, .t8p-dock-badge for the stack.
+     Reuses #t8p-dock-panel container styles + topbar + close button.
+     Reuses #t8p-lb lightbox from the base panel (needs to be built here too).
+  ───────────────────────────────────────────────────────────── */
+  function buildDockPanel_woxerpolaroid(pp, vidsAll, d, title, desc, release, bodyText) {
+    var gimgs = (d && d.gimgs) ? d.gimgs.slice() : [];
+
+    /* Dock/fan stack — identical to generic panel (locked behavior). */
+    var dock = el('div',{id:'t8p-dock'});
+    var stack = el('div',{className:'t8p-dock-stack'});
+    for (var pi=0;pi<5;pi++) {
+      var dcard = el('div',{className:'t8p-dock-card'});
+      if (pi===0) {
+        var dth = el('img');
+        var isYT0 = String(vidsAll[0]).indexOf('yt:')===0;
+        dth.src = isYT0
+          ? 'https://img.youtube.com/vi/'+String(vidsAll[0]).slice(3)+'/mqdefault.jpg'
+          : 'https://vumbnail.com/'+vidsAll[0]+'.jpg';
+        dth.style.cssText = 'width:100%;height:100%;object-fit:cover;opacity:.85';
+        dcard.appendChild(dth);
+      }
+      stack.appendChild(dcard);
+    }
+    var badge = el('div',{className:'t8p-dock-badge'});
+    badge.textContent = gimgs.length || vidsAll.length;
+    stack.appendChild(badge); dock.appendChild(stack);
+    document.body.appendChild(dock);
+
+    /* Panel — reuses #t8p-dock-panel container, topbar, close button. */
+    var panel = el('div',{id:'t8p-dock-panel'});
+    var ptop = el('div',{id:'t8p-panel-topbar'});
+    var wmEl = el('div',{id:'t8p-panel-wm'}); wmEl.innerHTML=WM_SVG; ptop.appendChild(wmEl);
+    var closeBtn = el('button',{id:'t8p-panel-close'}); closeBtn.innerHTML='&#x2715;';
+    closeBtn.setAttribute('aria-label','Close panel'); ptop.appendChild(closeBtn);
+    panel.appendChild(ptop);
+
+    /* Scrolling gallery body: header + grid. */
+    var gal = el('div',{id:'t8p-panel-gallery'});
+    var hdr = el('div',{id:'t8p-panel-gallery-hdr'});
+    var titleEl = el('div',{className:'t8p-galhdr-title'}); titleEl.textContent = title; hdr.appendChild(titleEl);
+    var metaBits = [];
+    if (release) metaBits.push(release);
+    if (desc) metaBits.push(desc);
+    if (metaBits.length) {
+      var metaEl = el('div',{className:'t8p-galhdr-meta'});
+      metaBits.forEach(function(m){ var s=el('span'); s.textContent=m; metaEl.appendChild(s); });
+      hdr.appendChild(metaEl);
+    }
+    if (bodyText) {
+      var bodyEl = el('div',{className:'t8p-galhdr-body'});
+      /* Split on double-newline for paragraphs; otherwise one <p>. */
+      bodyText.split(/\n\n+/).forEach(function(para){
+        var p = document.createElement('p'); p.textContent = para; bodyEl.appendChild(p);
+      });
+      hdr.appendChild(bodyEl);
+    }
+    gal.appendChild(hdr);
+
+    /* Grid. */
+    var grid = el('div',{className:'t8p-gal-grid'});
+    gimgs.forEach(function(src, i){
+      var tile = el('div',{className:'t8p-gal-tile'});
+      var num = el('div',{className:'t8p-gal-tile-num'});
+      num.textContent = String(i+1).padStart(2,'0');
+      var img = el('img'); img.src = src; img.loading = 'lazy'; img.alt = title + ' — ' + (i+1);
+      tile.appendChild(img); tile.appendChild(num);
+      tile._idx = i;
+      grid.appendChild(tile);
+    });
+    gal.appendChild(grid);
+    panel.appendChild(gal);
+    document.body.appendChild(panel);
+
+    /* Lightbox — same as generic panel. */
+    var lb = el('div',{id:'t8p-lb'});
+    var lbBar = el('div',{id:'t8p-lb-bar'});
+    var lbCounter = el('div',{id:'t8p-lb-counter'}); lbBar.appendChild(lbCounter);
+    var lbClose = el('button',{id:'t8p-lb-close'}); lbClose.innerHTML='&#x2715;';
+    lbClose.setAttribute('aria-label','Close'); lbBar.appendChild(lbClose);
+    lb.appendChild(lbBar);
+    var lbImg = el('img',{id:'t8p-lb-img'}); lbImg.draggable=false; lb.appendChild(lbImg);
+    var lbPrev = el('button',{id:'t8p-lb-prev',className:'t8p-lb-nav'}); lbPrev.innerHTML='&#8592;';
+    lbPrev.setAttribute('aria-label','Previous'); lb.appendChild(lbPrev);
+    var lbNext = el('button',{id:'t8p-lb-next',className:'t8p-lb-nav'}); lbNext.innerHTML='&#8594;';
+    lbNext.setAttribute('aria-label','Next'); lb.appendChild(lbNext);
+    document.body.appendChild(lb);
+    lb._srcs = gimgs.slice(); lb._idx = 0;
+
+    function lbOpen(idx){
+      if (!lb._srcs.length) return;
+      lb._idx = ((idx % lb._srcs.length) + lb._srcs.length) % lb._srcs.length;
+      lbImg.src = lb._srcs[lb._idx];
+      lbCounter.textContent = (lb._idx+1)+' / '+lb._srcs.length;
+      lb.classList.add('open');
+    }
+    function lbClose_fn(){ lb.classList.remove('open'); }
+    lbClose.addEventListener('click', function(e){ e.stopPropagation(); lbClose_fn(); });
+    lbPrev.addEventListener('click', function(e){ e.stopPropagation(); lbOpen(lb._idx-1); });
+    lbNext.addEventListener('click', function(e){ e.stopPropagation(); lbOpen(lb._idx+1); });
+    lb.addEventListener('click', lbClose_fn);
+    lbImg.addEventListener('click', function(e){ e.stopPropagation(); });
+
+    /* Tile click -> open lightbox at that index. */
+    Array.from(grid.children).forEach(function(tile){
+      tile.addEventListener('click', function(){ lbOpen(tile._idx); });
+    });
+
+    /* Panel open/close (dock stack -> panel; panel close btn -> panel). */
+    var isOpen = false;
+    function openPanel(){ if (isOpen) return; isOpen = true; panel.classList.add('open'); document.body.style.overflow='hidden'; }
+    function closePanel(){ isOpen = false; panel.classList.remove('open'); document.body.style.overflow=''; }
+    stack.addEventListener('click', openPanel);
+    closeBtn.addEventListener('click', closePanel);
+
+    /* Keyboard: Escape closes lightbox, or panel. Arrows navigate lightbox. */
+    document.addEventListener('keydown', function onKey(e){
+      if (!document.getElementById('t8p-pp')) { document.removeEventListener('keydown', onKey); return; }
+      if (e.key === 'Escape'){
+        if (lb.classList.contains('open')) lbClose_fn();
+        else if (isOpen) closePanel();
+      } else if (lb.classList.contains('open')){
+        if (e.key === 'ArrowLeft') lbOpen(lb._idx-1);
+        else if (e.key === 'ArrowRight') lbOpen(lb._idx+1);
+      }
+    });
+  }
+
+  function buildDockPanel(pp, vidsAll, hashes, d, title, desc, release, hasGallery, slug) {
     var bodyText  = d.body || '';
     var disclaimer = d.disclaimer || '';
+
+    /* Per-project custom panels (David, Jul 2026). buildDockPanel_woxerpolaroid
+       replaces the generic two-column layout with a header + 2-col image grid. */
+    if (slug === 'woxerpolaroid') {
+      return buildDockPanel_woxerpolaroid(pp, vidsAll, d, title, desc, release, bodyText);
+    }
 
     /* dock */
     var dock = el('div',{id:'t8p-dock'});
