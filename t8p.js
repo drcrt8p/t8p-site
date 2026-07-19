@@ -1814,8 +1814,10 @@
     var disclaimer = d.disclaimer || '';
 
     /* Per-project custom panels (David, Jul 2026). buildDockPanel_woxerpolaroid
-       replaces the generic two-column layout with a header + 2-col image grid. */
-    if (slug === 'woxerpolaroid') {
+       replaces the generic two-column layout with a header + 4-col image grid.
+       calvinklein reuses the same builder — same structure, just more images
+       so the panel naturally scrolls. */
+    if (slug === 'woxerpolaroid' || slug === 'calvinklein') {
       return buildDockPanel_woxerpolaroid(pp, vidsAll, d, title, desc, release, bodyText);
     }
 
