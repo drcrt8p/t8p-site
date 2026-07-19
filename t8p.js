@@ -1820,7 +1820,13 @@
     var _fl = document.getElementById('t8p-flash');
     if (_fl) _fl.remove(); /* remove the header flash-fix style entirely */
 
-    if (_s && _pp) {
+    /* Only overlay pages that are real video projects in _t8pDATA. Other
+       Squarespace pages (nottum, pbpm, contact, drcr, clients, polaroid, bands,
+       fliphire, rubirose, normal, etc.) render normally without our overlay.
+       (David, Jul 2026) */
+    var _slugData = (window._t8pDATA || {})[_s];
+    var _hasVideo = _slugData && (_slugData.v || []).length > 0;
+    if (_s && _pp && _hasVideo) {
       /* project page */
       buildProject();
     } else if (!_s) {
