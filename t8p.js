@@ -933,6 +933,34 @@
     }
     cells.forEach(positionCell);
 
+    /* Click delegation (David, Jul 2026): 3D preserve-3d transforms break the
+       browser's elementFromPoint hit-testing on tilted cards; native clicks on
+       edge cards land on #t8p-sphere instead of the intended card. We listen
+       on the sphere and route the click to the nearest card whose rect
+       actually contains the cursor. */
+    sphere.addEventListener('click', function(ev){
+      /* If a card caught it natively, do nothing */
+      if (ev.target !== sphere && ev.target.closest && ev.target.closest('.t8p-cell')) return;
+
+      var cx = ev.clientX, cy = ev.clientY;
+      var best = null, bestDist = Infinity;
+      for (var i = 0; i < cells.length; i++) {
+        var c = cells[i];
+        var r = c.getBoundingClientRect();
+        if (cx < r.left || cx > r.right || cy < r.top || cy > r.bottom) continue;
+        var mx = r.left + r.width/2, my = r.top + r.height/2;
+        var dx = cx - mx, dy = cy - my;
+        var d = dx*dx + dy*dy;
+        if (d < bestDist) { bestDist = d; best = c; }
+      }
+      if (best) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        var href = best.getAttribute('href');
+        if (href) window.location.href = href;
+      }
+    });
+
     /* collision relaxation */
     function relax() {
       var n = cells.length;
