@@ -1746,7 +1746,10 @@
     function openPanel(){
       if(isPanelOpen)return; isPanelOpen=true;
       if(hasGallery&&galGrid&&!galGrid.children.length){
-        fetch(location.pathname+'?format=json-pretty')
+        /* Fast path: use direct image URLs from data if provided (David, Jul 2026) */
+        var _directSrcs = (d && d.gimgs && d.gimgs.length) ? d.gimgs.slice() : null;
+        var _srcsPromise = _directSrcs ? Promise.resolve(_directSrcs)
+        : fetch(location.pathname+'?format=json-pretty')
           .then(function(r){return r.json();})
           .catch(function(){return null;})
           .then(function(json){
@@ -1768,13 +1771,16 @@
                 });
             }
             return srcs;
-          })
+          });
+        _srcsPromise
           .then(function(srcs){
             if(!srcs||!srcs.length)return;
             lb._srcs=srcs;
             srcs.forEach(function(src,si){
               var tile=el('div',{className:'t8p-panel-tile'});
-              var timg=el('img',{}); timg.src=src+'?format=750w'; timg.loading='lazy';
+              /* Direct URLs from d.gimgs already point to full images; Squarespace URLs need ?format=750w */
+              var isDirect = _directSrcs !== null;
+              var timg=el('img',{}); timg.src = isDirect ? src : (src+'?format=750w'); timg.loading='lazy';
               tile.appendChild(timg);
               tile.addEventListener('click',function(e){e.stopPropagation();lbOpen(si);});
               galGrid.appendChild(tile);
