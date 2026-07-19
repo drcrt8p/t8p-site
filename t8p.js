@@ -364,6 +364,24 @@
       '.t8p-gal-tile:hover{opacity:.82}',
       '.t8p-gal-tile img{width:100%;height:auto;display:block;order:2}',
       '.t8p-gal-tile-num{order:1;margin-bottom:4px;font-family:monospace;font-size:10px;letter-spacing:.15em;color:rgba(201,230,253,.65);text-align:left;pointer-events:none}',
+      /* ── Micasaestucasa custom panel — 2-column: left (header + YouTube), right (gallery grid) ── */
+      '#t8p-mc-panel-body{flex:1;display:grid;grid-template-columns:1fr 2fr;gap:32px;padding:24px 40px 40px 40px;overflow-y:auto;overflow-x:hidden;min-height:0}',
+      '@media(max-width:960px){#t8p-mc-panel-body{grid-template-columns:1fr;gap:24px;padding:20px 24px 32px 24px}}',
+      '@media(max-width:600px){#t8p-mc-panel-body{padding:16px 20px 24px 20px;gap:20px}}',
+      '#t8p-mc-left{display:flex;flex-direction:column;gap:16px}',
+      '#t8p-mc-hdr{padding-bottom:6px}',
+      '.t8p-mc-title{font-size:clamp(14px,1.8vw,24px);font-weight:700;color:#fff;letter-spacing:-.01em;line-height:1.1;margin-bottom:10px}',
+      '.t8p-mc-meta{display:flex;gap:20px;flex-wrap:wrap;font-family:monospace;font-size:10px;letter-spacing:.14em;color:rgba(201,230,253,.55);text-transform:uppercase;margin-bottom:12px}',
+      '.t8p-mc-body{font-size:14px;line-height:1.65;color:rgba(240,237,230,.7)}',
+      '.t8p-mc-body p{margin:0 0 12px 0}',
+      '.t8p-mc-yt-block{position:relative;width:100%;padding-top:56.25%;border-radius:4px;overflow:hidden;background:#111}',
+      '.t8p-mc-yt-block iframe{position:absolute;inset:0;width:100%;height:100%;border:none}',
+      '#t8p-mc-right{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-content:start}',
+      '@media(max-width:960px){#t8p-mc-right{grid-template-columns:repeat(2,1fr);gap:8px}}',
+      '.t8p-mc-tile{position:relative;overflow:hidden;cursor:pointer;background:#111;transition:opacity .2s}',
+      '.t8p-mc-tile:hover{opacity:.82}',
+      '.t8p-mc-tile img{width:100%;height:auto;display:block}',
+      '.t8p-mc-tile-num{position:absolute;top:8px;left:10px;font-family:monospace;font-size:9px;letter-spacing:.15em;color:#c9e6fd;background:rgba(8,8,8,.7);padding:2px 6px;border-radius:2px;pointer-events:none;z-index:2}',
       /* ── Lightbox ── */
       '#t8p-lb{position:fixed;inset:0;background:#080808;z-index:10000;',
       'display:none;align-items:center;justify-content:center}',
@@ -1652,6 +1670,174 @@
   }
 
   /* ─────────────────────────────────────────────────────────────
+     MICASAESTUCASA CUSTOM DOCK PANEL (David, Jul 2026)
+     Two-column layout: left has header + stacked YouTube episode
+     embeds; right has a 3-col image gallery grid. Click a tile ->
+     lightbox with prev/next/close matching locked style.
+     Data fields used: d.title, d.r, d.body, d.yt (YouTube ID array),
+     d.gimgs (image URLs). No hero video in the panel — Vimeo hero
+     plays underneath as the project page background.
+  ───────────────────────────────────────────────────────────── */
+  function buildDockPanel_micasaestucasa(pp, vidsAll, d, title, desc, release, bodyText) {
+    var gimgs = (d && d.gimgs) ? d.gimgs.slice() : [];
+    var yts   = (d && d.yt)    ? d.yt.slice()    : [];
+
+    /* Dock/fan stack — standard 5 cards with first-image thumbnail. */
+    var dock = el('div',{id:'t8p-dock'});
+    var stack = el('div',{className:'t8p-dock-stack'});
+    for (var pi=0;pi<5;pi++) {
+      var dcard = el('div',{className:'t8p-dock-card'});
+      if (pi===0) {
+        var dth = el('img');
+        if (gimgs.length) {
+          dth.src = gimgs[0];
+        } else if (vidsAll[0]) {
+          var isYT0 = String(vidsAll[0]).indexOf('yt:')===0;
+          dth.src = isYT0
+            ? 'https://img.youtube.com/vi/'+String(vidsAll[0]).slice(3)+'/mqdefault.jpg'
+            : 'https://vumbnail.com/'+vidsAll[0]+'.jpg';
+        }
+        dth.style.cssText = 'width:100%;height:100%;object-fit:cover;opacity:.85';
+        dcard.appendChild(dth);
+      }
+      stack.appendChild(dcard);
+    }
+    var badge = el('div',{className:'t8p-dock-badge'});
+    /* Badge shows total content pieces: YT episodes + images */
+    badge.textContent = (yts.length + gimgs.length) || vidsAll.length;
+    stack.appendChild(badge); dock.appendChild(stack);
+    document.body.appendChild(dock);
+
+    /* Panel container — reuse #t8p-dock-panel styles + topbar + close */
+    var panel = el('div',{id:'t8p-dock-panel'});
+    var ptop = el('div',{id:'t8p-panel-topbar'});
+    var wmEl = el('div',{id:'t8p-panel-wm'}); wmEl.innerHTML=WM_SVG; ptop.appendChild(wmEl);
+    var closeBtn = el('button',{id:'t8p-panel-close'}); closeBtn.innerHTML='&#x2715;';
+    closeBtn.setAttribute('aria-label','Close panel'); ptop.appendChild(closeBtn);
+    panel.appendChild(ptop);
+
+    /* Body: 2-column grid (left header+videos, right image grid) */
+    var body = el('div',{id:'t8p-mc-panel-body'});
+
+    /* Left column */
+    var left = el('div',{id:'t8p-mc-left'});
+    var hdr  = el('div',{id:'t8p-mc-hdr'});
+    var titleEl = el('div',{className:'t8p-mc-title'}); titleEl.textContent = title; hdr.appendChild(titleEl);
+    if (release) {
+      var metaEl = el('div',{className:'t8p-mc-meta'});
+      var s = el('span'); s.textContent = 'RELEASED ' + release; metaEl.appendChild(s);
+      hdr.appendChild(metaEl);
+    }
+    if (bodyText) {
+      var bodyDiv = el('div',{className:'t8p-mc-body'});
+      bodyText.split(/\n\n+/).forEach(function(para){
+        var p = document.createElement('p'); p.textContent = para; bodyDiv.appendChild(p);
+      });
+      hdr.appendChild(bodyDiv);
+    }
+    left.appendChild(hdr);
+
+    /* YouTube blocks — each 16:9 iframe, nocookie */
+    yts.forEach(function(ytId){
+      var block = el('div',{className:'t8p-mc-yt-block'});
+      var ifr = document.createElement('iframe');
+      ifr.src = 'https://www.youtube-nocookie.com/embed/' + ytId + '?rel=0&modestbranding=1';
+      ifr.allow = 'autoplay;fullscreen;encrypted-media';
+      ifr.allowFullscreen = true;
+      block.appendChild(ifr);
+      left.appendChild(block);
+    });
+    body.appendChild(left);
+
+    /* Right column: 3-col image grid */
+    var right = el('div',{id:'t8p-mc-right'});
+    gimgs.forEach(function(src, i){
+      var tile = el('div',{className:'t8p-mc-tile'});
+      var num = el('div',{className:'t8p-mc-tile-num'});
+      num.textContent = String(i+1).padStart(2,'0');
+      var img = el('img'); img.src = src; img.loading = 'lazy'; img.alt = title + ' — ' + (i+1);
+      tile.appendChild(img); tile.appendChild(num);
+      tile._idx = i;
+      right.appendChild(tile);
+    });
+    body.appendChild(right);
+    panel.appendChild(body);
+    document.body.appendChild(panel);
+
+    /* Lightbox — same locked style */
+    var lb = el('div',{id:'t8p-lb'});
+    var lbBar = el('div',{id:'t8p-lb-bar'});
+    var lbCounter = el('div',{id:'t8p-lb-counter'}); lbBar.appendChild(lbCounter);
+    var lbClose = el('button',{id:'t8p-lb-close'}); lbClose.innerHTML='&#x2715;';
+    lbClose.setAttribute('aria-label','Close'); lbBar.appendChild(lbClose);
+    lb.appendChild(lbBar);
+    var lbImg = el('img',{id:'t8p-lb-img'}); lbImg.draggable=false; lb.appendChild(lbImg);
+    var lbPrev = el('button',{id:'t8p-lb-prev',className:'t8p-lb-nav'}); lbPrev.innerHTML='&#8592;';
+    lbPrev.setAttribute('aria-label','Previous'); lb.appendChild(lbPrev);
+    var lbNext = el('button',{id:'t8p-lb-next',className:'t8p-lb-nav'}); lbNext.innerHTML='&#8594;';
+    lbNext.setAttribute('aria-label','Next'); lb.appendChild(lbNext);
+    document.body.appendChild(lb);
+    lb._srcs = gimgs.slice(); lb._idx = 0;
+
+    function lbOpen(idx){
+      if (!lb._srcs.length) return;
+      var newIdx = ((idx % lb._srcs.length) + lb._srcs.length) % lb._srcs.length;
+      var isFirst = !lb.classList.contains('open');
+      lb._idx = newIdx;
+      var newSrc = lb._srcs[lb._idx];
+      lbCounter.textContent = (lb._idx+1)+' / '+lb._srcs.length;
+      if (isFirst) {
+        lbImg.classList.remove('fading');
+        lbImg.src = newSrc;
+        lb.classList.add('open');
+      } else {
+        lbImg.classList.add('fading');
+        setTimeout(function(){
+          if (lb._idx !== newIdx) return;
+          lbImg.src = newSrc;
+          if (lbImg.complete && lbImg.naturalWidth > 0) {
+            lbImg.classList.remove('fading');
+          } else {
+            lbImg.addEventListener('load', function onLoad(){
+              lbImg.removeEventListener('load', onLoad);
+              lbImg.classList.remove('fading');
+            }, { once: true });
+          }
+        }, 250);
+      }
+    }
+    function lbClose_fn(){ lb.classList.remove('open'); }
+    lbClose.addEventListener('click', function(e){ e.stopPropagation(); lbClose_fn(); });
+    lbPrev.addEventListener('click', function(e){ e.stopPropagation(); lbOpen(lb._idx-1); });
+    lbNext.addEventListener('click', function(e){ e.stopPropagation(); lbOpen(lb._idx+1); });
+    lb.addEventListener('click', lbClose_fn);
+    lbImg.addEventListener('click', function(e){ e.stopPropagation(); });
+
+    /* Tile click -> open lightbox at that index. */
+    Array.from(right.children).forEach(function(tile){
+      tile.addEventListener('click', function(){ lbOpen(tile._idx); });
+    });
+
+    /* Panel open/close */
+    var isOpen = false;
+    function openPanel(){ if (isOpen) return; isOpen = true; panel.classList.add('open'); document.body.style.overflow='hidden'; }
+    function closePanel(){ isOpen = false; panel.classList.remove('open'); document.body.style.overflow=''; }
+    stack.addEventListener('click', openPanel);
+    closeBtn.addEventListener('click', closePanel);
+
+    document.addEventListener('keydown', function onKey(e){
+      if (!document.getElementById('t8p-pp')) { document.removeEventListener('keydown', onKey); return; }
+      if (e.key === 'Escape'){
+        if (lb.classList.contains('open')) lbClose_fn();
+        else if (isOpen) closePanel();
+      } else if (lb.classList.contains('open')){
+        if (e.key === 'ArrowLeft') lbOpen(lb._idx-1);
+        else if (e.key === 'ArrowRight') lbOpen(lb._idx+1);
+      }
+    });
+  }
+
+  /* ─────────────────────────────────────────────────────────────
      WOXERPOLAROID CUSTOM DOCK PANEL (David, Jul 2026)
      Header (title + meta + body) at top, 2-col full-bleed image grid
      below. Click tile -> lightbox with prev/next/close.
@@ -1819,6 +2005,9 @@
        so the panel naturally scrolls. */
     if (slug === 'woxerpolaroid' || slug === 'calvinklein') {
       return buildDockPanel_woxerpolaroid(pp, vidsAll, d, title, desc, release, bodyText);
+    }
+    if (slug === 'micasaestucasa') {
+      return buildDockPanel_micasaestucasa(pp, vidsAll, d, title, desc, release, bodyText);
     }
 
     /* dock */
