@@ -364,6 +364,8 @@
       '.t8p-gal-tile:hover{opacity:.82}',
       '.t8p-gal-tile img{width:100%;height:auto;display:block;order:2}',
       '.t8p-gal-tile-num{order:1;margin-bottom:4px;font-family:monospace;font-size:10px;letter-spacing:.15em;color:rgba(201,230,253,.65);text-align:left;pointer-events:none}',
+      /* Masonry variant for mixed portrait/landscape galleries (d.gmasonry, Sep 2026). Order preserved, no gaps, no crops. */
+      '.t8p-gal-grid.t8p-gal-masonry{grid-auto-rows:2px;row-gap:0;align-items:start}',
       /* ── Micasaestucasa custom panel — 2-column: left (header + YouTube), right (gallery grid) ── */
       '#t8p-mc-panel-body{flex:1;display:grid;grid-template-columns:1fr 2fr;gap:32px;padding:24px 40px 40px 40px;overflow-y:auto;overflow-x:hidden;min-height:0}',
       '@media(max-width:960px){#t8p-mc-panel-body{grid-template-columns:1fr;gap:24px;padding:20px 24px 32px 24px}}',
@@ -532,6 +534,13 @@
   /* ──────────────────────────────────────────────────────────
      HELPERS
   ────────────────────────────────────────────────────────── */
+  /* Strip wrapping quotes only when the WHOLE title is quoted. Titles like
+     "BREAK FREE" SPEC FOR CALVIN KLEIN keep both quotes. (Sep 2026) */
+  function cleanTitle(s) {
+    s = String(s == null ? '' : s);
+    if (s.length > 1 && s.charAt(0) === '"' && s.charAt(s.length-1) === '"' && s.indexOf('"', 1) === s.length-1) return s.slice(1, -1);
+    return s;
+  }
   function el(tag, attrs) {
     var e = document.createElement(tag);
     if (attrs) Object.keys(attrs).forEach(function(k){ e[k] = attrs[k]; });
@@ -663,7 +672,7 @@
 
       /* thumbnail img */
       var ph = document.createElement('img');
-      ph.alt = (d.t || sl).replace(/^"|"$/g,'');
+      ph.alt = cleanTitle(d.t || sl);
       if (vids.length > 0) {
         var vid = typeof vids[0] === 'string' ? parseInt(vids[0],10) : vids[0];
         ph.src = 'https://vumbnail.com/' + vid + '.jpg';
@@ -673,7 +682,7 @@
       /* label */
       var lbl = el('div', {className:'t8p-mob-tile-lbl'});
       var nm = el('div', {className:'t8p-mob-tile-name'});
-      nm.textContent = (d.t || sl).replace(/^"|"$/g,'');
+      nm.textContent = cleanTitle(d.t || sl);
       lbl.appendChild(nm);
       tile.appendChild(lbl);
 
@@ -957,7 +966,7 @@
       /* label */
       var lbl = el('div', {className:'t8p-cell-lbl'});
       var d2 = (window._t8pDATA||{})[it.slug];
-      var title = d2 ? (d2.t||it.name).replace(/^\"|\"$/g,'') : it.name;
+      var title = d2 ? cleanTitle(d2.t||it.name) : it.name;
       lbl.innerHTML = '<span class="t8p-cell-name">'+title+'</span><span class="t8p-cell-arr">&#8599;</span>';
       cell.appendChild(lbl);
       sphere.appendChild(cell);
@@ -1170,7 +1179,7 @@
     var DATA = window._t8pDATA || {};
     var sl = location.pathname.replace(/[/]/g,'');
     var d = DATA[sl] || {v:[],t:'',d:'',r:'',c:{}};
-    var title   = (d.t || sl).replace(/^"|"$/g,'');
+    var title   = cleanTitle(d.t || sl);
     var desc    = d.d || '';
     var release = d.r || '';
     var vids    = (d.v || []).map(function(x){ return typeof x==='string'?parseInt(x,10):x; });
@@ -1918,6 +1927,42 @@
     panel.appendChild(gal);
     document.body.appendChild(panel);
 
+    /* Masonry layout (opt-in via d.gmasonry). Shortest-column placement in
+       gallery order using known h/w ratios (d.gratios) so lazy images never
+       collapse the grid. Galleries without the flag are untouched. */
+    if (d && d.gmasonry) {
+      grid.classList.add('t8p-gal-masonry');
+      var gratios = d.gratios || [];
+      var MROW = 2;
+      var layoutMasonry = function(){
+        var cs = getComputedStyle(grid);
+        var cols = cs.gridTemplateColumns.split(' ').filter(Boolean).length || 4;
+        var colGap = parseFloat(cs.columnGap) || 10;
+        var innerW = grid.clientWidth - (parseFloat(cs.paddingLeft)||0) - (parseFloat(cs.paddingRight)||0);
+        if (innerW <= 0) return;
+        var colW = (innerW - colGap*(cols-1)) / cols;
+        var tiles = Array.from(grid.children);
+        var numEl = tiles.length ? tiles[0].querySelector('.t8p-gal-tile-num') : null;
+        var numH = numEl ? (numEl.offsetHeight + 4) : 18;
+        var heights = []; for (var ci=0; ci<cols; ci++) heights.push(0);
+        tiles.forEach(function(t, i){
+          var im = t.querySelector('img');
+          var r = gratios[i] || ((im && im.naturalWidth) ? im.naturalHeight/im.naturalWidth : 1.5);
+          var span = Math.ceil((numH + colW*r + colGap) / MROW);
+          var c = heights.indexOf(Math.min.apply(null, heights));
+          t.style.gridColumn = String(c+1);
+          t.style.gridRow = (heights[c]+1) + ' / span ' + span;
+          heights[c] += span;
+        });
+      };
+      grid._layoutMasonry = layoutMasonry;
+      layoutMasonry();
+      window.addEventListener('resize', function onRz(){
+        if (!document.body.contains(grid)) { window.removeEventListener('resize', onRz); return; }
+        layoutMasonry();
+      });
+    }
+
     /* Lightbox — same as generic panel. */
     var lb = el('div',{id:'t8p-lb'});
     var lbBar = el('div',{id:'t8p-lb-bar'});
@@ -1977,7 +2022,7 @@
 
     /* Panel open/close (dock stack -> panel; panel close btn -> panel). */
     var isOpen = false;
-    function openPanel(){ if (isOpen) return; isOpen = true; panel.classList.add('open'); document.body.style.overflow='hidden'; }
+    function openPanel(){ if (isOpen) return; isOpen = true; panel.classList.add('open'); document.body.style.overflow='hidden'; if (grid._layoutMasonry) grid._layoutMasonry(); }
     function closePanel(){ isOpen = false; panel.classList.remove('open'); document.body.style.overflow=''; }
     stack.addEventListener('click', openPanel);
     closeBtn.addEventListener('click', closePanel);
