@@ -293,7 +293,9 @@
       '@media(max-width:767px){.t8p-btn{width:36px;height:36px}}',
 
       /* ── Dock / folder fan ── */
-      '#t8p-dock{position:fixed;left:18px;top:50%;transform:translateY(-50%);z-index:9150;display:flex;flex-direction:column;gap:0;align-items:center;transition:opacity .4s ease}',
+      '#t8p-dock{position:fixed;left:18px;top:50%;transform:translateY(-50%);z-index:9150;display:flex;flex-direction:column;gap:0;align-items:center;transition:opacity .4s ease,z-index 0s linear .45s}',
+      /* Credits open: dock drops behind the credits panel (9079) right away, and only comes back on top after the panel has slid away (.45s). (David, Sep 2026) */
+      'body.t8p-cred-open #t8p-dock{z-index:9070;transition:opacity .4s ease,z-index 0s linear 0s}',
       '@media(max-width:767px){#t8p-dock{bottom:80px;top:auto;transform:none;left:16px}}',
       '.t8p-dock-stack{position:relative;width:62px;height:62px;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .4s ease}',
       '.t8p-dock-stack:hover{transform:scale(1.06)}',
@@ -355,6 +357,8 @@
       '.t8p-galhdr-title{font-size:clamp(14px,1.8vw,24px);font-weight:700;color:#fff;letter-spacing:-.01em;line-height:1.1;margin-bottom:8px}',
       '.t8p-galhdr-meta{display:flex;gap:20px;flex-wrap:wrap;font-family:monospace;font-size:10px;letter-spacing:.14em;color:rgba(201,230,253,.55);text-transform:uppercase;margin-bottom:0}',
       '.t8p-galhdr-body{font-size:14px;line-height:1.65;color:rgba(240,237,230,.7)}',
+      '.t8p-galhdr-photo a,.t8p-galhdr-photo span{text-transform:none;color:rgba(201,230,253,.85);text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(201,230,253,.35)}',
+      '.t8p-galhdr-photo a:hover{color:#c9e6fd}',
       '.t8p-galhdr-body p{margin:0 0 12px 0}',
       '.t8p-gal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0;max-width:1200px;margin:0 auto;box-sizing:border-box}',
       '@media(max-width:1440px){.t8p-gal-grid{max-width:none;padding:0 24px}}',
@@ -1397,12 +1401,14 @@
     function openCredits() {
       if (!hasCredits) return;
       credOpen = true;
+      document.body.classList.add('t8p-cred-open');
       credPanel.classList.remove('open');
       void credPanel.offsetHeight;
       credPanel.classList.add('open');
     }
     function closeCredits() {
       credOpen = false;
+      document.body.classList.remove('t8p-cred-open');
       if (credPanel) {
         credPanel.classList.remove('open');
         void credPanel.offsetHeight;
@@ -1897,9 +1903,27 @@
     var titleEl = el('div',{className:'t8p-galhdr-title'}); titleEl.textContent = title; hdr.appendChild(titleEl);
     /* Meta line for woxerpolaroid: just "RELEASED <year>" — d.d intentionally
        skipped so the description doesn't duplicate the body prose. (David, Jul 2026) */
-    if (release) {
+    /* Photographer credit (David, Sep 2026): d.gphoto {n, ig} if set, otherwise the
+       STILLS / STILL PHOTO / PHOTOGRAPHY row from the project credits. */
+    var gph = (d && d.gphoto) ? d.gphoto : null;
+    if (!gph && d && d.c) {
+      Object.keys(d.c).some(function(k){
+        if (/^(STILLS?|STILL PHOTO(GRAPHY|GRAPHER)?|PHOTOGRAPHY|PHOTOGRAPHER|PHOTOS)$/.test(k.replace(/\s+$/,'').toUpperCase())) { gph = d.c[k]; return true; }
+        return false;
+      });
+    }
+    if (typeof gph === 'string') gph = {n: gph};
+    if (release || (gph && gph.n)) {
       var metaEl = el('div',{className:'t8p-galhdr-meta'});
-      var s = el('span'); s.textContent = 'RELEASED ' + release; metaEl.appendChild(s);
+      if (release) { var s = el('span'); s.textContent = 'RELEASED ' + release; metaEl.appendChild(s); }
+      if (gph && gph.n) {
+        var ps = el('span'); ps.className = 't8p-galhdr-photo';
+        ps.appendChild(document.createTextNode('PHOTOGRAPHY BY '));
+        var pn = gph.ig ? el('a') : el('span');
+        if (gph.ig) { pn.href = 'https://instagram.com/' + gph.ig; pn.target = '_blank'; pn.rel = 'noopener noreferrer'; }
+        pn.textContent = gph.n;
+        ps.appendChild(pn); metaEl.appendChild(ps);
+      }
       hdr.appendChild(metaEl);
     }
     if (bodyText) {
