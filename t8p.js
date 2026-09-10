@@ -850,12 +850,12 @@
 
     /* Priority = David's ranked 19, center-outward */
     var PRIORITY = [
-      'calvinklein','nike','doritos','woxerpolaroid','microsoft',
-      'micasaestucasa','arena','statefarm','brooklinen',
-      'mauyricky','hers','787coffee','ddlp',
-      'classy101','laboca','rulay',
+      'calvinklein','miumiu','nike','doritos','woxerpolaroid',
+      'microsoft','micasaestucasa','arena','statefarm',
+      'brooklinen','mauyricky','hers','787coffee',
+      'ddlp','classy101','laboca',
       'woxer','reglamento','txtrano'
-    ];
+    ]; /* Sep 2026 (David): miumiu takes Nike's slot, everything shifts one, rulay drops off */
     /* keep only the ranked 19, in rank order */
     items = items.filter(function(it){ return PRIORITY.indexOf(it.slug) >= 0; });
     items.sort(function(a,b){ return PRIORITY.indexOf(a.slug) - PRIORITY.indexOf(b.slug); });
@@ -905,7 +905,7 @@
       var rotZ = (Math.random()-0.5) * 1.2; /* barely-there roll */
 
       /* native aspect ratio -- default 16:9 for video, known 4:3 overrides */
-      /* 4:3 projects */ var RATIO_43  = {woxerpolaroid:1,pbpm:1,rubirose:1,skechers:1,nike:1};
+      /* 4:3 projects */ var RATIO_43  = {woxerpolaroid:1,pbpm:1,rubirose:1,skechers:1,nike:1,miumiu:1};
       /* 9:16 vertical */ var RATIO_916 = {statefarm:1,hers:1};
       var rawRatio  = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || 0;
       var defR;
@@ -2003,7 +2003,7 @@
        replaces the generic two-column layout with a header + 4-col image grid.
        calvinklein reuses the same builder — same structure, just more images
        so the panel naturally scrolls. */
-    if (slug === 'woxerpolaroid' || slug === 'calvinklein') {
+    if (slug === 'woxerpolaroid' || slug === 'calvinklein' || slug === 'miumiu') {
       return buildDockPanel_woxerpolaroid(pp, vidsAll, d, title, desc, release, bodyText);
     }
     if (slug === 'micasaestucasa') {
