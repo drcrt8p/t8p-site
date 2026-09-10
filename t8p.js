@@ -270,6 +270,9 @@
       /* ── Credits panel: slides up from behind bottom bar ── */
       '#t8p-pp-credits{position:fixed;left:0;right:0;bottom:34px;background:#c9e6fd;z-index:9079;transform:translateY(110%);transition:transform .45s cubic-bezier(.4,0,.2,1)}',
       '#t8p-pp-credits.open{transform:translateY(0)}',
+      /* Any length of credits fits (Sep 2026): cap the panel to the space between the top bar (80px) and the bottom bar (34px) and scroll inside it. */
+      '#t8p-pp-credits{max-height:calc(100vh - 114px);max-height:calc(100dvh - 114px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}',
+      '@media(max-width:767px){#t8p-pp-credits{max-height:calc(100vh - 88px);max-height:calc(100dvh - 88px)}}',
       '#t8p-credits-inner{padding:14px 48px 14px;box-sizing:border-box}',
       '.t8p-credits-title{font-size:8px;letter-spacing:.22em;color:rgba(8,8,8,.4);text-transform:uppercase;margin-bottom:0;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.12);font-weight:400}',
       '.t8p-credit-row{display:flex;align-items:center;gap:0;padding:6px 0;border-bottom:1px solid rgba(8,8,8,.08)}',
@@ -359,6 +362,9 @@
       '.t8p-galhdr-body{font-size:14px;line-height:1.65;color:rgba(240,237,230,.7)}',
       '.t8p-galhdr-photo a,.t8p-galhdr-photo span{text-transform:none;color:rgba(201,230,253,.85);text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(201,230,253,.35)}',
       '.t8p-galhdr-photo a:hover{color:#c9e6fd}',
+      /* Phones (Sep 2026): tight wrap for the release + photographer line, and the bottom bar keeps title + date (description hidden so nothing truncates). */
+      '.t8p-galhdr-meta{row-gap:4px}',
+      '@media(max-width:767px){.t8p-galhdr-meta{margin-bottom:10px}.t8p-pp-d{display:none}.t8p-pp-bar{gap:12px}}',
       '.t8p-galhdr-body p{margin:0 0 12px 0}',
       '.t8p-gal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0;max-width:1200px;margin:0 auto;box-sizing:border-box}',
       '@media(max-width:1440px){.t8p-gal-grid{max-width:none;padding:0 24px}}',
@@ -1415,6 +1421,11 @@
       }
     }
     function toggleCredits(){ if(credOpen)closeCredits(); else openCredits(); }
+    if (credPanel) {
+      credPanel.addEventListener('wheel', function(e){
+        if (credOpen && e.deltaY < 0 && credPanel.scrollTop <= 0) { e.preventDefault(); closeCredits(); }
+      }, { passive: false });
+    }
 
     /* ── Dock ── */
     var hasGallery = !!d.g;
@@ -1545,6 +1556,33 @@
     /* ── Click handlers ── */
     ov.addEventListener('click', function(){ handleVideoClick(); });
     vidCur.addEventListener('click', function(){ handleVideoClick(); });
+
+    /* ── Touch (phones/tablets, Sep 2026): swipe up opens credits, swipe down closes,
+       tap the bottom bar toggles them, any touch wakes the UI so the dock shows. ── */
+    (function(){
+      var tY = null, tX = null, tInCred = false, tOnBar = false;
+      function onTS(e){
+        var t = e.touches[0]; tY = t.clientY; tX = t.clientX;
+        tInCred = !!(credPanel && credPanel.contains(e.target));
+        tOnBar = !!(e.target.closest && e.target.closest('#t8p-scrub-zone'));
+        wakeUI();
+      }
+      function onTE(e){
+        if (tY === null) return;
+        var t = e.changedTouches[0], dy = t.clientY - tY, dx = t.clientX - tX; tY = null;
+        if (!hasCredits) return;
+        if (tOnBar && Math.abs(dy) < 10 && Math.abs(dx) < 10) { if (e.cancelable) e.preventDefault(); toggleCredits(); return; }
+        if (Math.abs(dy) < 40 || Math.abs(dy) < Math.abs(dx)) return;
+        if (dy < 0 && !credOpen && !tInCred) openCredits();
+        else if (dy > 0 && credOpen && (!tInCred || credPanel.scrollTop <= 0)) closeCredits();
+      }
+      pp.addEventListener('touchstart', onTS, { passive: true });
+      pp.addEventListener('touchend', onTE, { passive: false });
+      if (credPanel) {
+        credPanel.addEventListener('touchstart', onTS, { passive: true });
+        credPanel.addEventListener('touchend', onTE, { passive: false });
+      }
+    })();
 
     /* ── Keyboard ── */
     document.addEventListener('keydown', function onKey(e){
