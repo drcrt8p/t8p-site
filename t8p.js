@@ -785,7 +785,10 @@
         var vid = typeof vids[0]==='string'?parseInt(vids[0],10):vids[0];
         var hasPrivateHash = d.h && d.h[String(vids[0])];
         var img = cell.querySelector('img');
-        if (img) {
+        if (img && d.th) {
+          /* explicit poster override (Oct 2026): keeps 4:3 posters like Gap uncropped */
+          img.src = d.th;
+        } else if (img) {
           if (hasPrivateHash) {
             /* Private video -- vumbnail returns folder icon, scrape page instead */
             setTimeout(function(){ fetchThumb(cell, slug); }, i * 80);
