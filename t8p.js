@@ -871,7 +871,7 @@
     var PRIORITY = [
       'calvinklein','miumiu','nike','doritos','woxerpolaroid',
       'microsoft','micasaestucasa','arena','statefarm',
-      'brooklinen','mauyricky','hers','787coffee',
+      'gap','mauyricky','hers','787coffee',
       'ddlp','classy101','laboca',
       'woxer','reglamento','txtrano'
     ]; /* Sep 2026 (David): miumiu takes Nike's slot, everything shifts one, rulay drops off */
@@ -924,7 +924,7 @@
       var rotZ = (Math.random()-0.5) * 1.2; /* barely-there roll */
 
       /* native aspect ratio -- default 16:9 for video, known 4:3 overrides */
-      /* 4:3 projects */ var RATIO_43  = {woxerpolaroid:1,pbpm:1,rubirose:1,skechers:1,nike:1,miumiu:1};
+      /* 4:3 projects */ var RATIO_43  = {woxerpolaroid:1,pbpm:1,rubirose:1,skechers:1,nike:1,miumiu:1,gap:1};
       /* 9:16 vertical */ var RATIO_916 = {statefarm:1,hers:1};
       var rawRatio  = (window._t8pRATIOS && window._t8pRATIOS[it.slug]) || 0;
       var defR;
